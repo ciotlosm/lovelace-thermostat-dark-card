@@ -1,8 +1,17 @@
 .card {
-    margin: auto;
-    padding-top: 0em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right:1em;
-    position: relative;
-  }
+  margin: auto;
+  padding-top: 0em;
+  padding-bottom: 1em;
+  padding-left: 1em;
+  padding-right:1em;
+  position: relative;
+}
+.monster-item {
+  padding-bottom: 1em;
+}
+.entity {
+  padding-left: 5px;
+}
+.state {
+  float: right;
+}

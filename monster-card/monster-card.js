@@ -49,7 +49,7 @@ class MonsterCard extends HTMLElement {
 
         Object.values(hass.states).forEach((stateObj) => {
           if (filters.every(filterFunc => filterFunc(stateObj))) {
-            entities.add(stateObj.entity_id);
+            entities.add(stateObj);
           }
         });
       });
@@ -61,13 +61,13 @@ class MonsterCard extends HTMLElement {
       const excludeEntities = _getEntities(this.config.filter.exclude);
       entitiesList = entitiesList.filter(el => !excludeEntities.includes(el));
     }
-
-
+    entitiesList = entitiesList.sort(function(a, b) {return a.entity_id.localeCompare(b.entity_id)});
     this.content.innerHTML = `
       <div>
-        ${entitiesList.map(entity => `
-          <div>
-            ${entity}
+        ${entitiesList.map(entity=>
+          `
+          <div class="monster-item">
+            <ha-icon icon="${entity.attributes.icon? `${entity.attributes.icon}`: ``}"></ha-icon><span class="entity">${entity.entity_id}</span><span class="state">${entity.state}</span>
           </div>
         `).join('')}
       </div>
