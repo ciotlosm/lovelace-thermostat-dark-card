@@ -1,4 +1,4 @@
-const _filterEntityId = function (stateObj, pattern) {
+function _filterEntityId(stateObj, pattern) {
   if (pattern.indexOf('*') === -1) {
     return stateObj.entity_id === pattern;
   }
@@ -6,23 +6,12 @@ const _filterEntityId = function (stateObj, pattern) {
   return stateObj.entity_id.search(regEx) === 0;
 }
 
-const computeDomain = function (entityId) {
-  return entityId.substr(0, entityId.indexOf('.'));
-}
-
-const computeStateDomain = function (stateObj) {
-  if (!stateObj._domain) {
-    stateObj._domain = computeDomain(stateObj.entity_id);
-  }
-  return stateObj._domain;
-}
-
-const _getEntities = function (hass, filters) {
+function _getEntities(hass, filters) {
   const entities = new Set();
   filters.forEach((filter) => {
     const filters = [];
     if (filter.domain) {
-      filters.push(stateObj => computeStateDomain(stateObj) === filter.domain);
+      filters.push(stateObj => stateObj.entity_id.split('.', 1)[0] === filter.domain);
     }
     if (filter.entity_id) {
       filters.push(stateObj => _filterEntityId(stateObj, filter.entity_id));
@@ -41,45 +30,43 @@ const _getEntities = function (hass, filters) {
 }
 
 class MonsterCard extends HTMLElement {
-
-  set hass(hass) {
-    if (!this.card) {
-      this.card = document.createElement(`hui-${this.config.card.type}-card`);
-      this.appendChild(this.card);
-    }
-
-    let entitiesList = _getEntities(hass, this.config.filter.include);
-    if (this.config.filter.exclude) {
-      const excludeEntities = _getEntities(hass, this.config.filter.exclude);
-      entitiesList = entitiesList.filter(el => !excludeEntities.includes(el));
-    }
-    entitiesList = entitiesList.sort();
-    if (!this.entities || JSON.stringify(entitiesList) !== JSON.stringify(this.entities)) {
-      this.entities = entitiesList;
-      this.config.card.entities = this.entities;
-      this.card.setConfig(this.config.card);
-    }
-    this.card.hass = hass;
-
-  }
-
   setConfig(config) {
     if (!config.filter.include || !Array.isArray(config.filter.include)) {
       throw new Error('Please define filters');
     }
 
-    if (!config.card) {
-      config.card = {};
-    }
+    if (this.lastChild) this.removeChild(this.lastChild);
 
-    if (!config.card.type || !['glance', 'entities'].includes(config.card.type)) {
-      config.card.type = 'entities';
-    }
+    const cardConfig = Object.assign({}, config);
+    if (!cardConfig.card) cardConfig.card = {};
+    if (!cardConfig.card.type) cardConfig.type = 'entities';
 
-    this.config = config;
+    const element = document.createElement(`hui-${cardConfig.card.type}-card`);
+    this.appendChild(element);
+
+    this._config = cardConfig;
   }
+
+  set hass(hass) {
+    const config = this._config;
+    let entities = _getEntities(hass, config.filter.include);
+    if (config.filter.exclude) {
+      const excludeEntities = _getEntities(hass, config.filter.exclude);
+      entities = entities.filter(entity => !excludeEntities.includes(entity));
+    }
+    entities.sort();
+
+    if (!config.card.entities || config.card.entities.length !== entities.length ||
+        !config.card.entities.every((value, index) => value === entities[index])) {
+      config.card.entities = entities;
+      this.lastChild.setConfig(config.card);
+    }
+
+    this.lastChild.hass = hass;
+  }
+
   getCardSize() {
-    return 1;
+    return 'getCardSize' in this.lastChild ? this.lastChild.getCardSize() : 1;
   }
 }
 
