@@ -28,7 +28,7 @@ Filter options for `include` and `exclude`:
   card: glance
   filter:
     include:
-      - [{}]
+      - []
     exclude:
       - entity_id: "*yweather*"
       - domain: group
