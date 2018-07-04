@@ -54,13 +54,15 @@ class MonsterCard extends HTMLElement {
       entitiesList = entitiesList.filter(el => !excludeEntities.includes(el));
     }
     entitiesList = entitiesList.sort();
-
-    this.card.hass = hass;
-    const options = {
-      title: this.config.title,
-      entities: entitiesList,
+    if (!this.entities || JSON.stringify(entitiesList) !== JSON.stringify(this.entities)) {
+      this.entities = entitiesList;
+      this.card.setConfig({
+        title: this.config.title,
+        entities: this.entities,
+      });
     }
-    this.card.setConfig(options);
+    this.card.hass = hass;
+
   }
 
   setConfig(config) {
