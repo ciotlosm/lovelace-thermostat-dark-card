@@ -44,7 +44,7 @@ class MonsterCard extends HTMLElement {
 
   set hass(hass) {
     if (!this.card) {
-      this.card = document.createElement(`hui-${this.config.card}-card`);
+      this.card = document.createElement(`hui-${this.config.card.type}-card`);
       this.appendChild(this.card);
     }
 
@@ -56,10 +56,8 @@ class MonsterCard extends HTMLElement {
     entitiesList = entitiesList.sort();
     if (!this.entities || JSON.stringify(entitiesList) !== JSON.stringify(this.entities)) {
       this.entities = entitiesList;
-      this.card.setConfig({
-        title: this.config.title,
-        entities: this.entities,
-      });
+      this.config.card.entities = this.entities;
+      this.card.setConfig(this.config.card);
     }
     this.card.hass = hass;
 
@@ -69,8 +67,8 @@ class MonsterCard extends HTMLElement {
     if (!config.filter.include || !Array.isArray(config.filter.include)) {
       throw new Error('Please define filters');
     }
-    if (!config.card || !['glance', 'entities'].includes(config.card)) {
-      config.card = 'entities';
+    if (!config.card || !config.card.type || !['glance', 'entities'].includes(config.card.type)) {
+      config.card.type = 'entities';
     }
 
     this.config = config;

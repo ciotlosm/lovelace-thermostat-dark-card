@@ -9,9 +9,16 @@ Supports both inclusion and exclusion filters with wildcard for entity_ids.
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:monster-card`
-| title | string | optional | Title of card
-| card | string | optional | Type of card `glance` or `entities`
+| card | object | **Required** | Card object 
 | filter | object | **Required** | `include` and `exclude` sections
+
+Card object
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| type | string | **Required** | A type of card (ex.`glance`) from lovelace
+| title | object | optional | Title of the card
+| ... | other | optional | Other parameters supported by card type above
 
 Filter options for `include` and `exclude`:
 
@@ -21,16 +28,17 @@ Filter options for `include` and `exclude`:
 | state | string | Optional | Match entities that match state. Note, in YAML, make sure you wrap it in quotes to make sure it is parsed as a string.
 | entity_id | string | Optional | Filter entities by id, supports wildcards (`*living_room*`)
 
-
 **Example**
 
 ```yaml
 - type: "custom:monster-card"
-  title: Monster
-  card: glance
+  card:
+    type: glance
+    title: Monster
   filter:
     include: [{}]
     exclude:
       - entity_id: "*yweather*"
       - domain: group
+      - domain: zone
 ```
