@@ -7,6 +7,7 @@ Example config:
 ```yaml
 - type: "custom:monster-card"
   title: Monster
+  card: glance
   filter:
     include:
       - [{}]
