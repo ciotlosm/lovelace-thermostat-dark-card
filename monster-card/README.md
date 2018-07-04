@@ -2,7 +2,7 @@
 
 Also known as `entity-filter` copycat on steroids. It currently supports only `entities` card type and ordering is not yet implemented.
 
-*Options**
+**Options**
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
@@ -20,7 +20,7 @@ Filter options for `include` and `exclude`:
 | entity_id | string | Optional | Filter entities by id, supports wildcards (`*living_room*`)
 
 
-Example config:
+**Example**
 
 ```yaml
 - type: "custom:monster-card"
