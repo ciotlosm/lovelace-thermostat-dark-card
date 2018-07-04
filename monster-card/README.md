@@ -29,8 +29,7 @@ Filter options for `include` and `exclude`:
   title: Monster
   card: glance
   filter:
-    include:
-      - []
+    include: [{}]
     exclude:
       - entity_id: "*yweather*"
       - domain: group
