@@ -17,4 +17,5 @@ resources:
 - Configure the new card inside `ui-lovelace.yaml` according to the instructions provided
 
 ## Credits
-[@ciotlosm](https://github.com/ciotlosm)
+- [@ciotlosm](https://github.com/ciotlosm)
+- [@c727](https://github.com/c727)
