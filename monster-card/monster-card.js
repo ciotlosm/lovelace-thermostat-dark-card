@@ -65,8 +65,12 @@ class MonsterCard extends HTMLElement {
 
   setConfig(config) {
     if (!config.filter.include || !Array.isArray(config.filter.include)) {
-      throw new Error('Please define entities');
+      throw new Error('Please define filters');
     }
+    if (!config.card || !['glance', 'entities'].includes(config.card)) {
+      config.card = 'entities';
+    }
+
     this.config = config;
   }
   getCardSize() {
