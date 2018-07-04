@@ -1,6 +1,8 @@
 # Monster card
 
-Also known as `entity-filter` copycat on steroids. It currently supports only `entities` card type and ordering is not yet implemented.
+Monster card is a magical type of card. Because it's dynamic if you're smart about it, you can have one card that adapts and that you don't need to touch when adding new entities & sensors to your setup.
+
+Supports both inclusion and exclusion filters with wildcard for entity_ids.
 
 **Options**
 
