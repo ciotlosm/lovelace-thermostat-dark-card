@@ -3,12 +3,14 @@ Custom cards for lovelace
 
 ## How to use
 
-- Copy the `js` file from inside the card folder you like inside you `config/www`
-- Add the `js` file as dependency inside you `ui-lovelace.yaml`
+- Copy the `js` file from inside the card folder you like (e.g. monster-card), inside your `config/www`
+- Add the `js` file as dependency inside your `ui-lovelace.yaml`
+
+Example:
 
 ```yaml
 resources:
-  - url: /local/<card>.js
+  - url: /local/monster-card.js
     type: js
 ```
 
