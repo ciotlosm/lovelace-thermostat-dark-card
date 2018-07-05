@@ -116,7 +116,7 @@ class GaugeCard extends HTMLElement {
     const entityState = hass.states[config.entity].state;
     const measurement = hass.states[config.entity].attributes.unit_of_measurement;
 
-    if (!config.entity || entityState !== this._entityState) {
+    if (entityState !== this._entityState) {
       this.lastChild.shadowRoot.getElementById("percent").textContent = `${entityState} ${measurement}`;
       this.lastChild.shadowRoot.getElementById("title").textContent = config.title;
       const turn = translateTurn(entityState, config)/10;

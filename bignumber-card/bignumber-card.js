@@ -49,7 +49,7 @@ class BigNumberCard extends HTMLElement {
     const entityState = hass.states[config.entity].state;
     const measurement = hass.states[config.entity].attributes.unit_of_measurement;
 
-    if (!config.entity || entityState !== this._entityState) {
+    if (entityState !== this._entityState) {
       this.lastChild.shadowRoot.getElementById("value").textContent = `${entityState} ${measurement}`;
       this._entityState = entityState
     }
