@@ -6,7 +6,7 @@ A simple gauge implemented in CSS based on https://github.com/JohnrBell/Gauge_CS
 - [ ] Default title to entity friendly name
 - [ ] Transform measurement based on user settings
 
-![gauge-card](https://user-images.githubusercontent.com/7738048/42317025-080c6d38-8054-11e8-83c9-4887480d78f4.png)
+![gauge-card](https://user-images.githubusercontent.com/7738048/42317998-73070c5e-8056-11e8-8621-49c61b5b7be5.gif)
 
 **Options**
 
