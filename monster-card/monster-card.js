@@ -39,7 +39,7 @@ class MonsterCard extends HTMLElement {
 
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.card) cardConfig.card = {};
-    if (!cardConfig.card.type) cardConfig.type = 'entities';
+    if (!cardConfig.card.type) cardConfig.card.type = 'entities';
 
     const element = document.createElement(`hui-${cardConfig.card.type}-card`);
     this.appendChild(element);
