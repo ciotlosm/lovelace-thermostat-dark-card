@@ -31,7 +31,7 @@ Filter options for `include` and `exclude`:
 **Example**
 
 ```yaml
-- type: "custom:monster-card"
+- type: custom:monster-card
   card:
     type: glance
     title: Monster

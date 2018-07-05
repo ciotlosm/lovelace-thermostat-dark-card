@@ -12,7 +12,7 @@ A simple gauge implemented in CSS based on https://github.com/JohnrBell/Gauge_CS
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| type | string | **Required** | `custom:monster-card`
+| type | string | **Required** | `custom:gauge-card`
 | title | string | optional | Name to display on card
 | entity | string | **Required** | `sensor.my_temperature`
 | min | number | 0 | Minimum value for graph
