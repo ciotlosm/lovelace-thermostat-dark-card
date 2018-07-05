@@ -19,7 +19,15 @@ A simple gauge implemented in CSS based on https://github.com/JohnrBell/Gauge_CS
 | min | number | 0 | Minimum value for graph
 | max | number | 100 | Maximum value for graph
 | scale | string | '50px' | Base value for graph visual size
+| severity | object | optional | Severity object. See below
 
+Severity object
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| red | number | **Required** | Value from which to start red color
+| green | number | **Required** | Value from which to start green color
+| amber | number | **Required** | Value from which to start amber color
 
 **Example**
 
@@ -34,4 +42,8 @@ A simple gauge implemented in CSS based on https://github.com/JohnrBell/Gauge_CS
     - type: custom:gauge-card
       title: Oil
       entity: sensor.my_oil_sensor
+        severity:
+          red: 50
+          green: 0
+          amber: 40
 ```
