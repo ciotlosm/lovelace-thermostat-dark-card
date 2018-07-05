@@ -52,21 +52,21 @@ function _updateStyle(element, scale) {
     .gauge-data{
       z-index: 4;
       color: var(--primary-text-color);
-      line-height: calc(var(--base-unit) * 0.25);
+      line-height: calc(var(--base-unit) * 0.3);
       position: absolute;
       width: calc(var(--base-unit) * 4);
-      height: calc(var(--base-unit) * 2);
+      height: calc(var(--base-unit) * 2.1);
       top: calc(var(--base-unit) * 1.3);
       margin-left: auto;
       margin-right: auto;
       transition: all 1s ease-out;
     }
     .gauge-data #percent{
-      font-size: 1.5em;
+      font-size: calc(var(--base-unit) * 0.55);
     }
     .gauge-data #title{
-      padding-top: 10px;
-      font-size: 0.9em;
+      padding-top: calc(var(--base-unit) * 0.15);
+      font-size: calc(var(--base-unit) * 0.30);
     }
   `;
 }
