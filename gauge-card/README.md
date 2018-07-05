@@ -42,8 +42,8 @@ Severity object
     - type: custom:gauge-card
       title: Oil
       entity: sensor.my_oil_sensor
-        severity:
-          red: 50
-          green: 0
-          amber: 40
+      severity:
+        red: 50
+        green: 0
+        amber: 40
 ```
