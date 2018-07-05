@@ -56,7 +56,7 @@ function _updateStyle(element, scale) {
       position: absolute;
       width: calc(var(--base-unit) * 4);
       height: calc(var(--base-unit) * 2.1);
-      top: calc(var(--base-unit) * 1.3);
+      top: calc(var(--base-unit) * 1.2);
       margin-left: auto;
       margin-right: auto;
       transition: all 1s ease-out;
