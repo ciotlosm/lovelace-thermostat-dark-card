@@ -9,6 +9,9 @@ A simple gauge implemented in CSS based on https://github.com/JohnrBell/Gauge_CS
 
 ![gauge-card](https://user-images.githubusercontent.com/7738048/42317998-73070c5e-8056-11e8-8621-49c61b5b7be5.gif)
 
+![bedroom-temperature](https://user-images.githubusercontent.com/7738048/42344596-806b4a82-80a5-11e8-8e92-9077ad749dfe.gif)
+
+
 **Options**
 
 | Name | Type | Default | Description
