@@ -27,8 +27,13 @@ Filter options for `include` and `exclude`:
 | domain | string | optional | Filter all entities that match the domain
 | state | string | optional | Match entities that match state. Note, in YAML, make sure you wrap it in quotes to make sure it is parsed as a string.
 | entity_id | string | optional | Filter entities by id, supports wildcards (`*living_room*`)
-| attr | string | optional | Filter entities by attribute (needs `attr_value` to be set as well)
-| attr_value | string | optional | Value to use for filtering `attr`
+| attributes | object | optional | Filter entities by attributes object
+
+Attributes object
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| * | any | optional | Any type of attribute that your entity can have (`battery: 50`)
 
 **Example**
 
@@ -56,6 +61,7 @@ Show all in `device_tracker` with battery at 53:
   filter:
     include:
       - domain: device_tracker
-        attr: battery
-        attr_value: 53
+        attributes:
+          battery: 53
+          source_type: gps
 ```
