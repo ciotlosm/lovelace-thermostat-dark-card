@@ -24,12 +24,15 @@ Filter options for `include` and `exclude`:
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| domain | string | Optional | Filter all entities that match the domain
-| state | string | Optional | Match entities that match state. Note, in YAML, make sure you wrap it in quotes to make sure it is parsed as a string.
-| entity_id | string | Optional | Filter entities by id, supports wildcards (`*living_room*`)
+| domain | string | optional | Filter all entities that match the domain
+| state | string | optional | Match entities that match state. Note, in YAML, make sure you wrap it in quotes to make sure it is parsed as a string.
+| entity_id | string | optional | Filter entities by id, supports wildcards (`*living_room*`)
+| attr | string | optional | Filter entities by attribute (needs `attr_value` to be set as well)
+| attr_value | string | optional | Value to use for filtering `attr`
 
 **Example**
 
+Show all with some exceptions:
 ```yaml
 - type: custom:monster-card
   card:
@@ -41,4 +44,18 @@ Filter options for `include` and `exclude`:
       - entity_id: "*yweather*"
       - domain: group
       - domain: zone
+```
+
+Show all in `device_tracker` with battery at 53:
+
+```yaml
+- type: custom:monster-card
+  card:
+    type: glance
+    title: Monster
+  filter:
+    include:
+      - domain: device_tracker
+        attr: battery
+        attr_value: 53
 ```
