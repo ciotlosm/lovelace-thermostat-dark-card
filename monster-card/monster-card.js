@@ -40,11 +40,11 @@ class MonsterCard extends HTMLElement {
       throw new Error('Please define filters');
     }
 
-    config.card.entities = [];
     if (this.lastChild) this.removeChild(this.lastChild);
 
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.card) cardConfig.card = {};
+    if (config.card.entities) config.card.entities = [];
     if (!cardConfig.card.type) cardConfig.card.type = 'entities';
 
     const element = document.createElement(`hui-${cardConfig.card.type}-card`);
