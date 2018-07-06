@@ -40,6 +40,7 @@ class MonsterCard extends HTMLElement {
       throw new Error('Please define filters');
     }
 
+    config.card.entities = [];
     if (this.lastChild) this.removeChild(this.lastChild);
 
     const cardConfig = Object.assign({}, config);
@@ -64,8 +65,8 @@ class MonsterCard extends HTMLElement {
     if (!config.card.entities || config.card.entities.length !== entities.length ||
         !config.card.entities.every((value, index) => value === entities[index])) {
       config.card.entities = entities;
+      this.lastChild.setConfig(config.card);
     }
-    this.lastChild.setConfig(config.card);
     this.lastChild.hass = hass;
   }
 
