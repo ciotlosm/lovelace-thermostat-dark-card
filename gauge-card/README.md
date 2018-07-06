@@ -34,6 +34,7 @@ Severity object
 
 **Example**
 
+Using two with stack
 ```yaml
 - type: horizontal-stack
   cards:
@@ -49,4 +50,11 @@ Severity object
         red: 50
         green: 0
         amber: 40
+```
+
+Simple one
+```yaml
+- type: custom:gauge-card
+  entity: sensor.my_oil_sensor
+  scale: 100px
 ```
