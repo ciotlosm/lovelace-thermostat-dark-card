@@ -33,7 +33,7 @@ Attributes object
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| * | any | optional | Any type of attribute that your entity can have (`battery: 50`)
+| * | any | **Required** | Any type of attribute that your entity can have (`battery: 50`)
 
 **Example**
 
