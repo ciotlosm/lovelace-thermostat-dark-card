@@ -14,7 +14,7 @@ A simple card to display a big number
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| type | string | **Required** | `custom:gauge-card`
+| type | string | **Required** | `custom:bignumber-card`
 | title | string | optional | Name to display on card
 | entity | string | **Required** | `sensor.my_temperature`
 
