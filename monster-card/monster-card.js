@@ -13,6 +13,9 @@ function _getEntities(hass, filters) {
     if (filter.domain) {
       filters.push(stateObj => stateObj.entity_id.split('.', 1)[0] === filter.domain);
     }
+    if (filter.attr) {
+      filters.push(stateObj => stateObj.attributes[filter.attr] === filter.attr_value);
+    }
     if (filter.entity_id) {
       filters.push(stateObj => _filterEntityId(stateObj, filter.entity_id));
     }
