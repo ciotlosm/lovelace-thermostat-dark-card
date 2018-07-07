@@ -65,6 +65,7 @@ class MonsterCard extends HTMLElement {
       this.style.display = 'none';
       return;
     }
+    this.style.display = 'block';
 
     entities.sort();
 
