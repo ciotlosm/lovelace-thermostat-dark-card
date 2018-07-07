@@ -11,6 +11,7 @@ Supports both inclusion and exclusion filters with wildcard for entity_ids.
 | type | string | **Required** | `custom:monster-card`
 | card | object | **Required** | Card object 
 | filter | object | **Required** | `include` and `exclude` sections
+| show_empty | boolean | false | Show/hide empty card
 
 Card object
 
