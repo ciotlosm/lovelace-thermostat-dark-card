@@ -5,6 +5,11 @@ function _updateStyle(element, scale) {
       height: calc(var(--base-unit)*3);
       position: relative;
     }
+    ha-card {
+      --base-unit: ${scale};
+      height: calc(var(--base-unit)*3);
+      position: relative;
+    }
     .container{
       width: calc(var(--base-unit) * 4);
       height: calc(var(--base-unit) * 2);
