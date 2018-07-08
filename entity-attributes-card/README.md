@@ -2,7 +2,7 @@
 
 Entity attributes allows you to show basic attributes for an entity in a card. 
 
-![enitty-attributes-card]("https://user-images.githubusercontent.com/7738048/42425143-1269d5d4-8321-11e8-8a42-136aefb2220a.png")
+![enitty-attributes-card](https://user-images.githubusercontent.com/7738048/42425143-1269d5d4-8321-11e8-8a42-136aefb2220a.png)
 
 **Options**
 
