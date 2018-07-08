@@ -61,7 +61,7 @@ class MonsterCard extends HTMLElement {
       entities = entities.filter(entity => !excludeEntities.includes(entity));
     }
 
-    if (entities.length === 0 && config.show_empty !== true) {
+    if (entities.length === 0 && config.show_empty === false) {
       this.style.display = 'none';
     } else {
       this.style.display = 'block';
