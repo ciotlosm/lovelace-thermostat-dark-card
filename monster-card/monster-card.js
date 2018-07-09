@@ -5,8 +5,18 @@ class MonsterCard extends HTMLElement {
       if (pattern.indexOf('*') === -1) {
         return stateObj.entity_id === pattern;
       }
-      const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`);
+      const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`, 'i');
       return stateObj.entity_id.search(regEx) === 0;
+    }
+    function _filterName(stateObj, pattern) {
+      let compareEntity = stateObj.attributes.title?stateObj.attributes.title:stateObj.attributes.friendly_name;
+      if (!compareEntity) compareEntity = stateObj.entity_id;
+      if (pattern.indexOf('*') === -1) {
+        return compareEntity === pattern;
+      }
+      const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`, 'i');
+      console.log(compareEntity, regEx);
+      return compareEntity.search(regEx) === 0;
     }
     const entities = new Set();
     filters.forEach((filter) => {
@@ -21,6 +31,9 @@ class MonsterCard extends HTMLElement {
       }
       if (filter.entity_id) {
         filters.push(stateObj => _filterEntityId(stateObj, filter.entity_id));
+      }
+      if (filter.name) {
+        filters.push(stateObj => _filterName(stateObj, filter.name));
       }
       if (filter.state) {
         filters.push(stateObj => stateObj.state === filter.state);
