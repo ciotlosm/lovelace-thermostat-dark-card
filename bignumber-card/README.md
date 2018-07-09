@@ -2,7 +2,7 @@
 
 A simple card to display a big number
 
-![big-number](https://user-images.githubusercontent.com/7738048/42324162-fe8549da-806a-11e8-9ba0-711474b0714a.gif)
+![big-number](https://user-images.githubusercontent.com/7738048/42440941-ab973cda-836f-11e8-96b4-b809a22e8b30.gif)
 
 **Options**
 
