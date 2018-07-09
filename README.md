@@ -30,6 +30,8 @@ This is probably because your version of Firefox doesn't have custom components 
 ### Custom components don't load on my IOS device?
 This is because for IOS devices by default javascript served is `es5`. You can allow custom components to load by forcing `javascript: latest` in your `configuration.yaml` under `frontend:`. 
 
+> Note: Enabling `latest` on IOS could cause automation and script editor to crash.
+
 ### I followed all steps to add custom component but I see javascript errors in my browser. What happend?
 This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button.
 
