@@ -12,7 +12,15 @@ A simple card to display a big number
 | title | string | optional | Name to display on card
 | scale | string | 50px | Base scale for card: '50px'
 | entity | string | **Required** | `sensor.my_temperature`
+| severity | object | optional | Severity object. See below
 
+Severity object
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| red | number | **Required** | Value from which to start red color
+| green | number | **Required** | Value from which to start green color
+| amber | number | **Required** | Value from which to start amber color
 
 **Example**
 
@@ -25,4 +33,11 @@ A simple card to display a big number
     - type: custom:bignumber-card
       title: Oil
       entity: sensor.second_number
+  - type: custom:bignumber-card
+    title: Oil
+    entity: sensor.second_number
+    severity:
+      red: 50
+      green: 0
+      amber: 40
 ```

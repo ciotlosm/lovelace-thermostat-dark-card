@@ -33,7 +33,7 @@ class BigNumberCard extends HTMLElement {
       #title {
         font-size: calc(var(--base-unit) * 0.7);
         line-height: calc(var(--base-unit) * 0.5);
-        color: var(--secondary-text-color);
+        color: var(--primary-text-color);
       }
     `;
     card.appendChild(content);
@@ -41,6 +41,33 @@ class BigNumberCard extends HTMLElement {
     card.appendChild(style);
     root.appendChild(card);
     this._config = cardConfig;
+  }
+
+  _computeSeverity(stateValue, sections) {
+    let numberValue = Number(stateValue);
+    const severityMap = {
+      red: "var(--label-badge-red)",
+      green: "var(--label-badge-green)",
+      amber: "var(--label-badge-yellow)",
+      normal: "var(--paper-card-background-color)",
+    }
+    if (!sections) return severityMap["normal"];
+    let sortable = [];
+    for (let severity in sections) {
+      sortable.push([severity, sections[severity]]);
+    }
+    sortable.sort((a, b) => { return a[1] - b[1] });
+
+    if (numberValue >= sortable[0][1] && numberValue < sortable[1][1]) {
+      return severityMap[sortable[0][0]]
+    }
+    if (numberValue >= sortable[1][1] && numberValue < sortable[2][1]) {
+      return severityMap[sortable[1][0]]
+    }
+    if (numberValue >= sortable[2][1]) {
+      return severityMap[sortable[2][0]]
+    }
+    return severityMap["normal"];
   }
 
   set hass(hass) {
@@ -51,6 +78,7 @@ class BigNumberCard extends HTMLElement {
 
     if (entityState !== this._entityState) {
       root.getElementById("value").textContent = `${entityState} ${measurement}`;
+      root.querySelector("ha-card").style.backgroundColor = this._computeSeverity(entityState, config.severity);
       this._entityState = entityState
     }
     root.lastChild.hass = hass;
