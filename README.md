@@ -21,7 +21,7 @@ resources:
 ## FAQ
 
 ### I get a error with `n.setConfig' is undefied`, how do i fix this?
-This is usually caused by running an older frontend. Start by clearing cache in your browsers.
+This is usually caused by running an older frontend. If you're already running 0.73 or newer please make sure you  have cleared browser cache. On mobile app you can also force a few refreshes. 
 
 ### I am running Firefox but custom cards like gauge-card look bad or don't load at all. How do I fix this?
 
