@@ -1,56 +1,40 @@
-function _updateStyle(element) {
-    element.textContent = `
-    table {
-      width: 100%;
-      padding: 16px;
-    }
-    thead th {
-		  text-align: left;
-		}
-		tbody tr:nth-child(odd) {
-		  background-color: var(--paper-card-background-color);
-		}
-		tbody tr:nth-child(even) {
-		  background-color: var(--secondary-background-color);
-		}
-    `;
+class EntityAttributesCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
   }
-  
-  function _updateContent(element, attributes) {
-    element.innerHTML = `
-    <tr>
-      ${attributes.map( (attribute) => `
-        <tr>
-          <td>${attribute.name}</td>
-          <td>${attribute.value}</td>
-        </tr>
-      `).join('')}
-    `;
-  }
-  
-  class EntityAttributesCard extends HTMLElement {
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
+  setConfig(config) {
+    if (!config.entity) {
+      throw new Error('Please define an entity');
     }
-    setConfig(config) {
-      if (!config.entity) {
-        throw new Error('Please define an entity');
-      }
-      if (!config.attributes || !Array.isArray(config.attributes)) {
-        throw new Error('Incorrect attributes list.');
-      }
+    if (!config.attributes || !Array.isArray(config.attributes)) {
+      throw new Error('Incorrect attributes list.');
+    }
 
-      const root = this.shadowRoot;
-      if (root.lastChild) root.removeChild(root.lastChild);
-  
-      const cardConfig = Object.assign({}, config);
-      const card = document.createElement('ha-card');
-      card.header = config.title;
-      const content = document.createElement('div');
-      const style = document.createElement('style');
-      _updateStyle(style);
-      content.innerHTML = `
+    const root = this.shadowRoot;
+    if (root.lastChild) root.removeChild(root.lastChild);
+
+    const cardConfig = Object.assign({}, config);
+    const card = document.createElement('ha-card');
+    card.header = config.title;
+    const content = document.createElement('div');
+    const style = document.createElement('style');
+    style.textContent = `
+      table {
+        width: 100%;
+        padding: 16px;
+      }
+      thead th {
+        text-align: left;
+      }
+      tbody tr:nth-child(odd) {
+        background-color: var(--paper-card-background-color);
+      }
+      tbody tr:nth-child(even) {
+        background-color: var(--secondary-background-color);
+      }
+    `;
+    content.innerHTML = `
       <table>
         <thead>
           <tr>
@@ -62,35 +46,45 @@ function _updateStyle(element) {
         </tbody>
       </table>
       `;
-      card.appendChild(style);
-      card.appendChild(content);
-      root.appendChild(card)
-      this._config = cardConfig;
-    }
+    card.appendChild(style);
+    card.appendChild(content);
+    root.appendChild(card)
+    this._config = cardConfig;
+  }
 
-    set hass(hass) {
-      const config = this._config;
-      const entityState = hass.states[config.entity];
-      const root = this.shadowRoot;
-      console.log(entityState);
+  _updateContent(element, attributes) {
+    element.innerHTML = `
+      <tr>
+        ${attributes.map((attribute) => `
+          <tr>
+            <td>${attribute.name}</td>
+            <td>${attribute.value}</td>
+          </tr>
+        `).join('')}
+      `;
+  }
 
-      if (entityState != this._entityState) {
-        // filter listed attributes
-        const attrList = [];
-        Object.keys(entityState.attributes).forEach(attribute => {
-          if (config.attributes.includes(attribute)) attrList.push({
-            "name": attribute,
-            "value": entityState.attributes[attribute],
-          });
+  set hass(hass) {
+    const config = this._config;
+    const entity = hass.states[config.entity];
+    const root = this.shadowRoot;
+
+    if (entity.state != this._entityState) {
+      const attrList = [];
+      Object.keys(entity.attributes).forEach(attribute => {
+        if (config.attributes.includes(attribute)) attrList.push({
+          "name": attribute,
+          "value": entity.attributes[attribute],
         });
-        _updateContent(root.getElementById('attributes'), attrList);
-        this._entityState = entityState;
-      }
-    }
-  
-    getCardSize() {
-      return 1;
+      });
+      this._updateContent(root.getElementById('attributes'), attrList);
+      this._entityState = entity.state;
     }
   }
-  
-  customElements.define('entity-attributes-card', EntityAttributesCard);
+
+  getCardSize() {
+    return 1;
+  }
+}
+
+customElements.define('entity-attributes-card', EntityAttributesCard);
