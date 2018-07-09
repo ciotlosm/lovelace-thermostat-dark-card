@@ -20,9 +20,17 @@ resources:
 
 ## FAQ
 
-**Question: I get a error with `n.setConfig' is undefied`, how do i fix this?**
+**1. I get a error with `n.setConfig' is undefied`, how do i fix this?**
 
-Answer: this is usually caused by not having `javascript: latest` in your frontend.yaml.  once you update this be sure to do a clear cache and refresh
+**Answer:** This is usually caused by running an older frontend. Start by clearing cache in your browsers.
+
+**2. I am running Firefox but custom cards like gauge-card look bad or don't load at all. How do I fix this?**
+
+**Answer:** This is probably because your version of Firefox doesn't have custom components supported or enabled. Please set to `true` in your `about:config` the following settings: `dom.webcomponents.customelements.enabled` and `dom.webcomponents.shadowdom.enabled`
+
+**3. Custom components don't load on my IOS device?**
+
+**Answer:** This is because for IOS devices by default javascript served is `es5`. You can allow custom components to load by forcing `javascript: latest` in your `configuration.yaml` under `frontend:`. 
 
 
 ## Credits
