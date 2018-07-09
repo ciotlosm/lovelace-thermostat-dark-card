@@ -18,6 +18,13 @@ resources:
 
 - Configure the new card inside `ui-lovelace.yaml` according to the instructions provided
 
+## FAQ
+
+**Question: I get a error with `n.setConfig' is undefied`, how do i fix this?**
+
+Answer: this is usually caused by not having `javascript: latest` in your frontend.yaml.  once you update this be sure to do a clear cache and refresh
+
+
 ## Credits
 - [@ciotlosm](https://github.com/ciotlosm)
 - [@c727](https://github.com/c727)
