@@ -21,11 +21,6 @@ class GaugeCard extends HTMLElement {
     const content = document.createElement('div');
     const style = document.createElement('style');
     style.textContent = `
-      :host {
-        --base-unit: ${cardConfig.scale};
-        height: calc(var(--base-unit)*3);
-        position: relative;
-      }
       ha-card {
         --base-unit: ${cardConfig.scale};
         height: calc(var(--base-unit)*3);
