@@ -33,8 +33,19 @@ This is because for IOS devices by default javascript served is `es5`. You can a
 > Note: Enabling `latest` on IOS could cause automation and script editor to crash.
 
 ### I followed all steps to add custom component but I see javascript errors in my browser. What happend?
-This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button.
 
+It dependso on the errors. 
+
+1. For the following errors:
+  - `Cannot call a class constructor without |new|`
+  - `Class constructor BigNumberCard cannot be invoked without 'new'`
+
+Please make sure you have `javascript: latest` in your `configuration.yaml` under `frontend:`.
+
+2. For the following errors:
+  - `Uncaught SyntaxError: Unexpected token <`
+
+This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button.
 
 ## Credits
 - [@ciotlosm](https://github.com/ciotlosm)
