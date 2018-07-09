@@ -17,7 +17,7 @@ class BigNumberCard extends HTMLElement {
     content.id = "value"
     const title = document.createElement('div');
     title.id = "title"
-    title.textContent = config.title;
+    title.textContent = cardConfig.title;
     const style = document.createElement('style');
     style.textContent = `
       ha-card {
@@ -31,7 +31,7 @@ class BigNumberCard extends HTMLElement {
         color: var(--primary-text-color);
       }
       #title {
-        font-size: calc(var(--base-unit) * 0.7);
+        font-size: calc(var(--base-unit) * 0.5);
         line-height: calc(var(--base-unit) * 0.5);
         color: var(--primary-text-color);
       }
