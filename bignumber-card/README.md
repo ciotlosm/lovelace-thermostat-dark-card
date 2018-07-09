@@ -21,8 +21,9 @@ Severity object
 | red | number | **Required** | Value from which to start red color
 | green | number | **Required** | Value from which to start green color
 | amber | number | **Required** | Value from which to start amber color
-| normal | number | **Required** | Value from which is classed as a normal color N.B. this cannot be used with red/green/amber
+| normal | number | **Required** | Value from which to start blue color
 
+*N.B. three of the above must be used, i.e. (red/green/normal) or (red/amber/green)
 
 **Example**
 
