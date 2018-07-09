@@ -81,7 +81,6 @@ Snow monster card based on random entity state:
 - type: custom:monster-card
   card:
     type: glance
-    title: crap
   filter:
     include:
       - domain: climate
