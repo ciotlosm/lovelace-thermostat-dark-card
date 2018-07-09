@@ -66,7 +66,6 @@ class MonsterCard extends HTMLElement {
       this.style.display = 'block';
       entities.sort();
     }
-    entities.sort();
 
     if (!config.card.entities || config.card.entities.length !== entities.length ||
       !config.card.entities.every((value, index) => value === entities[index])) {
