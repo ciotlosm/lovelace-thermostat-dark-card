@@ -18,6 +18,8 @@ resources:
 
 - Configure the new card inside `ui-lovelace.yaml` according to the instructions provided
 
+⭐️ this repository if you found it useful ❤️
+
 ## FAQ
 
 ### I get a error with `n.setConfig' is undefied`, how do i fix this?
