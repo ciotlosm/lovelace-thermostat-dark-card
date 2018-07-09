@@ -1,8 +1,8 @@
 # Big number card
 
-A simple card to display a big number
+A simple card to display big numbers for sensors. It also supports severity levels as background.
 
-![big-number](https://user-images.githubusercontent.com/7738048/42440941-ab973cda-836f-11e8-96b4-b809a22e8b30.gif)
+![big-number](https://user-images.githubusercontent.com/7738048/42441033-f4336a04-836f-11e8-906c-6e3ab7f636c2.gif)
 
 **Options**
 
