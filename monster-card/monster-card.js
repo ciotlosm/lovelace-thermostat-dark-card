@@ -15,7 +15,6 @@ class MonsterCard extends HTMLElement {
         return compareEntity === pattern;
       }
       const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`, 'i');
-      console.log(compareEntity, regEx);
       return compareEntity.search(regEx) === 0;
     }
     const entities = new Set();
