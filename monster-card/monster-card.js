@@ -57,7 +57,7 @@ class MonsterCard extends HTMLElement {
     const config = this._config;
     let entities = this._getEntities(hass, config.filter.include);
     if (config.filter.exclude) {
-      const excludeEntities = _getEntities(hass, config.filter.exclude);
+      const excludeEntities = this._getEntities(hass, config.filter.exclude);
       entities = entities.filter(entity => !excludeEntities.includes(entity));
     }
 
