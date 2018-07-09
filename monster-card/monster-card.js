@@ -60,6 +60,12 @@ class MonsterCard extends HTMLElement {
       const excludeEntities = _getEntities(hass, config.filter.exclude);
       entities = entities.filter(entity => !excludeEntities.includes(entity));
     }
+    if (entities.length === 0 && config.show_empty === false) {
+      this.style.display = 'none';
+    } else {
+      this.style.display = 'block';
+      entities.sort();
+    }
     entities.sort();
 
     if (!config.card.entities || config.card.entities.length !== entities.length ||
