@@ -12,6 +12,7 @@ Supports both inclusion and exclusion filters with wildcard for entity_ids.
 | card | object | **Required** | Card object 
 | filter | object | **Required** | `include` and `exclude` sections
 | show_empty | boolean | true | Show/hide empty card
+| when | object | optional | Extra condition for show/hide
 
 Card object
 
@@ -35,6 +36,14 @@ Attributes object
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | * | any | **Required** | Any type of attribute that your entity can have (`battery: 50`)
+
+
+When object
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| entity | string | **Required** | Entity to use for state comparison
+| state | any | **Required** | The state of the entity to use for showing the monster-card
 
 **Example**
 
@@ -65,4 +74,18 @@ Show all in `device_tracker` with battery at 53:
         attributes:
           battery: 53
           source_type: gps
+```
+
+Snow monster card based on random entity state:
+```yaml
+- type: custom:monster-card
+  card:
+    type: glance
+    title: crap
+  filter:
+    include:
+      - domain: climate
+  when:
+    entity: device_tracker.demo_paulus
+    state: not_home
 ```
