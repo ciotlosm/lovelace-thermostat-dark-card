@@ -99,8 +99,25 @@ class GaugeCard extends HTMLElement {
     `;
     card.appendChild(content);
     card.appendChild(style);
+    card.addEventListener('click', event => {
+      this._fire('hass-more-info', { entityId: cardConfig.entity });
+    });
     root.appendChild(card);
     this._config = cardConfig;
+  }
+
+  _fire(type, detail, options) {
+    const node = this.shadowRoot;
+    options = options || {};
+    detail = (detail === null || detail === undefined) ? {} : detail;
+    const event = new Event(type, {
+      bubbles: options.bubbles === undefined ? true : options.bubbles,
+      cancelable: Boolean(options.cancelable),
+      composed: options.composed === undefined ? true : options.composed
+    });
+    event.detail = detail;
+    node.dispatchEvent(event);
+    return event;
   }
 
   _translateTurn(value, config) {
