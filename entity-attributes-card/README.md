@@ -38,7 +38,7 @@ How to embed this inside `entities` card:
       entity: media_player.bedroom
       attributes:
         - media_player.bedroom.app_name
-        - media_player.bedroom.app_name
+        - media_player.bedroom.media_title
     - sensor.short_name
     - sensor.battery_sensor
 ```
