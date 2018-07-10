@@ -2,7 +2,7 @@
 
 A simple card to display big numbers for sensors. It also supports severity levels as background.
 
-![big-number](https://user-images.githubusercontent.com/7738048/42441033-f4336a04-836f-11e8-906c-6e3ab7f636c2.gif)
+![bignumber](https://user-images.githubusercontent.com/7738048/42536247-262b74e0-849a-11e8-8ed1-967302b73e03.gif)
 
 **Options**
 
@@ -35,6 +35,7 @@ Severity object
   title: Humidity
   entity: sensor.outside_humidity
   scale: 30px
+  from: bottom
   min: 0
   max: 100
   severity:
