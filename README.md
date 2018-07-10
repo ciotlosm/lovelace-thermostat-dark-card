@@ -20,19 +20,27 @@ resources:
 
 ⭐️ this repository if you found it useful ❤️
 
+## Contributions
+
+If you'd like to contribute functionality of fixes please make sure you follow a few guidelines:
+- Submit your PR against "dev" branch
+- Make sure you have configuration example in your PR
+- Make sure you include documentation in existing README.md
+- If it's a new component make sure it includes README.md
+
 ## FAQ
 
 ### I get a error with `n.setConfig' is undefied`, how do i fix this?
-This is usually caused by running an older frontend. If you're already running 0.73 or newer please make sure you  have cleared browser cache. On mobile app you can also force a few refreshes. 
-
-### I am running Firefox but custom cards like gauge-card look bad or don't load at all. How do I fix this?
-
-This is probably because your version of Firefox doesn't have custom components supported or enabled. Please set to `true` in your `about:config` the following settings: `dom.webcomponents.customelements.enabled` and `dom.webcomponents.shadowdom.enabled`
+This is usually caused by running an older frontend. If you're already running 0.73 or newer please make sure you  have cleared browser cache. On mobile app you can also force a few refreshes. If you're running IOS device check next question.
 
 ### Custom components don't load on my IOS device?
 This is because for IOS devices by default javascript served is `es5`. You can allow custom components to load by forcing `javascript: latest` in your `configuration.yaml` under `frontend:`. 
 
 > Note: Enabling `latest` on IOS could cause automation and script editor to crash.
+
+### I am running Firefox but custom cards like gauge-card look bad or don't load at all. How do I fix this?
+
+This is probably because your version of Firefox doesn't have custom components supported or enabled. Please set to `true` in your `about:config` the following settings: `dom.webcomponents.customelements.enabled` and `dom.webcomponents.shadowdom.enabled`
 
 ### I followed all steps to add custom component but I see javascript errors in my browser. What happend?
 
