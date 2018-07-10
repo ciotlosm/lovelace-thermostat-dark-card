@@ -2,7 +2,7 @@
 
 Entity attributes allows you to show basic attributes from multiple entities.
 
-![enitty-attributes-card](https://user-images.githubusercontent.com/7738048/42425143-1269d5d4-8321-11e8-8a42-136aefb2220a.png)
+![enitty-attributes-card](https://user-images.githubusercontent.com/7738048/42527718-19aea164-8482-11e8-9c46-d734499f7806.png)
 
 **Options**
 
@@ -10,7 +10,7 @@ Entity attributes allows you to show basic attributes from multiple entities.
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:entity-attributes-card`
 | entity | string | **Required** | An entity_id: 'media_player.bedroom'
-| attributes | list | **Required** | A list of objects or entity attributes. Example 'climate.heatpump.current_temperature'
+| attributes | list | **Required** | A list of objects or entity attributes in the format <domain>.<entity>.<attribute>.<br/> Example 'climate.heatpump.current_temperature'
 
 **Example**
 
