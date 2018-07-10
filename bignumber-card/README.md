@@ -12,35 +12,36 @@ A simple card to display big numbers for sensors. It also supports severity leve
 | title | string | optional | Name to display on card
 | scale | string | 50px | Base scale for card: '50px'
 | entity | string | **Required** | `sensor.my_temperature`
-| severity | object | optional | Severity object. See below
+| min | number | optional | Minimum value. If specified you get bar display
+| max | number | optional | Maximum value. Must be specified if you added min
+| from | string | left | Direction from where the bar will start filling (must have min/max specified)
+| severity | list | optional | A list of severity objects. Items in list must be ascending based on 'value'
 
 Severity object
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| red | number | **Required** | Value from which to start red color
-| green | number | **Required** | Value from which to start green color
-| amber | number | **Required** | Value from which to start amber color
-| normal | number | **Required** | Value from which to start blue color
+| value | number | **Required** | Value until which to use this severity
+| style | number | **Required** | Color of severity. Can be either hex or HA variable. Example: 'var(--label-badge-green)'
 
-*N.B. three of the above must be used, i.e. (red/green/normal) or (red/amber/green)
+### WARNINGS
+- Make sure you use ascending object values to have consistent behaviour
+- Values are the upper limit until which that severity is applied
 
 **Example**
 
 ```yaml
-- type: horizontal-stack
-  cards:
-    - type: custom:bignumber-card
-      title: Temperature
-      entity: sensor.first_number
-    - type: custom:bignumber-card
-      title: Oil
-      entity: sensor.second_number
-  - type: custom:bignumber-card
-    title: Oil
-    entity: sensor.second_number
-    severity:
-      red: 50
-      green: 0
-      amber: 40
+- type: custom:bignumber-card
+  title: Humidity
+  entity: sensor.outside_humidity
+  scale: 30px
+  min: 0
+  max: 100
+  severity:
+    - value: 70
+      style: 'var(--label-badge-green)'
+    - value: 90
+      style: 'var(--label-badge-yellow)'
+    - value: 100
+      style: 'var(--label-badge-red)'
 ```
