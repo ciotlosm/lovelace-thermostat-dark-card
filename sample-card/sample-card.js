@@ -17,7 +17,7 @@ class SampleCard extends HTMLElement {
     if (root.lastChild) root.removeChild(root.lastChild);
 
     const cardConfig = Object.assign({}, config);
-    // 
+    // A custom parameter used only by this card
     if (!cardConfig.some_param) cardConfig.some_param = "default_value";
 
     // For a simple card you can use ha-card but you can also reuse existing card
@@ -37,6 +37,8 @@ class SampleCard extends HTMLElement {
     //     sample content
     //   </div>
     // `;
+
+    // Make use of card header for titles (formatted automatically)
     card.header = cardConfig.title
     card.appendChild(content);
     card.appendChild(style);
