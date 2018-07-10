@@ -10,7 +10,7 @@ Entity attributes allows you to show basic attributes from multiple entities.
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:entity-attributes-card`
 | entity | string | **Required** | An entity_id: 'media_player.bedroom'
-| attributes | list | **Required** | A list of objects or entity attributes in the format <domain>.<entity>.<attribute>.<br/> Example 'climate.heatpump.current_temperature'
+| attributes | list | **Required** | A list of objects or entity attributes in the format [domain].[entity].[attribute].<br/> Example 'climate.heatpump.current_temperature'
 
 **Example**
 
