@@ -38,9 +38,9 @@ class MonsterCard extends HTMLElement {
         filters.push(stateObj => stateObj.state === filter.state);
       }
 
-      Object.values(hass.states).forEach((stateObj) => {
-        if (filters.every(filterFunc => filterFunc(stateObj))) {
-          entities.add(stateObj.entity_id);
+      Object.keys(hass.states).sort().forEach(key => {
+        if (filters.every(filterFunc => filterFunc(hass.states[key]))) {
+          entities.add(hass.states[key].entity_id);
         }
       });
     });
@@ -80,7 +80,6 @@ class MonsterCard extends HTMLElement {
     } else {
       if (config.when && (hass.states[config.when.entity].state == config.when.state) || !config.when) {
         this.style.display = 'block';
-        entities.sort();
       } else {
         this.style.display = 'none';
       }
