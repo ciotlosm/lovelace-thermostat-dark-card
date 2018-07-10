@@ -90,6 +90,19 @@ Snow monster card based on random entity state:
     state: not_home
 ```
 
+Show monster card with entities card but without toggle:
+```yaml
+- type: "custom:monster-card"
+  card:
+    title: Docker
+    type: entities
+    show_header_toggle: false
+  filter:
+    include:
+      - domain: media_player
+      - domain: camera
+```
+
 ## Sorting entities explained
 
 Entities are displayed in the card in the order they are matched by the include filters. I.e. to get a specific order, detailed filters must precede more general ones.
