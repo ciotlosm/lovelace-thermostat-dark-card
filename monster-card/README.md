@@ -89,3 +89,29 @@ Snow monster card based on random entity state:
     entity: device_tracker.demo_paulus
     state: not_home
 ```
+
+**Sorting entities**
+
+Entities are displayed in the card in the order they are matched by the include filters. I.e. to get a specific order, detailed filters must precede more general ones.
+
+The following example will display `sensor.my_sensor` followed by all other sensors in alphabetical order:
+``` yaml
+- type: custom:monster-card
+  card:
+    type: entities
+  filter:
+    include:
+      - entity_id: sensor.my_sensor
+      - entity_id: sensor.*
+```
+
+The following example will display all sensors in alphabetical order. `sensor.my_sensor` will be included in the sorted list and not be displayed at the end since it has already been matched by `sensor.*`:
+``` yaml
+- type: custom:monster-card
+  card:
+    type: entities
+  filter:
+    include:
+      - entity_id: sensor.*
+      - entity_id: sensor.my_sensor
+```
