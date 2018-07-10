@@ -12,6 +12,7 @@ class BigNumberCard extends HTMLElement {
     if (root.lastChild) root.removeChild(root.lastChild);
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.scale) cardConfig.scale = "50px";
+    if (!cardConfig.from) cardConfig.from = "left";
     const card = document.createElement('ha-card');
     const content = document.createElement('div');
     content.id = "value"
@@ -22,8 +23,12 @@ class BigNumberCard extends HTMLElement {
     style.textContent = `
       ha-card {
         text-align: center;
+        --bignumber-fill-color: var(--label-badge-blue);
+        --bignumber-percent: 100%;
+        --bignumber-direction: ${cardConfig.from};
         --base-unit: ${cardConfig.scale};
         padding: calc(var(--base-unit)*0.6) calc(var(--base-unit)*0.3);
+        background: linear-gradient(to var(--bignumber-direction), var(--paper-card-background-color) var(--bignumber-percent), var(--bignumber-fill-color) var(--bignumber-percent));
       }
       #value {
         font-size: calc(var(--base-unit) * 1.3);
@@ -44,30 +49,18 @@ class BigNumberCard extends HTMLElement {
   }
 
   _computeSeverity(stateValue, sections) {
-    let numberValue = Number(stateValue);
-    const severityMap = {
-      red: "var(--label-badge-red)",
-      green: "var(--label-badge-green)",
-      amber: "var(--label-badge-yellow)",
-      normal: "var(--paper-card-background-color)",
-    }
-    if (!sections) return severityMap["normal"];
-    let sortable = [];
-    for (let severity in sections) {
-      sortable.push([severity, sections[severity]]);
-    }
-    sortable.sort((a, b) => { return a[1] - b[1] });
+    const numberValue = Number(stateValue);
+    let style;
+    sections.forEach(section => {
+      if (numberValue <= section.value && !style) {
+        style = section.style;
+      }
+    });
+    return style || 'var(--label-badge-blue)';
+  }
 
-    if (numberValue >= sortable[0][1] && numberValue < sortable[1][1]) {
-      return severityMap[sortable[0][0]]
-    }
-    if (numberValue >= sortable[1][1] && numberValue < sortable[2][1]) {
-      return severityMap[sortable[1][0]]
-    }
-    if (numberValue >= sortable[2][1]) {
-      return severityMap[sortable[2][0]]
-    }
-    return severityMap["normal"];
+  _translatePercent(value, min, max) {
+    return 100-100 * (value - min) / (max - min);
   }
 
   set hass(hass) {
@@ -77,8 +70,13 @@ class BigNumberCard extends HTMLElement {
     const measurement = hass.states[config.entity].attributes.unit_of_measurement || "";
 
     if (entityState !== this._entityState) {
+      if (config.min !== undefined && config.max !== undefined) {
+        root.querySelector("ha-card").style.setProperty('--bignumber-percent', `${this._translatePercent(entityState, config.min, config.max)}%`);
+      }
+      if (config.severity) {
+        root.querySelector("ha-card").style.setProperty('--bignumber-fill-color', `${this._computeSeverity(entityState, config.severity)}`);
+      }
       root.getElementById("value").textContent = `${entityState} ${measurement}`;
-      root.querySelector("ha-card").style.backgroundColor = this._computeSeverity(entityState, config.severity);
       this._entityState = entityState
     }
     root.lastChild.hass = hass;
