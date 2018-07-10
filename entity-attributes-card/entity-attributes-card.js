@@ -4,9 +4,6 @@ class EntityAttributesCard extends HTMLElement {
     this.attachShadow({ mode: 'open' });
   }
   setConfig(config) {
-    if (!config.entity) {
-      throw new Error('Please define an entity');
-    }
     if (!config.attributes || !Array.isArray(config.attributes)) {
       throw new Error('Incorrect attributes list.');
     }
@@ -66,20 +63,35 @@ class EntityAttributesCard extends HTMLElement {
 
   set hass(hass) {
     const config = this._config;
-    const entity = hass.states[config.entity];
     const root = this.shadowRoot;
+    const attrList = [];
 
-    if (entity.state != this._entityState) {
-      const attrList = [];
-      Object.keys(entity.attributes).forEach(attribute => {
-        if (config.attributes.includes(attribute)) attrList.push({
-          "name": attribute,
-          "value": entity.attributes[attribute],
-        });
-      });
-      this._updateContent(root.getElementById('attributes'), attrList);
-      this._entityState = entity.state;
-    }
+    config.attributes.forEach(attribute => {
+      let entity_id;
+      let attr_name;
+      let parts;
+      let attr_id;
+      let attr_value;
+      if (typeof (attribute) === "object") {
+        parts = attribute["key"].split(".");
+        attr_name = attribute["name"]
+      } else {
+        parts = attribute.split(".");
+        attr_name = parts[2];
+      }
+      entity_id = `${parts[0]}.${parts[1]}`;
+      attr_id = parts[2];
+      if (hass.states[entity_id]) {
+        attr_value = hass.states[entity_id].attributes[attr_id];
+        if (attr_value) {
+          attrList.push({
+            "name": attr_name,
+            "value": attr_value,
+          });
+        }
+      }
+    });
+    this._updateContent(root.getElementById('attributes'), attrList);
   }
 
   getCardSize() {

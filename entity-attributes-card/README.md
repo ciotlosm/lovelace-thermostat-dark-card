@@ -1,6 +1,6 @@
 # Entity attributes
 
-Entity attributes allows you to show basic attributes for an entity in a card. 
+Entity attributes allows you to show basic attributes from multiple entities.
 
 ![enitty-attributes-card](https://user-images.githubusercontent.com/7738048/42425143-1269d5d4-8321-11e8-8a42-136aefb2220a.png)
 
@@ -10,18 +10,19 @@ Entity attributes allows you to show basic attributes for an entity in a card.
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:entity-attributes-card`
 | entity | string | **Required** | An entity_id: 'media_player.bedroom'
-| attributes | list | **Required** | A list of entity attributes
-
+| attributes | list | **Required** | A list of objects or entity attributes. Example 'climate.heatpump.current_temperature'
 
 **Example**
 
 ```yaml
 - type: custom:entity-attributes-card
   title: Attributes Card
-  entity: media_player.bedroom
   attributes:
-    - app_name
-    - media_title
+    - key: media_player.bedroom.app_name
+      name: Application
+    - key: media_player.bedroom.media_title
+      name: Media center
+    - climate.heatpump.current_temperature
 ```
 
 How to embed this inside `entities` card:
@@ -36,8 +37,8 @@ How to embed this inside `entities` card:
     - type: custom:entity-attributes-card
       entity: media_player.bedroom
       attributes:
-        - media_title
-        - app_name
+        - media_player.bedroom.app_name
+        - media_player.bedroom.app_name
     - sensor.short_name
     - sensor.battery_sensor
 ```
