@@ -2,7 +2,7 @@
 
 Entity attributes allows you to show basic attributes from multiple entities.
 
-![enitty-attributes-card](https://user-images.githubusercontent.com/7738048/42527718-19aea164-8482-11e8-9c46-d734499f7806.png)
+![enitty-attributes-card](https://user-images.githubusercontent.com/7738048/42527876-8e9f1206-8482-11e8-9e19-b5ffbfbf8474.png)
 
 **Options**
 
