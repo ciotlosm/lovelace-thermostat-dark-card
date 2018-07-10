@@ -34,7 +34,7 @@ If you'd like to contribute functionality of fixes please make sure you follow a
 This is usually caused by running an older frontend. If you're already running 0.73 or newer please make sure you  have cleared browser cache. On mobile app you can also force a few refreshes. If you're running IOS device check next question.
 
 ### Custom components don't load on my IOS device?
-This is because for IOS devices by default javascript served is `es5`. You can allow custom components to load by forcing `javascript: latest` in your `configuration.yaml` under `frontend:`. 
+This is because for IOS devices by default javascript served is `es5`. You can allow custom components to load by forcing `javascript_version: latest` in your `configuration.yaml` under `frontend:`. 
 
 > Note: Enabling `latest` on IOS could cause automation and script editor to crash.
 
@@ -50,7 +50,7 @@ It dependso on the errors.
   - `Cannot call a class constructor without |new|`
   - `Class constructor BigNumberCard cannot be invoked without 'new'`
 
-Please make sure you have `javascript: latest` in your `configuration.yaml` under `frontend:`.
+Please make sure you have `javascript_version: latest` in your `configuration.yaml` under `frontend:`.
 
 2. For the following errors:
   - `Uncaught SyntaxError: Unexpected token <`
