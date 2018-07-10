@@ -4,7 +4,7 @@ Monster card is a magical type of card. Because it's dynamic if you're smart abo
 
 Supports both inclusion and exclusion filters with wildcard for entity_ids.
 
-**Options**
+## Options
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
@@ -46,7 +46,7 @@ When object
 | entity | string | **Required** | Entity to use for state comparison
 | state | any | **Required** | The state of the entity to use for showing the monster-card
 
-**Example**
+## Examples
 
 Show all with some exceptions:
 ```yaml
@@ -90,7 +90,7 @@ Snow monster card based on random entity state:
     state: not_home
 ```
 
-**Sorting entities**
+## Sorting entities explained
 
 Entities are displayed in the card in the order they are matched by the include filters. I.e. to get a specific order, detailed filters must precede more general ones.
 
@@ -115,3 +115,8 @@ The following example will display all sensors in alphabetical order. `sensor.my
       - entity_id: sensor.*
       - entity_id: sensor.my_sensor
 ```
+
+## Credits
+- [c727](https://github.com/c727)
+- [thomasloven](https://github.com/thomasloven)
+- [minchik](https://github.com/minchik)

@@ -59,4 +59,3 @@ This is most likely because you downloaded the [html](https://github.com/ciotlos
 
 ## Credits
 - [@ciotlosm](https://github.com/ciotlosm)
-- [@c727](https://github.com/c727)
