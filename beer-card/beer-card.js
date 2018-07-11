@@ -43,24 +43,8 @@ class BeerCard extends HTMLElement {
     card.header = cardConfig.title;
     card.appendChild(content);
     card.appendChild(style);
-    card.addEventListener('click', event => {
-      this._fire('hass-more-info', { entityId: cardConfig.entity });
-    });
     root.appendChild(card);
     this._config = cardConfig;
-  }
-  _fire(type, detail, options) {
-    const node = this.shadowRoot;
-    options = options || {};
-    detail = (detail === null || detail === undefined) ? {} : detail;
-    const event = new Event(type, {
-      bubbles: options.bubbles === undefined ? true : options.bubbles,
-      cancelable: Boolean(options.cancelable),
-      composed: options.composed === undefined ? true : options.composed
-    });
-    event.detail = detail;
-    node.dispatchEvent(event);
-    return event;
   }
 
   set hass(hass) {
@@ -81,8 +65,7 @@ class BeerCard extends HTMLElement {
   }
 
   getCardSize() {
-    const root = this.shadowRoot;
-    return 'getCardSize' in root.lastChild ? root.lastChild.getCardSize() : 1;
+    return 1;
   }
 }
 
