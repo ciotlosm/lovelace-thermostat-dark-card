@@ -2,10 +2,7 @@
 
 A special card for Toast and his contribution to the community. A card that displays a multiline text in a nicer format and allows for a custom icon either from sensor or specified in the config or if both missing, shows a `mdi:beer`.
 
-Please use official custom cards examples [here](https://developers.home-assistant.io/docs/en/lovelace_custom_card.html) if you better portability. 
-
 ![beer-card](https://user-images.githubusercontent.com/7738048/42560625-b7d18226-84ff-11e8-9f0a-59875edd642b.png)
-
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
