@@ -70,8 +70,7 @@ class AlarmControlPanelCard extends HTMLElement {
     const _disarmVisible = (this._armedStates.includes(entity.state) || entity.state === 'pending' || entity.state === 'triggered');
     const codeDisabled = !(_disarmVisible || _armVisible)?'disabled':'';
     const buttonsDisabled = !this._validateCode(this._enteredCode, entity.attributes.code_format)?'disabled':'';
-    console.log(!(_disarmVisible || _armVisible));
-    let content = `
+    const content = `
       ${entity.attributes.code_format ? `
         <paper-input
           label="Alarm code"
@@ -103,9 +102,6 @@ class AlarmControlPanelCard extends HTMLElement {
             </div>
           </div>
       `: ''}
-    `;
-
-    content = content + `
       <div class="layout horizontal center-justified actions">
         ${_disarmVisible ? `
           <paper-button raised class="disarm" on-click="_callService" data-service="alarm_disarm" ${buttonsDisabled}">
@@ -122,6 +118,7 @@ class AlarmControlPanelCard extends HTMLElement {
         `: ''}
       </div>
     `;
+
 
     root.getElementById("content").innerHTML = content;
   }
