@@ -21,5 +21,6 @@ Please use official custom cards examples [here](https://developers.home-assista
   entity: sensor.beer_list
   title: Toast Beer LIst
 ```
-
 ❤️ To activate the cards set an attribute called `list` on the `sensor.beer_list` with any state.
+
+![beer-value](https://user-images.githubusercontent.com/7738048/42560264-ec8aab2e-84fe-11e8-8470-317b30361a93.png)
