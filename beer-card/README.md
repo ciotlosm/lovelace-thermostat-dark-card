@@ -1,6 +1,6 @@
 # Beer card 🍺
 
-A special card for Toast and his contribution to the community. A card that displays a multiline text in a nicer format and allows for a custom icon either from sensor or specified in the config or if both missing, shows a `mdi:beer`.
+A special card for Toast and his contribution to the community. A card that displays a multiline text in a nicer format.
 
 ![beer-card](https://user-images.githubusercontent.com/7738048/42560625-b7d18226-84ff-11e8-9f0a-59875edd642b.png)
 
