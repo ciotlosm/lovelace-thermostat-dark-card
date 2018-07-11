@@ -27,6 +27,7 @@ If you'd like to contribute functionality of fixes please make sure you follow a
 - Make sure you have configuration example in your PR
 - Make sure you include documentation in existing README.md
 - If it's a new component make sure it includes README.md
+- Any changes to files must include updates to VERSION file (syntax: major.minor.bufix)
 
 ## FAQ
 
