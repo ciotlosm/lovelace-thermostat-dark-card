@@ -18,6 +18,7 @@ class PlanCoordinates extends HTMLElement {
           position: absolute;
           right: 0px;
           top: 16px;
+          z-index: 1000;
         }
         #content {
           background-color: var(--paper-card-background-color);
