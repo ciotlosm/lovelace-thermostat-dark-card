@@ -19,7 +19,8 @@ Please use official custom cards examples [here](https://developers.home-assista
 ```yaml
 - type: custom:beer-card
   entity: sensor.beer_list
-  title: Toast Beer LIst
+  title: Toast Beer List
+  icon: mdi:heart
 ```
 ❤️ To activate the cards set an attribute called `list` on the `sensor.beer_list` with any state.
 
