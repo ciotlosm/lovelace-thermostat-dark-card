@@ -4,7 +4,7 @@ A special card for Toast and his contribution to the community. A card that disp
 
 Please use official custom cards examples [here](https://developers.home-assistant.io/docs/en/lovelace_custom_card.html) if you better portability. 
 
-![beer-card](https://user-images.githubusercontent.com/7738048/42560164-b8344dd0-84fe-11e8-9e99-e16bad325c6f.png)
+![beer-card](https://user-images.githubusercontent.com/7738048/42560625-b7d18226-84ff-11e8-9f0a-59875edd642b.png)
 
 
 | Name | Type | Default | Description
@@ -24,4 +24,4 @@ Please use official custom cards examples [here](https://developers.home-assista
 ```
 ❤️ To activate the cards set an attribute called `list` on the `sensor.beer_list` with any state.
 
-![beer-value](https://user-images.githubusercontent.com/7738048/42560264-ec8aab2e-84fe-11e8-8470-317b30361a93.png)
+![beer-value](https://user-images.githubusercontent.com/7738048/42560596-ac2627ce-84ff-11e8-965b-b82604645086.png)
