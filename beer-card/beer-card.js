@@ -35,10 +35,7 @@ class BeerCard extends HTMLElement {
           margin-left: 50px;
         }
       `;
-    content.innerHTML = `
-      <div id="container">
-      </div>
-    `;
+    content.id= "container";
     card.appendChild(icon);
     card.header = cardConfig.title;
     card.appendChild(content);
