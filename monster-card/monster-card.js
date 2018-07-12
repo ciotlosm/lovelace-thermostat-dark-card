@@ -40,7 +40,11 @@ class MonsterCard extends HTMLElement {
 
       Object.keys(hass.states).sort().forEach(key => {
         if (filters.every(filterFunc => filterFunc(hass.states[key]))) {
-          entities.add(hass.states[key].entity_id);
+          if (filter.options) {
+            entities.add(Object.assign({"entity": hass.states[key].entity_id}, filter.options));
+          } else {
+            entities.add(hass.states[key].entity_id)
+          }
         }
       });
     });
