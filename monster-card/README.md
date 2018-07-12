@@ -104,6 +104,21 @@ Show monster card with entities card but without toggle:
       - domain: camera
 ```
 
+Provide additional configuration options to entities:
+``` yaml
+- type: custom:monster-card
+  card:
+    type: entities
+  filter:
+    include:
+      - entity_id: sensor.my_sensor
+        options:
+          name: "My super sensor"
+      - domain: media_player
+        options:
+          type: "custom:state-card-custom"
+```
+
 ## Sorting entities explained
 
 Entities are displayed in the card in the order they are matched by the include filters. I.e. to get a specific order, detailed filters must precede more general ones.
@@ -128,21 +143,6 @@ The following example will display all sensors in alphabetical order. `sensor.my
     include:
       - entity_id: sensor.*
       - entity_id: sensor.my_sensor
-```
-
-Provide additional configuration options to entities:
-``` yaml
-- type: custom:monster-card
-  card:
-    type: entities
-  filter:
-    include:
-      - entity_id: sensor.my_sensor
-        options:
-          name: "My super sensor"
-      - domain: media_player
-        options:
-          type: "custom:state-card-custom"
 ```
 
 ## Credits
