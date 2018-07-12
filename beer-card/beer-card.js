@@ -15,6 +15,7 @@ class BeerCard extends HTMLElement {
 
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.icon) cardConfig.icon = "mdi:beer";
+    if (!cardConfig.attribute) cardConfig.attribute = "list";
 
     const card = document.createElement('ha-card');
     const content = document.createElement('div');
@@ -48,10 +49,10 @@ class BeerCard extends HTMLElement {
     const config = this._config;
     const root = this.shadowRoot;
     if (hass.states[config.entity]) {
-      const list = hass.states[config.entity].attributes["list"];
+      const list = hass.states[config.entity].attributes[config.attribute] + '';
       this.style.display = 'block';
       if (list !== undefined && list.length > 0) {
-        root.getElementById("container").innerHTML = `${list.split("\n").join("<br/>")}`;
+        root.getElementById("container").innerHTML = `${list.split(/[\n,]/).join("<br/>")}`;
       } else {
         this.style.display = 'none';
       }
