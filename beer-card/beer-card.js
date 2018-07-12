@@ -49,7 +49,7 @@ class BeerCard extends HTMLElement {
     const config = this._config;
     const root = this.shadowRoot;
     if (hass.states[config.entity]) {
-      const list = hass.states[config.entity].attributes[config.attribute] + '';
+      const list = `${hass.states[config.entity].attributes[config.attribute]}`;
       this.style.display = 'block';
       if (list !== undefined && list.length > 0) {
         root.getElementById("container").innerHTML = `${list.split(/[\n,]/).join("<br/>")}`;
