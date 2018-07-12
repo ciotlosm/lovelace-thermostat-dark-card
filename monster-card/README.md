@@ -31,6 +31,7 @@ Filter options for `include` and `exclude`:
 | entity_id | string | optional | Filter entities by id, supports wildcards (`*living_room*`). Case insensitive
 | name | string | optional | Filter entities by friendly_name or title, supports wildcards (`*kitchen*`). Case insensitive
 | attributes | object | optional | Filter entities by attributes object
+| options| object | optional | Provide additional [configuration options](https://www.home-assistant.io/lovelace/entities/#options-for-entities) to entities
 
 Attributes object
 
@@ -127,6 +128,21 @@ The following example will display all sensors in alphabetical order. `sensor.my
     include:
       - entity_id: sensor.*
       - entity_id: sensor.my_sensor
+```
+
+Provide additional configuration options to entities:
+``` yaml
+- type: custom:monster-card
+  card:
+    type: entities
+  filter:
+    include:
+      - entity_id: sensor.my_sensor
+        options:
+          name: "My super sensor"
+      - domain: media_player
+        options:
+          type: "custom:state-card-custom"
 ```
 
 ## Credits
