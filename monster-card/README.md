@@ -39,6 +39,8 @@ Attributes object
 | ---- | ---- | ------- | -----------
 | * | any | **Required** | Any type of attribute that your entity can have (`battery: 50`)
 
+⚠️ Supports comparison only if sensor attribute is `Number` and you send a string like '< 300'. Must have exactly one space between operator and value.
+Supported operators: =, <, >, <=, >=
 
 When object
 
@@ -64,7 +66,6 @@ Show all with some exceptions:
 ```
 
 Show all in `device_tracker` with battery at 53:
-
 ```yaml
 - type: custom:monster-card
   card:
@@ -75,6 +76,21 @@ Show all in `device_tracker` with battery at 53:
       - domain: device_tracker
         attributes:
           battery: 53
+          source_type: gps
+```
+
+
+Show all in `device_tracker` with battery lower than 25:
+```yaml
+- type: custom:monster-card
+  card:
+    type: glance
+    title: Monster
+  filter:
+    include:
+      - domain: device_tracker
+        attributes:
+          battery: '< 25'
           source_type: gps
 ```
 
