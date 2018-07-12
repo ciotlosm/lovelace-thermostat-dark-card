@@ -24,3 +24,7 @@ A special card for Toast and his contribution to the community. A card that disp
 ❤️ To activate the cards set an attribute called `list` on the `sensor.beer_list` with any state.
 
 ![beer-value](https://user-images.githubusercontent.com/7738048/42560596-ac2627ce-84ff-11e8-965b-b82604645086.png)
+
+## Credits
+[ciotlosm](https://github.com/ciotlosm)
+[iantrich](https://github.com/iantrich)
