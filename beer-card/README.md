@@ -8,7 +8,7 @@ A special card for Toast and his contribution to the community. A card that disp
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:beer-card`
 | entity | string | **Required** | The sensor to use for the list
-| attrobite | string | optional | The attribute of the entity to list. Default is 'list'
+| attribute | string | optional | The attribute of the entity to list. Default is 'list'
 | title | string | optional | A card title
 | icon | string | mdi:beer | An icon to display
 
