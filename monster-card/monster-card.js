@@ -9,13 +9,30 @@ class MonsterCard extends HTMLElement {
       return stateObj.entity_id.search(regEx) === 0;
     }
     function _filterName(stateObj, pattern) {
-      let compareEntity = stateObj.attributes.title?stateObj.attributes.title:stateObj.attributes.friendly_name;
+      let compareEntity = stateObj.attributes.title ? stateObj.attributes.title : stateObj.attributes.friendly_name;
       if (!compareEntity) compareEntity = stateObj.entity_id;
       if (pattern.indexOf('*') === -1) {
         return compareEntity === pattern;
       }
       const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`, 'i');
       return compareEntity.search(regEx) === 0;
+    }
+    // Allows '< 300' in b
+    function _complexCompare(a, b) {
+      const _compare = {
+        '>': (x, y) => x > y,
+        '<': (x, y) => x < y,
+        '<=': (x, y) => x <= y,
+        '>=': (x, y) => x >= y,
+        '=': (x, y) => x === y,
+      };
+      let operator = '=';
+      let y = b;
+      if (!isNaN(a) && typeof (b) == 'string'
+        && b.split(" ").length > 1) {
+        [operator, y] = b.split(' ', 2);
+      }
+      return _compare[operator](a, y);
     }
     const entities = new Set();
     filters.forEach((filter) => {
@@ -25,7 +42,7 @@ class MonsterCard extends HTMLElement {
       }
       if (filter.attributes) {
         Object.keys(filter.attributes).forEach(key => {
-          filters.push(stateObj => stateObj.attributes[key] === filter.attributes[key]);
+          filters.push(stateObj => _complexCompare(stateObj.attributes[key], filter.attributes[key]));
         });
       }
       if (filter.entity_id) {
@@ -35,13 +52,13 @@ class MonsterCard extends HTMLElement {
         filters.push(stateObj => _filterName(stateObj, filter.name));
       }
       if (filter.state) {
-        filters.push(stateObj => stateObj.state === filter.state);
+        filters.push(stateObj => _complexCompare(stateObj.state, filter.state));
       }
 
       Object.keys(hass.states).sort().forEach(key => {
         if (filters.every(filterFunc => filterFunc(hass.states[key]))) {
           if (filter.options) {
-            entities.add(Object.assign({"entity": hass.states[key].entity_id}, filter.options));
+            entities.add(Object.assign({ "entity": hass.states[key].entity_id }, filter.options));
           } else {
             entities.add(hass.states[key].entity_id)
           }
