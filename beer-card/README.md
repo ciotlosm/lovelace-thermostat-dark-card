@@ -10,6 +10,7 @@ A special card for Toast and his contribution to the community. A card that disp
 | entity | string | **Required** | The sensor to use for the list
 | attribute | string | optional | The attribute of the entity to list. Default is 'list'
 | title | string | optional | A card title
+| style | string | optional | A style to apply to the `ha-card`
 | icon | string | mdi:beer | An icon to display. Besides mdi icons, it supports images: png, jpg, svg, gif
 
 ## Configuration
@@ -29,6 +30,16 @@ Example with image icon:
   title: Untappd Wishlist
   entity: sensor.untappd_wishlist
   icon: /local/icons/untappd.png
+```
+
+Example with a background image:
+```yaml
+- type: custom:beer-card
+  title: Untappd Wishlist
+  entity: sensor.untappd_wishlist
+  icon: mdi:heart
+  style: "background-image: url('/local/untapped.png')"
+  attribute: list
 ```
 
 ❤️ To activate the cards set an attribute called `list` on the `sensor.beer_list` with any state.

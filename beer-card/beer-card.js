@@ -26,6 +26,7 @@ class BeerCard extends HTMLElement {
     style.textContent = `
         ha-card {
           position: relative;
+          ${cardConfig.style}
         }
         ha-icon {
           float: left;
