@@ -1,3 +1,6 @@
+## 0.2.2
+Fixed problem with `string` states when using comparison operator
+
 ## 0.2.1
 Implemented support to use comparison operator in states & attributes (#17)
 ```yaml
