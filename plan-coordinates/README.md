@@ -11,3 +11,27 @@ Helper to display `left:` and `top:` to use as coordinates in entities in [pictu
 ```yaml
 - type: custom:plan-coordinates
 ```
+
+To use with ```panel: true``` you can use ```vertical-stack``` which will display like normal, or ```horizontal-stack``` which will push the ```picture-elements``` to one side or the other.
+
+
+```yaml
+- title: Main Floor
+    id: main-floor
+    icon: mdi:wrench
+    panel: true
+    cards:   
+      - type: vertical-stack
+        cards: 
+          - type: custom:plan-coordinates                    
+          - type: picture-elements
+            image: /local/floorplan/mainfloor.jpg
+            elements:
+              - type: state-icon
+                entity: light.mudroom_light_level
+                tap_action: toggle
+                style:
+                  top: 60%
+                  left: 67%
+```
+
