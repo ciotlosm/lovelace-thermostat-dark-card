@@ -14,14 +14,15 @@ class BeerCard extends HTMLElement {
     if (root.lastChild) root.removeChild(root.lastChild);
 
     const cardConfig = Object.assign({}, config);
-    if (!cardConfig.icon) cardConfig.icon = "mdi:beer";
-    if (!cardConfig.attribute) cardConfig.attribute = "list";
+    if (!cardConfig.icon) cardConfig.icon = 'mdi:beer';
+    if (!cardConfig.attribute) cardConfig.attribute = 'list';
 
     const card = document.createElement('ha-card');
     const content = document.createElement('div');
     const style = document.createElement('style');
     const icon = document.createElement('ha-icon');
-    icon.icon = cardConfig.icon;
+    const [prefix, type] = cardConfig.icon.split('.', 2);
+    ['png', 'jpg', 'svg', 'gif'].includes(type)?icon.src = cardConfig.icon:icon.icon = cardConfig.icon;
     style.textContent = `
         ha-card {
           position: relative;
@@ -36,7 +37,7 @@ class BeerCard extends HTMLElement {
           margin-left: 50px;
         }
       `;
-    content.id = "container";
+    content.id = 'container';
     card.appendChild(icon);
     card.header = cardConfig.title;
     card.appendChild(content);
@@ -52,7 +53,7 @@ class BeerCard extends HTMLElement {
       const list = `${hass.states[config.entity].attributes[config.attribute]}`;
       this.style.display = 'block';
       if (list !== undefined && list.length > 0) {
-        root.getElementById("container").innerHTML = `${list.split(/[\n,]/).join("<br/>")}`;
+        root.getElementById('container').innerHTML = `${list.split(/[\n,]/).join('<br/>')}`;
       } else {
         this.style.display = 'none';
       }
