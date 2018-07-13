@@ -28,11 +28,13 @@ class MonsterCard extends HTMLElement {
       };
       let operator = '=';
       let y = b;
+      let x = a;
       if (!isNaN(a) && typeof (b) == 'string'
         && b.split(" ").length > 1) {
         [operator, y] = b.split(' ', 2);
+        x = parseFloat(a);
       }
-      return _compare[operator](a, y);
+      return _compare[operator](x, y);
     }
     const entities = new Set();
     filters.forEach((filter) => {
