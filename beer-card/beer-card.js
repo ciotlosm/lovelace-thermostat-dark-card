@@ -52,7 +52,11 @@ class BeerCard extends HTMLElement {
       const list = `${hass.states[config.entity].attributes[config.attribute]}`;
       this.style.display = 'block';
       if (list !== 'undefined' && list.length > 0) {
-        root.getElementById("container").innerHTML = `${list.split(/[\n,]/).join("<br/>")}`;
+        if (config.bullets === true) {
+          root.getElementById("container").innerHTML = "<ul><li>" + `${list.split(/[\n,]/).join("</li><li>")}` + "</li></ul>";
+        } else {
+          root.getElementById("container").innerHTML = `${list.split(/[\n,]/).join("<br/>")}`;
+        }
       } else {
         this.style.display = 'none';
       }

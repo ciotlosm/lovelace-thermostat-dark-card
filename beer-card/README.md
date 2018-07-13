@@ -8,9 +8,10 @@ A special card for Toast and his contribution to the community. A card that disp
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:beer-card`
 | entity | string | **Required** | The sensor to use for the list
-| attribute | string | optional | The attribute of the entity to list. Default is 'list'
+| attribute | string | `list` | The attribute of the entity to list
 | title | string | optional | A card title
-| icon | string | mdi:beer | An icon to display
+| icon | string | `mdi:beer` | An icon to display
+| bullets | boolean | `false` | Setting to true will put bulletpoints in front of each item in the list
 
 ## Configuration
 
@@ -20,6 +21,7 @@ A special card for Toast and his contribution to the community. A card that disp
   attribute: list
   title: Toast Beer List
   icon: mdi:heart
+  bullets: true
 ```
 ❤️ To activate the cards set an attribute called `list` on the `sensor.beer_list` with any state.
 
