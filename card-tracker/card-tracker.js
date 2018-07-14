@@ -79,8 +79,6 @@ class CardTracker extends HTMLElement {
     const config = this._config;
     const root = this.shadowRoot;
     this.myhass = hass;
-
-    console.log((hass.states[config.entity]))
     if (hass.states[config.entity]) {
       const list = this._filterCards(hass.states[config.entity].attributes);
       this.style.display = 'block';
