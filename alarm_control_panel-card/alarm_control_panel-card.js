@@ -56,7 +56,7 @@ class AlarmControlPanelCard extends HTMLElement {
         justify-content: center;
       }
       .actions paper-button {
-        min-width: 150px;
+        min-width: 120px;
         color: var(--primary-color);
       }
       paper-button.disarm {
@@ -72,6 +72,7 @@ class AlarmControlPanelCard extends HTMLElement {
 
   set hass(hass) {
     const config = this._config;
+    this.myhass = hass;
     const entity = hass.states[config.entity];
     this._updateCardContent(entity);
   }
@@ -94,6 +95,8 @@ class AlarmControlPanelCard extends HTMLElement {
       case 'pending':
       case 'armed_away':
         return 'hass:bell'
+      case 'armed_night':
+        return 'hass:bell-sleep'
     }
     return 'hass:bell'
   }
@@ -108,22 +111,25 @@ class AlarmControlPanelCard extends HTMLElement {
         return 'Pending'
       case 'armed_away':
         return 'Armed away'
-    } 
+      case 'armed_night':
+        return 'Armed night'
+    }
     return 'Unknown'
   }
 
   _updateCardContent(entity) {
     const root = this.shadowRoot;
+    const config = this._config;
     const _armVisible = entity.state === 'disarmed';
     const _disarmVisible = (this._armedStates.includes(entity.state) || entity.state === 'pending' || entity.state === 'triggered');
-    const codeDisabled = !(_disarmVisible || _armVisible)?'disabled':'';
-    const buttonsDisabled = (!this._validateCode(this._enteredCode, entity.attributes.code_format))?'':'disabled';
-    if (!this._config.title) {
+    const codeDisabled = !(_disarmVisible || _armVisible) ? 'disabled' : '';
+    const buttonsDisabled = (!this._validateCode(this._enteredCode, entity.attributes.code_format)) ? '' : 'disabled';
+    if (!config.title) {
       this.shadowRoot.lastChild.header = this._translateState(entity.state);
     }
     const content = `
       <ha-icon icon='${this._getIcon(entity)}'></ha-icon>
-      ${this._config.title?`<div class='state'>${this._translateState(entity.state)}</div>`:''}
+      ${config.title ? `<div class='state'>${this._translateState(entity.state)}</div>` : ''}
       <div class="actions">
         ${_disarmVisible ? `
           <paper-button raised class="disarm" ${buttonsDisabled} id='disarm'>
@@ -136,6 +142,9 @@ class AlarmControlPanelCard extends HTMLElement {
           </paper-button>
           <paper-button raised ${buttonsDisabled} id='arm_away'>
             Arm Away
+          </paper-button>
+          <paper-button raised ${buttonsDisabled} id='arm_night'>
+            Arm Night
           </paper-button>
         `: ''}
       </div>
@@ -171,9 +180,64 @@ class AlarmControlPanelCard extends HTMLElement {
           </div>
       `: ''}
     `;
-
-
     root.getElementById("content").innerHTML = content;
+    const disarm = root.lastChild.querySelector('#disarm');
+    const arm_home = root.lastChild.querySelector('#arm_home');
+    const arm_away = root.lastChild.querySelector('#arm_away');
+    const arm_night = root.lastChild.querySelector('#arm_night');
+
+    if (disarm) {
+      disarm.addEventListener('click', event => {
+        this.myhass.callService('alarm_control_panel', 'alarm_disarm', {
+          entity_id: config.entity,
+          code: this._enteredCode,
+        });
+        this._enteredCode = '';
+      });
+    }
+    if (arm_home) {
+      arm_home.addEventListener('click', event => {
+        this.myhass.callService('alarm_control_panel', 'alarm_arm_home', {
+          entity_id: config.entity,
+          code: this._enteredCode,
+        });
+        this._enteredCode = '';
+      });
+    }
+    if (arm_night) {
+      arm_night.addEventListener('click', event => {
+        this.myhass.callService('alarm_control_panel', 'alarm_arm_night', {
+          entity_id: config.entity,
+          code: this._enteredCode,
+        });
+        this._enteredCode = '';
+      });
+    }
+    if (arm_away) {
+      arm_away.addEventListener('click', event => {
+        this.myhass.callService('alarm_control_panel', 'alarm_arm_away', {
+          entity_id: config.entity,
+          code: this._enteredCode,
+        });
+        this._enteredCode = '';
+      });
+    }
+
+    root.querySelectorAll(".pad paper-button").forEach(el => {
+      el.addEventListener('click', event => {
+        if (event.target.id == 'clear') {
+          root.lastChild.querySelector('paper-input').value = '';
+          this._enteredCode = '';
+        } else {
+          this._enteredCode += event.target.getAttribute('data-digit');
+          root.lastChild.querySelector('paper-input').value = this._enteredCode;
+          root.lastChild.querySelectorAll('.actions paper-button').forEach(elem => {
+            elem.removeAttribute('disabled');
+          });
+        }
+      })
+    });
+
   }
   getCardSize() {
     return 1;
