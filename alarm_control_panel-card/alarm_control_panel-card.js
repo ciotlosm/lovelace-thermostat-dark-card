@@ -81,10 +81,6 @@ class AlarmControlPanelCard extends HTMLElement {
     return format === 'Number';
   }
 
-  _validateCode(code, format) {
-    return !code || !format || code.length > 0;
-  }
-
   _getIcon(entity) {
     let state = entity.state;
     switch (state) {
@@ -111,7 +107,7 @@ class AlarmControlPanelCard extends HTMLElement {
         return 'Armed home'
       case 'pending':
         return 'Pending'
-        case 'triggered':
+      case 'triggered':
         return 'Triggered'
       case 'armed_away':
         return 'Armed away'
@@ -127,7 +123,6 @@ class AlarmControlPanelCard extends HTMLElement {
     const _armVisible = entity.state === 'disarmed';
     const _disarmVisible = (this._armedStates.includes(entity.state) || entity.state === 'pending' || entity.state === 'triggered');
     const codeDisabled = !(_disarmVisible || _armVisible) ? 'disabled' : '';
-    const buttonsDisabled = (!this._validateCode(this._enteredCode, entity.attributes.code_format)) ? '' : 'disabled';
     if (!config.title) {
       this.shadowRoot.lastChild.header = this._translateState(entity.state);
     }
@@ -136,18 +131,18 @@ class AlarmControlPanelCard extends HTMLElement {
       ${config.title ? `<div class='state'>${this._translateState(entity.state)}</div>` : ''}
       <div class="actions">
         ${_disarmVisible ? `
-          <paper-button raised class="disarm" ${buttonsDisabled} id='disarm'>
+          <paper-button raised class="disarm" id='disarm'>
             Disarm
           </paper-button>
         `: ''}
         ${_armVisible ? `
-          <paper-button raised ${buttonsDisabled} id='arm_home'>
+          <paper-button raised id='arm_home'>
             Arm Home
           </paper-button>
-          <paper-button raised ${buttonsDisabled} id='arm_away'>
+          <paper-button raised id='arm_away'>
             Arm Away
           </paper-button>
-          <paper-button raised ${buttonsDisabled} id='arm_night'>
+          <paper-button raised id='arm_night'>
             Arm Night
           </paper-button>
         `: ''}
@@ -192,6 +187,9 @@ class AlarmControlPanelCard extends HTMLElement {
 
     if (disarm) {
       disarm.addEventListener('click', event => {
+        if (entity.attributes.code_format) {
+          this._enteredCode = root.lastChild.querySelector('paper-input').value;
+        }
         this.myhass.callService('alarm_control_panel', 'alarm_disarm', {
           entity_id: config.entity,
           code: this._enteredCode,
@@ -201,6 +199,9 @@ class AlarmControlPanelCard extends HTMLElement {
     }
     if (arm_home) {
       arm_home.addEventListener('click', event => {
+        if (entity.attributes.code_format) {
+          this._enteredCode = root.lastChild.querySelector('paper-input').value;
+        }
         this.myhass.callService('alarm_control_panel', 'alarm_arm_home', {
           entity_id: config.entity,
           code: this._enteredCode,
@@ -210,6 +211,9 @@ class AlarmControlPanelCard extends HTMLElement {
     }
     if (arm_night) {
       arm_night.addEventListener('click', event => {
+        if (entity.attributes.code_format) {
+          this._enteredCode = root.lastChild.querySelector('paper-input').value;
+        }
         this.myhass.callService('alarm_control_panel', 'alarm_arm_night', {
           entity_id: config.entity,
           code: this._enteredCode,
@@ -219,12 +223,31 @@ class AlarmControlPanelCard extends HTMLElement {
     }
     if (arm_away) {
       arm_away.addEventListener('click', event => {
+        if (entity.attributes.code_format) {
+          this._enteredCode = root.lastChild.querySelector('paper-input').value;
+        }
         this.myhass.callService('alarm_control_panel', 'alarm_arm_away', {
           entity_id: config.entity,
           code: this._enteredCode,
         });
         this._enteredCode = '';
       });
+    }
+
+    if (entity.attributes.code_format) {
+      root.lastChild.querySelectorAll('.actions paper-button').forEach(elem => {
+        elem.setAttribute('disabled', true);
+      });
+    }
+
+    const input = root.querySelector("paper-input");
+    if (input) {
+      input.addEventListener('keypress', event => {
+        this._enteredCode = root.lastChild.querySelector('paper-input').value;
+        root.lastChild.querySelectorAll('.actions paper-button').forEach(elem => {
+          elem.removeAttribute('disabled');
+        });
+      })
     }
 
     root.querySelectorAll(".pad paper-button").forEach(el => {
