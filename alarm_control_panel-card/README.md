@@ -1,8 +1,7 @@
 # Alarm control panel card
-Entity attributes allows you to control [alarm_control_panel.manual](https://www.home-assistant.io/components/alarm_control_panel.manual/)
+Alarm control panel card allows you to control [alarm_control_panel.manual](https://www.home-assistant.io/components/alarm_control_panel.manual/)
 
 ![alarm](https://user-images.githubusercontent.com/7738048/42728238-ed413f7a-87be-11e8-8e94-65e34df9ed8d.gif)
-
 
 **Options**
 

@@ -56,7 +56,7 @@ class AlarmControlPanelCard extends HTMLElement {
         justify-content: center;
       }
       .actions paper-button {
-        min-width: 120px;
+        min-width: 115px;
         color: var(--primary-color);
       }
       paper-button.disarm {
@@ -95,6 +95,8 @@ class AlarmControlPanelCard extends HTMLElement {
       case 'pending':
       case 'armed_away':
         return 'hass:bell'
+      case 'triggered':
+        return 'hass:bell-ring'
       case 'armed_night':
         return 'hass:bell-sleep'
     }
@@ -109,6 +111,8 @@ class AlarmControlPanelCard extends HTMLElement {
         return 'Armed home'
       case 'pending':
         return 'Pending'
+        case 'triggered':
+        return 'Triggered'
       case 'armed_away':
         return 'Armed away'
       case 'armed_night':
