@@ -99,4 +99,4 @@ class CardTracker extends HTMLElement {
     return 1;
   }
 }
-customElements.define('cardtracker-card', CardTracker);
+customElements.define('card-tracker', CardTracker);
