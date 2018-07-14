@@ -3,13 +3,13 @@
 A card to track updates for custom cards in this repository.
 It uses a [custom component](https://github.com/custom-components/custom_cards) that tracks versions.
 
-![card-tracker](https://user-images.githubusercontent.com/7738048/42637020-ce8441fe-85f2-11e8-93ae-1468f64b46aa.png)
+![card-tracker](https://user-images.githubusercontent.com/7738048/42725289-15563bd0-878a-11e8-93f0-606b19e3da07.png)
 
 ## Options
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| type | string | **Required** | `custom:cardtracker-card`
+| type | string | **Required** | `custom:card-tracker`
 | entity | string | **Required** | The sensor to use for tracking `sensor.custom_card_tracker`
 | title | string | 📣 Updates | Name to display on card
 
