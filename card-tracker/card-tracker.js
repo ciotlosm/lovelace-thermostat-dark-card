@@ -42,7 +42,7 @@ class CardTracker extends HTMLElement {
           paper-button {
             float: right;
           }
-          td.has_update {
+          td a {
             color: red;
             font-weight: bold;
           }
@@ -87,7 +87,15 @@ class CardTracker extends HTMLElement {
       if (list !== undefined && list.length > 0) {
         const updated_content = `
           ${list.map(elem => `
-            <tr><td>${elem[0]}</td><td>${elem[1].local?elem[1].local:'n/a'}</td><td class='${elem[1].has_update?'has_update':''}'>${elem[1].remote?elem[1].remote:'n/a'}</td></tr>
+            <tr>
+              <td>${elem[0]}</td>
+              <td>${elem[1].local?elem[1].local:'n/a'}</td>
+              <td>
+                ${elem[1].has_update?`
+                <a href="https://github.com/ciotlosm/custom-lovelace/blob/master/${elem[0]}/changelog.md" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
+                `:(elem[1].remote?elem[1].remote:'n/a')}
+                </td>
+            </tr>
           `).join('')}
         `;
         root.getElementById('container').innerHTML = updated_content;
