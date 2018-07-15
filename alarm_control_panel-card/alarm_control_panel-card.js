@@ -33,10 +33,10 @@ class AlarmControlPanelCard extends HTMLElement {
         border: 2px solid var(--alarm-state-color);
         border-radius: 50%;
       }
-      ha-icon.disarmed {
+      .disarmed {
         --alarm-state-color: var(--label-badge-red);
       }
-      ha-icon.pending {
+      .pending {
         --alarm-state-color: var(--label-badge-yellow);
         animation: pulse 1s infinite;
       }
@@ -56,7 +56,8 @@ class AlarmControlPanelCard extends HTMLElement {
         margin-left: 20px;
         position: relative;
         bottom: 16px;
-        color: var(--secondary-text-color)
+        color: var(--alarm-state-color);
+        animation: none;
       }
       .pad {
         display: flex;
@@ -111,7 +112,7 @@ class AlarmControlPanelCard extends HTMLElement {
     }
     const content = `
       <ha-icon icon='${this._getIcon(entity.state)}' class='${entity.state}'></ha-icon>
-      ${config.title ? `<div class='state'>${this._translateState(entity.state)}</div>` : ''}
+      ${config.title ? `<div class='state ${entity.state}'>${this._translateState(entity.state)}</div>` : ''}
       <div class="actions">
         ${_disarmVisible ? `
           ${this._generateButton('disarm')}

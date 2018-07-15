@@ -1,8 +1,15 @@
 ## 0.1.0
 - Improved state icon and switch to a shield
-- Allow for custom button state (based on what your alarm supports)
+- Allow for custom list of armed button state (based on what your alarm supports)
 
 ```yaml
+- type: custom:alarm_control_panel-card
+  entity: alarm_control_panel.ha_alarm
+  title: My Alarm
+  states:
+    - arm_home
+    - arm_away
+    - arm_custom_bypass
 ```
 
 ## 0.0.3
