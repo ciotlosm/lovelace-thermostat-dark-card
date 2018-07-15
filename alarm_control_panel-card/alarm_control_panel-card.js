@@ -13,6 +13,7 @@ class AlarmControlPanelCard extends HTMLElement {
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
     const cardConfig = Object.assign({}, config);
+    if (!cardConfig.states) cardConfig.states = ['arm_home', 'arm_away'];
     const card = document.createElement('ha-card');
     card.header = config.title;
     const content = document.createElement('div');
@@ -116,9 +117,7 @@ class AlarmControlPanelCard extends HTMLElement {
           ${this._generateButton('disarm')}
         `: ''}
         ${_armVisible ? `
-        ${this._generateButton('arm_home')}
-        ${this._generateButton('arm_away')}
-        ${this._generateButton('arm_night')}
+        ${config.states.map(el => `${this._generateButton(el)}`).join('')}
         `: ''}
       </div>
       ${entity.attributes.code_format ? `
