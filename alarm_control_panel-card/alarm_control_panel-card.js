@@ -147,9 +147,7 @@ class AlarmControlPanelCard extends HTMLElement {
     `;
     root.getElementById("content").innerHTML = content;
     this._bindService('disarm');
-    this._bindService('arm_home');
-    this._bindService('arm_away');
-    this._bindService('arm_night');
+    config.states.forEach(state => this._bindService(state));
 
     if (entity.attributes.code_format) {
       root.lastChild.querySelectorAll('.actions paper-button').forEach(elem => {
@@ -215,6 +213,8 @@ class AlarmControlPanelCard extends HTMLElement {
         return 'mdi:security-lock'
       case 'triggered':
         return 'hass:bell-ring'
+      case 'armed_custom_bypass':
+        return 'mdi:security'
       case 'armed_night':
         return 'mdi:security-home'
     }
@@ -235,6 +235,8 @@ class AlarmControlPanelCard extends HTMLElement {
         return 'Armed away'
       case 'armed_night':
         return 'Armed night'
+      case 'armed_custom_bypass':
+        return 'Armed custom'
       case 'disarm':
         return 'Disarm'
       case 'arm_home':
@@ -243,6 +245,8 @@ class AlarmControlPanelCard extends HTMLElement {
         return 'Arm away'
       case 'arm_night':
         return 'Arm night'
+      case 'arm_custom_bypass':
+        return 'Custom'
     }
     return 'Unknown'
   }
