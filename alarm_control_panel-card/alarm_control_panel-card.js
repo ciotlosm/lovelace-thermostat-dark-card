@@ -147,59 +147,10 @@ class AlarmControlPanelCard extends HTMLElement {
       `: ''}
     `;
     root.getElementById("content").innerHTML = content;
-    const disarm = card.querySelector('#disarm');
-    const arm_home = card.querySelector('#arm_home');
-    const arm_away = card.querySelector('#arm_away');
-    const arm_night = card.querySelector('#arm_night');
-
-    if (disarm) {
-      disarm.addEventListener('click', event => {
-        if (entity.attributes.code_format) {
-          this._enteredCode = root.lastChild.querySelector('paper-input').value;
-        }
-        this.myhass.callService('alarm_control_panel', 'alarm_disarm', {
-          entity_id: config.entity,
-          code: this._enteredCode,
-        });
-        this._enteredCode = '';
-      });
-    }
-    if (arm_home) {
-      arm_home.addEventListener('click', event => {
-        if (entity.attributes.code_format) {
-          this._enteredCode = root.lastChild.querySelector('paper-input').value;
-        }
-        this.myhass.callService('alarm_control_panel', 'alarm_arm_home', {
-          entity_id: config.entity,
-          code: this._enteredCode,
-        });
-        this._enteredCode = '';
-      });
-    }
-    if (arm_night) {
-      arm_night.addEventListener('click', event => {
-        if (entity.attributes.code_format) {
-          this._enteredCode = root.lastChild.querySelector('paper-input').value;
-        }
-        this.myhass.callService('alarm_control_panel', 'alarm_arm_night', {
-          entity_id: config.entity,
-          code: this._enteredCode,
-        });
-        this._enteredCode = '';
-      });
-    }
-    if (arm_away) {
-      arm_away.addEventListener('click', event => {
-        if (entity.attributes.code_format) {
-          this._enteredCode = root.lastChild.querySelector('paper-input').value;
-        }
-        this.myhass.callService('alarm_control_panel', 'alarm_arm_away', {
-          entity_id: config.entity,
-          code: this._enteredCode,
-        });
-        this._enteredCode = '';
-      });
-    }
+    this._bindService('disarm');
+    this._bindService('arm_home');
+    this._bindService('arm_away');
+    this._bindService('arm_night');
 
     if (entity.attributes.code_format) {
       root.lastChild.querySelectorAll('.actions paper-button').forEach(elem => {
@@ -232,6 +183,25 @@ class AlarmControlPanelCard extends HTMLElement {
       })
     });
 
+  }
+
+  _bindService(button) {
+    const card = this.shadowRoot.lastChild;
+    const config = this._config;
+    const entity = this.myhass.states[config.entity];
+    const dom_button = card.querySelector(`#${button}`);
+    if (dom_button) {
+      dom_button.addEventListener('click', event => {
+        if (entity.attributes.code_format) {
+          this._enteredCode = card.querySelector('paper-input').value;
+        }
+        this.myhass.callService('alarm_control_panel', `alarm_${button}`, {
+          entity_id: config.entity,
+          code: this._enteredCode,
+        });
+        this._enteredCode = '';
+      });
+    }
   }
 
   _getIcon(state) {
