@@ -7,7 +7,7 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config.entity && config.entity.split(".")[0] != "alarm_control_panel") {
+    if (!config.entity || config.entity.split(".")[0] !== "alarm_control_panel") {
       throw new Error('Please specify an entity from alarm_control_panel domain.');
     }
     const root = this.shadowRoot;
@@ -95,7 +95,7 @@ class AlarmControlPanelCard extends HTMLElement {
     const config = this._config;
     this.myhass = hass;
     const entity = hass.states[config.entity];
-    if (entity.state != this._state) {
+    if (entity && entity.state != this._state) {
       this._updateCardContent(entity);
       this._state = entity.state;
     }
@@ -124,7 +124,7 @@ class AlarmControlPanelCard extends HTMLElement {
       ${entity.attributes.code_format ? `
         <paper-input label="Alarm code" type="password"></paper-input>
       `: ''}
-      ${entity.attributes.code_format == 'Number' ? `
+      ${(entity.attributes.code_format == 'Number' || config.show_keypad)? `
           <div class="pad">
             <div>
               <paper-button data-digit="1" raised>1</paper-button>

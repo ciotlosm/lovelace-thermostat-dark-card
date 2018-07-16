@@ -1,3 +1,10 @@
+## 0.1.2
+- Fix keypad logic for display (#71) for alarms returning a regex in `code_format`
+- More rebust component - avoid JS error on invalid entity
+
+## 0.1.1
+- Fix state of buttons when using Clear key (thanks [@xiidoz](https://github.com/xiidoz))
+
 ## 0.1.0
 - Improved state icon and switch to a shield
 - Allow for custom list of armed button state (based on what your alarm supports)
