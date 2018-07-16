@@ -171,6 +171,9 @@ class AlarmControlPanelCard extends HTMLElement {
         if (event.target.id == 'clear') {
           root.lastChild.querySelector('paper-input').value = '';
           this._enteredCode = '';
+          root.lastChild.querySelectorAll('.actions paper-button').forEach(elem => {
+            elem.setAttribute('disabled', true);
+          });
         } else {
           this._enteredCode += event.target.getAttribute('data-digit');
           root.lastChild.querySelector('paper-input').value = this._enteredCode;
