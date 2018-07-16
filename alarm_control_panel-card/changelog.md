@@ -1,5 +1,9 @@
+## 0.2.0
+- Fixed colors and icons for `armed`, `disarmed`, `pending` to be closer to industry standards
+- Add support for style
+
 ## 0.1.2
-- Fix keypad logic for display (#71) for alarms returning a regex in `code_format`
+- Fix keypad logic for display (#71) for alarms returning a regex in `code_format`, now you can use config `force_keypad`
 - More rebust component - avoid JS error on invalid entity
 
 ## 0.1.1
