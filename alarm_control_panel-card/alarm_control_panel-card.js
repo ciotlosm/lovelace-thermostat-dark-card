@@ -22,7 +22,12 @@ class AlarmControlPanelCard extends HTMLElement {
       ha-card {
         padding-bottom: 16px;
         position: relative;
-        --alarm-state-color: var(--label-badge-green)
+        --alarm-color-disarmed: var(--label-badge-green);
+        --alarm-color-pending: var(--label-badge-yellow);
+        --alarm-color-triggered: var(--label-badge-red);
+        --alarm-color-armed: var(--label-badge-red);
+        --alarm-state-color: var(--alarm-color-armed);
+        ${config.style}
       }
       ha-icon {
         color: var(--alarm-state-color);
@@ -34,10 +39,14 @@ class AlarmControlPanelCard extends HTMLElement {
         border-radius: 50%;
       }
       .disarmed {
-        --alarm-state-color: var(--label-badge-red);
+        --alarm-state-color: var(--alarm-color-disarmed);
+      }
+      .triggered {
+        --alarm-state-color: var(--alarm-color-triggered);
+        animation: pulse 1s infinite;
       }
       .pending {
-        --alarm-state-color: var(--label-badge-yellow);
+        --alarm-state-color: var(--alarm-color-pending);
         animation: pulse 1s infinite;
       }
       @keyframes pulse {
@@ -124,7 +133,7 @@ class AlarmControlPanelCard extends HTMLElement {
       ${entity.attributes.code_format ? `
         <paper-input label="Alarm code" type="password"></paper-input>
       `: ''}
-      ${(entity.attributes.code_format == 'Number' || config.show_keypad)? `
+      ${(entity.attributes.code_format == 'Number' || config.force_keypad)? `
           <div class="pad">
             <div>
               <paper-button data-digit="1" raised>1</paper-button>
@@ -208,7 +217,7 @@ class AlarmControlPanelCard extends HTMLElement {
   _getIcon(state) {
     switch (state) {
       case 'disarmed':
-        return 'mdi:security-close'
+        return 'mdi:verified'
       case 'armed_home':
         return 'mdi:security-home'
       case 'pending':
