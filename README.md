@@ -87,5 +87,8 @@ Please make sure you have `javascript_version: latest` in your `configuration.ya
 
 This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button.
 
+## License
+Majority of cards use Apache License, however there are some that have their own LICENSE file.
+
 ## Credits
 - [@ciotlosm](https://github.com/ciotlosm)

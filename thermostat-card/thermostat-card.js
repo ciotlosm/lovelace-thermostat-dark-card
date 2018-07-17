@@ -1,4 +1,4 @@
-import thermostatDial from '/local/custom-lovelace/thermostat-card/thermostat_lib.js?module';
+import thermostatDial from './thermostat-card.lib.js?module';
 
 class ThermostatCard extends HTMLElement  {
   static get properties() {
