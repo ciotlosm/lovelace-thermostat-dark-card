@@ -72,7 +72,7 @@ class CardTracker extends HTMLElement {
   }
 
   _filterCards(attributes) {
-    return Object.entries(attributes).filter(elem => elem[0] != "friendly_name");
+    return Object.entries(attributes).filter(elem => (elem[0] != "friendly_name" && elem[0] != "homebridge_hidden"));
   }
 
   set hass(hass) {
