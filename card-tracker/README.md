@@ -11,7 +11,7 @@ It uses a [custom component](https://github.com/custom-components/custom_cards) 
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:card-tracker`
 | entity | string | **Required** | The sensor to use for tracking `sensor.custom_card_tracker`
-| title | string | 📣 Updates | Name to display on card
+| title | string | 📣 Custom Card Updates | Name to display on card
 
 ## Installation
 Make sure you've installed the custom component `custom_cards` first.
