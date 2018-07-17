@@ -122,8 +122,6 @@ class ThermostatCard extends HTMLElement  {
     `
 
     this.thermo = new thermostatDial(content, {
-      minValue: cardConfig.min || 60,
-      maxValue: cardConfig.max || 80,
       onSetTargetTemperature: this._toggle.bind(this)
     })
 
@@ -143,11 +141,23 @@ class ThermostatCard extends HTMLElement  {
     });
   }
 
+  get entity() {
+    const config = this.config;
+    return this._hass.states[config.entity]
+  }
+
   set hass(hass) {
     const config = this.config;
     const entity = hass.states[config.entity]
     const entityState = entity.state;
-    // const measurement = hass.states[config.entity].attributes.unit_of_measurement;
+
+    if (!config.temperatureUnit) {
+      const temperatureUnit = hass.config.core.unit_system.temperature;
+      config.temperatureUnit = temperatureUnit
+      this.thermo.minValue = temperatureUnit == '°F' ? 60 : 15
+      this.thermo.maxValue = temperatureUnit == '°F' ? 80 : 27
+    }
+
     this.thermo.ambient_temperature = entity.attributes.current_temperature
     this.thermo.target_temperature = entity.attributes.target_temp_low
     this.thermo.hvac_state = s(entityState)
