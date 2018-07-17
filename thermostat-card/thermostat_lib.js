@@ -172,6 +172,24 @@ var thermostatDial = (function() {
 				render();
 			}
 		});
+		Object.defineProperty(this,'minValue',{
+			get: function() {
+				return options.minValue;
+			},
+			set: function(val) {
+				options.minValue = val
+				render();
+			}
+		});
+		Object.defineProperty(this,'maxValue',{
+			get: function() {
+				return options.maxValue;
+			},
+			set: function(val) {
+				options.maxValue = val
+				render();
+			}
+		});
 
 		/*
 		 * SVG
