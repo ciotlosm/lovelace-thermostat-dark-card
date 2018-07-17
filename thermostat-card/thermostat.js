@@ -14,7 +14,7 @@ class ThermostatCard extends HTMLElement  {
   }
 
   setConfig(config) {
-    if (!config.entity) {
+    if (!config.entity && config.entity.split(".")[0] === 'climate') {
       throw new Error('Please define an entity');
     }
 
