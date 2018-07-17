@@ -35,7 +35,7 @@ class ThermostatCard extends HTMLElement  {
       --thermostat-off-fill: #222;
       --thermostat-path-color: rgba(255, 255, 255, 0.3);
       --thermostat-heating-fill: #E36304;
-      --thermostat-cooling-fill: #E36304;
+      --thermostat-cooling-fill: #007AF1;
       --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
       --thermostat-text-color: white;
     }
