@@ -24,25 +24,20 @@ class ThermostatCard extends HTMLElement  {
     const cardConfig = Object.assign({}, config);
 
     const card = document.createElement('ha-card');
-    const shadow = card.attachShadow({ mode: 'open' });
     const content = document.createElement('div');
     const style = document.createElement('style');
     style.textContent = `
     @import url(https://fonts.googleapis.com/css?family=Open+Sans:300);
-    body {
-      background-color: #CCCCCC;
-    }
-    #thermostat {
-      width: 50vmin;
-      height: 50vmin;
-      margin: 0 auto;
-      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    }
+
     .dial {
-      -webkit-user-select: none;
-        -moz-user-select: none;
-          -ms-user-select: none;
-              user-select: none;
+      user-select: none;
+
+      --thermostat-off-fill: #222;
+      --thermostat-path-color: rgba(255, 255, 255, 0.3);
+      --thermostat-heating-fill: #E36304;
+      --thermostat-cooling-fill: #E36304;
+      --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
+      --thermostat-text-color: white;
     }
     .dial.away .dial__ico__leaf {
       visibility: hidden;
@@ -80,22 +75,22 @@ class ThermostatCard extends HTMLElement  {
       opacity: 1;
     }
     .dial--state--off .dial__shape {
-      fill: #222;
+      fill: var(--thermostat-off-fill);
     }
     .dial--state--heating .dial__shape {
-      fill: #E36304;
+      fill: var(--thermostat-heating-fill);
     }
     .dial--state--cooling .dial__shape {
-      fill: #007AF1;
+      fill: var(--thermostat-cooling-fill);
     }
     .dial__ticks path {
-      fill: rgba(255, 255, 255, 0.3);
+      fill: var(--thermostat-path-color);
     }
     .dial__ticks path.active {
-      fill: rgba(255, 255, 255, 0.8);
+      fill: var(--thermostat-path-active-color);
     }
     .dial text {
-      fill: white;
+      fill: var(--thermostat-text-color);
       text-anchor: middle;
       font-family: Helvetica, sans-serif;
       alignment-baseline: central;
@@ -124,37 +119,7 @@ class ThermostatCard extends HTMLElement  {
       opacity: 0;
       pointer-events: none;
     }
-    #controls {
-      font-family: Open Sans;
-      background-color: rgba(255, 255, 255, 0.25);
-      padding: 20px;
-      border-radius: 5px;
-      position: absolute;
-      left: 50%;
-      -webkit-transform: translatex(-50%);
-              transform: translatex(-50%);
-      margin-top: 20px;
-    }
-    #controls label {
-      text-align: left;
-      display: block;
-    }
-    #controls label span {
-      display: inline-block;
-      width: 200px;
-      text-align: right;
-      font-size: 0.8em;
-      text-transform: uppercase;
-    }
-    #controls p {
-      margin: 0;
-      margin-bottom: 1em;
-      padding-bottom: 1em;
-      border-bottom: 2px solid #ccc;
-    }
     `
-
-    console.log(cardConfig)
 
     this.thermo = new thermostatDial(content, {
       minValue: cardConfig.min || 60,
@@ -205,4 +170,3 @@ function s(state) {
 }
 
 customElements.define('thermostat-card', ThermostatCard);
-
