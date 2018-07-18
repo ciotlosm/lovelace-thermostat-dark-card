@@ -11,7 +11,7 @@ A special card for Toast and his contribution to the community. A card that disp
 | attribute | string | `list` | The attribute of the entity to list
 | title | string | optional | A card title
 | icon | string | `mdi:beer` | An icon to display
-| bullets | boolean | `false` | Setting to true will put bulletpoints in front of each item in the list
+| list_type | string | `none` | Style of list. Options are `none, disc, circle, square`
 
 ## Configuration
 
