@@ -31,6 +31,9 @@ If you'd like to contribute functionality of fixes please make sure you follow a
 
 ## FAQ
 
+### I have added the custom card javascript file in my `www` folder, but it doesn't load, why?
+If this was the first time you created the `www` folder in your `config` than you MUST restart Home Assistant.
+
 ### I get a error with `n.setConfig' is undefied`, how do i fix this?
 This is usually caused by running an older frontend. If you're already running 0.73 or newer please make sure you  have cleared browser cache. On mobile app you can also force a few refreshes. If you're running IOS device check next question.
 
