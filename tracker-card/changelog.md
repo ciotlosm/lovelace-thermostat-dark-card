@@ -2,6 +2,7 @@
 - Renamed to tracker-card
 - Added support for custom_components as well
 - Added support for multiple `check`/`update` services
+- Add support for multiple type of tracking & updating components
 
 ## 0.0.3
 Implemented exception for `homebridge_hidden`

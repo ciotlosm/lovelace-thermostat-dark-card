@@ -2,7 +2,7 @@
 
 A card to track updates for custom cards and custom comopnents. It uses sensors to get various 
 
-![tracker-card](https://user-images.githubusercontent.com/7738048/42725289-15563bd0-878a-11e8-93f0-606b19e3da07.png)
+![tracker-card](https://user-images.githubusercontent.com/7738048/42875398-50ee1622-8a8c-11e8-97ed-ea6de6843504.png)
 
 ## Options
 
@@ -34,9 +34,8 @@ resources:
 
 ```yaml
 - type: custom:tracker-card
+  title:
   trackers:
-    - entity: sensor.custom_card_tracker
-      changelog: 'https://github.com/ciotlosm/%s/changelog.md'
-    - entity: sensor.custom_component_tracker
-      changelog: 'https://github.com/custom-components/%s'
+    - sensor.custom_card_tracker
+    - sensor.custom_component_tracker
 ```
