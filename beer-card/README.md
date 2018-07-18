@@ -12,7 +12,7 @@ A special card for Toast and his contribution to the community. A card that disp
 | title | string | optional | A card title
 | style | string | optional | A style to apply to the `ha-card`
 | icon | string | `mdi:beer` | An icon to display. Besides mdi icons, it supports images: `png`, `jpg`, `svg`, `gif`
-| bullets | boolean | `false` | Setting to true will put bulletpoints in front of each item in the list
+| list_type | string | `none` | Style of list. Options are `none, disc, circle, square`
 
 ## Configuration
 
