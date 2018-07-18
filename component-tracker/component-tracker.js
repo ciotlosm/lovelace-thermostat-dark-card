@@ -1,4 +1,4 @@
-class CardTracker extends HTMLElement {
+class ComponentTracker extends HTMLElement {
 
   constructor() {
     super();
@@ -14,7 +14,7 @@ class CardTracker extends HTMLElement {
     if (root.lastChild) root.removeChild(root.lastChild);
 
     const cardConfig = Object.assign({}, config);
-    if (!cardConfig.title) cardConfig.title = '📣 Custom Card Updates';
+    if (!cardConfig.title) cardConfig.title = '📣 Custom Component Updates';
     const card = document.createElement('ha-card');
     const content = document.createElement('div');
     const style = document.createElement('style');
@@ -62,10 +62,10 @@ class CardTracker extends HTMLElement {
     card.appendChild(content);
     card.appendChild(style);
     card.querySelector('#update').addEventListener('click', event => {
-      this.myhass.callService('custom_cards', 'update_cards', {});
+      this.myhass.callService('custom_components', 'update_components', {});
     });
     card.querySelector('#check').addEventListener('click', event => {
-      this.myhass.callService('custom_cards', 'check_versions', {});
+      this.myhass.callService('custom_components', 'check_versions', {});
     });
     root.appendChild(card);
     this._config = cardConfig;
@@ -90,7 +90,7 @@ class CardTracker extends HTMLElement {
               <td>${elem[1].local?elem[1].local:'n/a'}</td>
               <td>
                 ${elem[1].has_update?`
-                <a href="https://github.com/ciotlosm/custom-lovelace/blob/master/${elem[0]}/changelog.md" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
+                <a href="https://github.com/custom-components/${elem[0]}" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
                 `:(elem[1].remote?elem[1].remote:'n/a')}
                 </td>
             </tr>
@@ -105,4 +105,4 @@ class CardTracker extends HTMLElement {
     return 1;
   }
 }
-customElements.define('card-tracker', CardTracker);
+customElements.define('component-tracker', ComponentTracker);
