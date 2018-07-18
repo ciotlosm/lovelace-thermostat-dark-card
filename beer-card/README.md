@@ -21,7 +21,7 @@ A special card for Toast and his contribution to the community. A card that disp
   attribute: list
   title: Toast Beer List
   icon: mdi:heart
-  bullets: true
+  list_type: disc
 ```
 ❤️ To activate the cards set an attribute called `list` on the `sensor.beer_list` with any state.
 
