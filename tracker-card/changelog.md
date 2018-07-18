@@ -4,6 +4,7 @@
 - Added support for multiple `check`/`update` services
 - Add support for multiple type of tracking & updating components
 - Configuration breaking change:
+
 ```yaml
 - type: custom:tracker-card
   title:

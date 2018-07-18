@@ -39,3 +39,7 @@ resources:
     - sensor.custom_card_tracker
     - sensor.custom_component_tracker
 ```
+
+## Credits
+- [ciotlosm](https://github.com/ciotlosm)
+- [ludeeus](https://github.com/ludeeus)
