@@ -8,10 +8,11 @@ A special card for Toast and his contribution to the community. A card that disp
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:beer-card`
 | entity | string | **Required** | The sensor to use for the list
-| attribute | string | optional | The attribute of the entity to list. Default is 'list'
+| attribute | string | `list` | The attribute of the entity to list
 | title | string | optional | A card title
 | style | string | optional | A style to apply to the `ha-card`
-| icon | string | mdi:beer | An icon to display. Besides mdi icons, it supports images: png, jpg, svg, gif
+| icon | string | `mdi:beer` | An icon to display. Besides mdi icons, it supports images: `png`, `jpg`, `svg`, `gif`
+| list_type | string | `none` | Style of list. Options are `none, disc, circle, square`
 
 ## Configuration
 
@@ -22,6 +23,7 @@ Example:
   attribute: list
   title: Toast Beer List
   icon: mdi:heart
+  list_type: disc
 ```
 
 Example with image icon:
