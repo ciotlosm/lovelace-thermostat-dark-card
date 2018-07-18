@@ -34,7 +34,9 @@ resources:
 
 ```yaml
 - type: custom:tracker-card
-  entities:
-    - sensor.custom_card_tracker
-    - sensor.custom_component_tracker
+  trackers:
+    - entity: sensor.custom_card_tracker
+      changelog: 'https://github.com/ciotlosm/%s/changelog.md'
+    - entity: sensor.custom_component_tracker
+      changelog: 'https://github.com/custom-components/%s'
 ```

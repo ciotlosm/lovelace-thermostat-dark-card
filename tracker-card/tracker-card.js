@@ -6,15 +6,14 @@ class TrackerCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config.entity) {
-      throw new Error('Please define an entity');
+    if (!config.trackers || !Array.isArray(config.trackers)) {
+      throw new Error('Please at least one tracker');
     }
 
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
 
     const cardConfig = Object.assign({}, config);
-    if (!cardConfig.changelog) cardConfig.changelog = 'https://github.com/custom-components/%s'
     if (!cardConfig.title) {
       cardConfig.title = '📣 Updates';
     } else {
@@ -53,11 +52,8 @@ class TrackerCard extends HTMLElement {
           }
         `;
     content.innerHTML = `
-      <table id='content'>
-        <thead><tr><th>Name</th><th>Current</th><th>Available</th></tr></thead>
-        <tbody id='container'>
-        </tbody>
-      </table>
+      <div id='content'>
+      </div>
       <div class='button'>
         <paper-button raised id='update'>Update All</paper-button>
         <paper-button raised id='check'>Check</paper-button>
@@ -66,12 +62,6 @@ class TrackerCard extends HTMLElement {
     card.header = cardConfig.title
     card.appendChild(content);
     card.appendChild(style);
-    card.querySelector('#update').addEventListener('click', event => {
-      this.myhass.callService('custom_cards', 'update_all', {});
-    });
-    card.querySelector('#check').addEventListener('click', event => {
-      this.myhass.callService('custom_cards', 'check_all', {});
-    });
     root.appendChild(card);
     this._config = cardConfig;
   }
@@ -83,28 +73,51 @@ class TrackerCard extends HTMLElement {
   set hass(hass) {
     const config = this._config;
     const root = this.shadowRoot;
+    const card = root.lastChild;
     this.myhass = hass;
-    if (hass.states[config.entity]) {
-      const list = this._filterCards(hass.states[config.entity].attributes);
-      this.style.display = 'block';
-      if (list !== undefined && list.length > 0) {
-        const updated_content = `
-          ${list.map(elem => `
-            <tr>
-              <td>${elem[0]}</td>
-              <td>${elem[1].local?elem[1].local:'n/a'}</td>
-              <td>
-                ${elem[1].has_update?`
-                <a href="${config.changelog.replace('%s', elem[0])}" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
-                `:(elem[1].remote?elem[1].remote:'n/a')}
-                </td>
-            </tr>
-          `).join('')}
+    let card_content = '';
+    config.trackers.forEach(tracker => {
+      if (hass.states[tracker.entity]) {
+        card_content += `
+          <table>
+          <thead><tr><th>Name</th><th>Current</th><th>Available</th></tr></thead>
+          <tbody>
         `;
-        root.getElementById('container').innerHTML = updated_content;
+        const list = this._filterCards(hass.states[tracker.entity].attributes);
+        if (list !== undefined && list.length > 0) {
+          const updated_content = `
+            ${list.map(elem => `
+
+                <tr>
+                  <td>${elem[0]}</td>
+                  <td>${elem[1].local?elem[1].local:'n/a'}</td>
+                  <td>
+                    ${elem[1].has_update?`
+                    <a href="${tracker.changelog.replace('%s', elem[0])}" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
+                    `:(elem[1].remote?elem[1].remote:'n/a')}
+                    </td>
+                </tr>
+            `).join('')}
+          `;
+          card_content += updated_content;
+        }
+        // attach handlers only once
+        if (!this.handlers) {
+          card.querySelector('#update').addEventListener('click', event => {
+            card.trackers.
+            this.myhass.callService('custom_cards', 'update_all', {});
+          });
+          card.querySelector('#check').addEventListener('click', event => {
+            this.myhass.callService('custom_cards', 'check_all', {});
+          });
+          this.handlers = true;
+        }
+        root.lastChild.hass = hass;
+        card_content += `</tbody></table>`
       }
-      root.lastChild.hass = hass;
-    }
+    });
+    root.getElementById('content').innerHTML = card_content;
+
   }
   getCardSize() {
     return 1;
