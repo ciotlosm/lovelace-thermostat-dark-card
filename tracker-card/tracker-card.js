@@ -50,6 +50,10 @@ class TrackerCard extends HTMLElement {
             color: red;
             font-weight: bold;
           }
+          tbody tr.separator {
+            font-weight: bold;
+            background-color: var(--secondary-background-color);
+          }
         `;
     content.innerHTML = `
       <div id='content'>
@@ -67,7 +71,7 @@ class TrackerCard extends HTMLElement {
   }
 
   _filterCards(attributes) {
-    return Object.entries(attributes).filter(elem => (elem[0] != "friendly_name" && elem[0] != "homebridge_hidden"));
+    return Object.entries(attributes).filter(elem => (elem[0] != "friendly_name" && elem[0] != "homebridge_hidden" && elem[0] != "domain" && elem[0] != "repo"));
   }
 
   set hass(hass) {
@@ -75,15 +79,22 @@ class TrackerCard extends HTMLElement {
     const root = this.shadowRoot;
     const card = root.lastChild;
     this.myhass = hass;
+    this.handlers = this.handlers || [];
     let card_content = '';
+    card_content += `
+      <table>
+      <thead><tr><th>Name</th><th>Current</th><th>Available</th></tr></thead>
+      <tbody>
+    `;
     config.trackers.forEach(tracker => {
       if (hass.states[tracker.entity]) {
-        card_content += `
-          <table>
-          <thead><tr><th>Name</th><th>Current</th><th>Available</th></tr></thead>
-          <tbody>
-        `;
         const list = this._filterCards(hass.states[tracker.entity].attributes);
+        const domain = hass.states[tracker.entity].attributes.domain;
+        const repo = hass.states[tracker.entity].attributes.repo;
+        card_content += `
+          <tr colspan='3' class='separator'><td>${domain}</td></tr>
+        `;
+
         if (list !== undefined && list.length > 0) {
           const updated_content = `
             ${list.map(elem => `
@@ -93,7 +104,7 @@ class TrackerCard extends HTMLElement {
                   <td>${elem[1].local?elem[1].local:'n/a'}</td>
                   <td>
                     ${elem[1].has_update?`
-                    <a href="${tracker.changelog.replace('%s', elem[0])}" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
+                    <a href="${repo.replace('%s', elem[0])}" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
                     `:(elem[1].remote?elem[1].remote:'n/a')}
                     </td>
                 </tr>
@@ -102,20 +113,20 @@ class TrackerCard extends HTMLElement {
           card_content += updated_content;
         }
         // attach handlers only once
-        if (!this.handlers) {
+        if (!this.handlers[domain]) {
           card.querySelector('#update').addEventListener('click', event => {
             card.trackers.
-            this.myhass.callService('custom_cards', 'update_all', {});
+            this.myhass.callService(domain, 'update_all', {});
           });
           card.querySelector('#check').addEventListener('click', event => {
-            this.myhass.callService('custom_cards', 'check_all', {});
+            this.myhass.callService(domain, 'check_all', {});
           });
-          this.handlers = true;
+          this.handlers[domain] = true;
         }
         root.lastChild.hass = hass;
-        card_content += `</tbody></table>`
       }
     });
+    card_content += `</tbody></table>`;
     root.getElementById('content').innerHTML = card_content;
 
   }
