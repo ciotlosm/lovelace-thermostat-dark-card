@@ -53,6 +53,7 @@ class TrackerCard extends HTMLElement {
           tbody td.separator {
             font-weight: bold;
             padding-top: 10px;
+            text-transform: capitalize;
           }
         `;
     content.innerHTML = `
@@ -87,12 +88,12 @@ class TrackerCard extends HTMLElement {
       <tbody>
     `;
     config.trackers.forEach(tracker => {
-      if (hass.states[tracker.entity]) {
-        const list = this._filterCards(hass.states[tracker.entity].attributes);
-        const domain = hass.states[tracker.entity].attributes.domain;
-        const repo = hass.states[tracker.entity].attributes.repo;
+      if (hass.states[tracker]) {
+        const list = this._filterCards(hass.states[tracker].attributes);
+        const domain = hass.states[tracker].attributes.domain;
+        const repo = hass.states[tracker].attributes.repo;
         card_content += `
-          <tr><td colspan='3' class='separator'>${domain}:</td></tr>
+          <tr><td colspan='3' class='separator'>${domain.replace('_', ' ')}:</td></tr>
         `;
 
         if (list !== undefined && list.length > 0) {
