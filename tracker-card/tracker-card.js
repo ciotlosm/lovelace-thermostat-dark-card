@@ -50,9 +50,9 @@ class TrackerCard extends HTMLElement {
             color: red;
             font-weight: bold;
           }
-          tbody tr.separator {
+          tbody td.separator {
             font-weight: bold;
-            background-color: var(--secondary-background-color);
+            padding-top: 10px;
           }
         `;
     content.innerHTML = `
@@ -92,7 +92,7 @@ class TrackerCard extends HTMLElement {
         const domain = hass.states[tracker.entity].attributes.domain;
         const repo = hass.states[tracker.entity].attributes.repo;
         card_content += `
-          <tr colspan='3' class='separator'><td>${domain}</td></tr>
+          <tr><td colspan='3' class='separator'>${domain}:</td></tr>
         `;
 
         if (list !== undefined && list.length > 0) {
