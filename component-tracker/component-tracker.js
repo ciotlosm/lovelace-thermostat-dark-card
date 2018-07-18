@@ -14,7 +14,7 @@ class ComponentTracker extends HTMLElement {
     if (root.lastChild) root.removeChild(root.lastChild);
 
     const cardConfig = Object.assign({}, config);
-    if (!cardConfig.title) cardConfig.title = 'ðŸ“£ Custom Component Updates';
+    if (!cardConfig.title) cardConfig.title = '📣 Custom Component Updates';
     const card = document.createElement('ha-card');
     const content = document.createElement('div');
     const style = document.createElement('style');

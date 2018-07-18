@@ -1,5 +1,5 @@
 ## 0.0.4
-Changed defaul name
+Changed default name
 
 ## 0.0.3
 Implemented exception for `homebridge_hidden`
