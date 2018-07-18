@@ -1,3 +1,16 @@
+## 0.2.3
+- Fix checking if list properly defined
+- Add `list_type` configuration 
+
+```yaml
+- type: custom:beer-card
+  entity: sensor.beer_list
+  attribute: list
+  title: Toast Beer List
+  icon: mdi:heart
+  list_type: disc
+```
+
 ## 0.2.2
 Added support for custom style so you can inject things like background image.
 
