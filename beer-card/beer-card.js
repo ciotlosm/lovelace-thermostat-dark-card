@@ -16,6 +16,7 @@ class BeerCard extends HTMLElement {
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.icon) cardConfig.icon = "mdi:beer";
     if (!cardConfig.attribute) cardConfig.attribute = "list";
+    if (!cardConfig.list_type) cardConfig.list_type = "none";
 
     const card = document.createElement('ha-card');
     const content = document.createElement('div');
@@ -52,11 +53,7 @@ class BeerCard extends HTMLElement {
       const list = `${hass.states[config.entity].attributes[config.attribute]}`;
       this.style.display = 'block';
       if (list !== 'undefined' && list.length > 0) {
-        if (config.bullets === true) {
-          root.getElementById("container").innerHTML = "<ul><li>" + `${list.split(/[\n,]/).join("</li><li>")}` + "</li></ul>";
-        } else {
-          root.getElementById("container").innerHTML = `${list.split(/[\n,]/).join("<br/>")}`;
-        }
+        root.getElementById("container").innerHTML = "<ul style=\"list-style-type:" + `${config.list_type}` + "\"><li>" + `${list.split(/[\n,]/).join("</li><li>")}` + "</li></ul>";
       } else {
         this.style.display = 'none';
       }
