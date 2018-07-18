@@ -116,7 +116,6 @@ class TrackerCard extends HTMLElement {
         // attach handlers only once
         if (!this.handlers[domain]) {
           card.querySelector('#update').addEventListener('click', event => {
-            card.trackers.
             this.myhass.callService(domain, 'update_all', {});
           });
           card.querySelector('#check').addEventListener('click', event => {
