@@ -23,7 +23,7 @@ Example:
   attribute: list
   title: Toast Beer List
   icon: mdi:heart
-  bullets: true
+  list_type: disc
 ```
 
 Example with image icon:
