@@ -114,6 +114,7 @@ class AlarmControlPanelCard extends HTMLElement {
     const root = this.shadowRoot;
     const card = root.lastChild;
     const config = this._config;
+    if (!config.display_letters) config.display_letters = false;
     const _armVisible = entity.state === 'disarmed';
     const _disarmVisible = (this._armedStates.includes(entity.state) || entity.state === 'pending' || entity.state === 'triggered');
     if (!config.title) {
@@ -136,21 +137,21 @@ class AlarmControlPanelCard extends HTMLElement {
       ${(entity.attributes.code_format == 'Number' || config.force_keypad)? `
           <div class="pad">
             <div>
-              <paper-button data-digit="1" raised>1</paper-button>
-              <paper-button data-digit="4" raised>4</paper-button>
-              <paper-button data-digit="7" raised>7</paper-button>
+              ${this._generateDigitButton(1, "<br/>", config.display_letters)}
+              ${this._generateDigitButton(4, "GHI", config.display_letters)}
+              ${this._generateDigitButton(7, "PQRS", config.display_letters)}
             </div>
             <div>
-              <paper-button data-digit="2" raised>2</paper-button>
-              <paper-button data-digit="5" raised>5</paper-button>
-              <paper-button data-digit="8" raised>8</paper-button>
-              <paper-button data-digit="0" raised>0</paper-button>
+              ${this._generateDigitButton(2, "ABC", config.display_letters)}
+              ${this._generateDigitButton(5, "JKL", config.display_letters)}
+              ${this._generateDigitButton(8, "TUV", config.display_letters)}
+              ${this._generateDigitButton(0, "<br/>", config.display_letters)}
             </div>
             <div>
-              <paper-button data-digit="3" raised>3</paper-button>
-              <paper-button data-digit="6" raised>6</paper-button>
-              <paper-button data-digit="9" raised>9</paper-button>
-              <paper-button raised id='clear'>Clear</paper-button>
+              ${this._generateDigitButton(3, "DEF", config.display_letters)}
+              ${this._generateDigitButton(6, "MNO", config.display_letters)}
+              ${this._generateDigitButton(9, "WXYZ", config.display_letters)}
+              <paper-button raised id='clear'>Clear ${config.display_letters ? "<br/><br/>" : ""} </paper-button>
             </div>
           </div>
       `: ''}
@@ -266,6 +267,14 @@ class AlarmControlPanelCard extends HTMLElement {
 
   _generateButton(state) {
     return `<paper-button raised id="${state}">${this._translateState(state)}</paper-button>`;
+  }
+  
+  _generateDigitButton(digit, letters, displayText) {
+    if (displayText && letters != null) {
+      return `<paper-button data-digit="${digit}" raised style="text-align: center;">${digit}<br/>${letters}</paper-button>`
+    } else {
+      return `<paper-button data-digit="${digit}" raised>${digit}</paper-button>`
+    }
   }
 
   getCardSize() {

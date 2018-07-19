@@ -10,9 +10,10 @@ Alarm control panel card allows you to control [alarm_control_panel.manual](http
 | type | string | **Required** | `custom:alarm_control_panel-card`
 | entity | string | **Required** | An entity_id from `alarm_control_panel` domain. Example: 'alarm_control_panel.alarm'
 | title | string | optional | A title for the alarm
-| force_keypad | boolean | true | Force showing of number keypad
+| force_keypad | boolean | `true` | Force showing of number keypad
 | states | list | optional | A list of possible arm buttons. Supports `arm_home`, `arm_away`, `arm_night`, `arm_custom_bypass`.
 | style | string | optional | Allows to override some default styles. Example `--alarm-color-disarmed: var(--label-badge-blue);`
+| display_letters | boolean | `false` | If true, will display letters below digits on the keypad
 
 **Example**
 
@@ -22,6 +23,7 @@ Alarm control panel card allows you to control [alarm_control_panel.manual](http
   show_keypad: true
   title: My Alarm
   style: '--alarm-color-disarmed: var(--label-badge-blue);'
+  display_letters: true
   states:
     - arm_home
     - arm_away

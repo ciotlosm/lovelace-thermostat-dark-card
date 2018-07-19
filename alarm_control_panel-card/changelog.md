@@ -1,3 +1,18 @@
+##0.2.1
+- Add `display_letters` configuration
+
+```yaml
+- type: custom:alarm_control_panel-card
+  entity: alarm_control_panel.alarm
+  show_keypad: true
+  title: My Alarm
+  style: '--alarm-color-disarmed: var(--label-badge-blue);'
+  display_letters: true
+  states:
+    - arm_home
+    - arm_away
+```
+
 ## 0.2.0
 - Fixed colors and icons for `armed`, `disarmed`, `pending` to be closer to industry standards
 - Add support for style
