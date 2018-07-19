@@ -46,6 +46,11 @@ class TrackerCard extends HTMLElement {
           paper-button {
             float: right;
           }
+          tbody td.name a {
+            color: black;
+            text-decoration-line: none;
+            font-weight: normal;
+          }
           td a {
             color: red;
             font-weight: bold;
@@ -101,7 +106,7 @@ class TrackerCard extends HTMLElement {
             ${list.map(elem => `
 
                 <tr>
-                  <td>${elem[0]}</td>
+                <td class='name'><a href="${repo.replace('%s', elem[0])}" target='_blank'>${elem[0]}</a></td>
                   <td>${elem[1].local?elem[1].local:'n/a'}</td>
                   <td>
                     ${elem[1].has_update?`
