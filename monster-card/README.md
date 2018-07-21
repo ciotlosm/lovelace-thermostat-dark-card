@@ -74,6 +74,8 @@ Show all in `device_tracker` with battery at 53:
   filter:
     include:
       - domain: device_tracker
+        options:
+          secondary_info: last-changed
         attributes:
           battery: 53
           source_type: gps

@@ -1,3 +1,7 @@
+## 0.2.3
+Fixed exclusion not applied when using entity options (#105). 
+Credits: [minchik](https://github.com/minchik)
+
 ## 0.2.2
 Fixed problem with `string` states when using comparison operator
 
