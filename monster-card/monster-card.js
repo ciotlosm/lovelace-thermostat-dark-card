@@ -62,7 +62,7 @@ class MonsterCard extends HTMLElement {
           if (filter.options) {
             entities.add(Object.assign({ "entity": hass.states[key].entity_id }, filter.options));
           } else {
-            entities.add(hass.states[key].entity_id)
+            entities.add({"entity": hass.states[key].entity_id})
           }
         }
       });
@@ -92,8 +92,8 @@ class MonsterCard extends HTMLElement {
     const config = this._config;
     let entities = this._getEntities(hass, config.filter.include);
     if (config.filter.exclude) {
-      const excludeEntities = this._getEntities(hass, config.filter.exclude);
-      entities = entities.filter(entity => !excludeEntities.includes(entity));
+      const excludeEntities = this._getEntities(hass, config.filter.exclude).map(entity => entity.entity);
+      entities = entities.filter(entity => !excludeEntities.includes(entity.entity));
     }
 
 
