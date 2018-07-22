@@ -1,0 +1,3 @@
+- [ ] Enabled/disabled state for buttons
+- [ ] Letter on keypad
+- [ ] Panel correct scaling
