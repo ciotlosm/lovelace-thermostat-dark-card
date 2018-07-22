@@ -35,7 +35,7 @@ class VerticalStackInCard extends HTMLElement {
     config.cards.forEach(item => {
       root.childNodes[index].setConfig(item);
       root.childNodes[index].hass = hass;
-      if (root.childNodes[index].shadowRoot) {
+      if (root.childNodes[index].shadowRoot && root.childNodes[index].shadowRoot.querySelector('ha-card')) {
         root.childNodes[index].shadowRoot.querySelector('ha-card').style.boxShadow = 'none';
         if(index > 0) {
           root.childNodes[index].shadowRoot.querySelector('ha-card').style.paddingTop = '0px';
