@@ -79,7 +79,7 @@ class AlarmControlPanelCard extends HTMLElement {
         ${this._stateToText(this._state)}</div>` : ''}
       ${this._actionButtons(entity)}
       <paper-input label="Alarm code" type="password"></paper-input>
-      ${this._keypad(entity)}
+      ${this._keypad()}
     `;
 
     this._setupActions();
@@ -103,7 +103,7 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   _actionButton(state) {
-    return `<paper-button raised id="${state}">${this._stateToText(state)}
+    return `<paper-button noink raised id="${state}">${this._stateToText(state)}
       </paper-button>`;
   }
 
@@ -183,7 +183,7 @@ class AlarmControlPanelCard extends HTMLElement {
     }
   }
 
-  _keypad(entity) {
+  _keypad() {
     if (this._config.hide_keypad) return '';
 
     return `
@@ -210,10 +210,11 @@ class AlarmControlPanelCard extends HTMLElement {
 
   _keypadButton(button, alpha) {
     let letterHTML = '';
-    if (this._config.displayLetters) {
+    if (this._config.display_letters) {
       // TODO: add HTML and possibly CSS
+      letterHTML = `<div class='alpha'>${alpha}</div>`
     }
-    return `<paper-button raised value="${button}">${button}${letterHTML}
+    return `<paper-button noink raised value="${button}">${button}${letterHTML}
       </paper-button>`;
   }
 
@@ -285,6 +286,7 @@ class AlarmControlPanelCard extends HTMLElement {
       .pad paper-button {
         width: 80px;
         margin-bottom: 8px;
+        position: relative;
       }
       .actions {
         margin: 0 8px;
@@ -300,6 +302,13 @@ class AlarmControlPanelCard extends HTMLElement {
       }
       paper-button#disarm {
         color: var(--google-red-500);
+      }
+      .alpha {
+        position: absolute;
+        text-align: center;
+        bottom: -10%;
+        color: var(--secondary-text-color);
+        font-size: .7em;
       }
     `;
     return style;
