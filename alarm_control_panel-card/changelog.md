@@ -1,3 +1,20 @@
+## 0.3.0
+- Refactoring by [@gwww](https://github.com/gwww)
+- Added support for `auto_enter` when pressing a fixed number of diggits
+- Swithed from `force_keypad` to `hide_keypad` as most users would want to show they keypad anyway
+
+```yaml
+- type: custom:alarm_control_panel-card
+  entity: alarm_control_panel.ha_alarm
+  auto_enter:
+      code_length: 4
+      arm_action: arm_away
+  title: My Alarm
+  states:
+    - arm_home
+    - arm_away
+```
+
 ## 0.2.0
 - Fixed colors and icons for `armed`, `disarmed`, `pending` to be closer to industry standards
 - Add support for style
