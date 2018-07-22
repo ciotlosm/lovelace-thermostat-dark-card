@@ -3,6 +3,8 @@ Custom cards for lovelace
 
 ## How to use
 
+### Simple version
+
 - Copy the `js` file from inside the card folder you like (e.g. monster-card), inside your `config/www`
 - Add the `js` file as dependency inside your `ui-lovelace.yaml`
 
@@ -14,9 +16,33 @@ resources:
     type: js
 ```
 
-> Make sure you change v=1 to a higher number every time you update your card with new code!
+⚠️ Make sure you change v=1 to a higher number every time you update your card with new code!
 
 - Configure the new card inside `ui-lovelace.yaml` according to the instructions provided
+
+### Using tracker-card
+
+If you ended up using more cards and want to get update notifications and easier to use workflow you can use [tracker-card](/tracker-card/).
+
+- Clone this repository inside your `config/www`
+
+```bash
+git clone -b 'master' --single-branch --depth 1 https://github.com/ciotlosm/custom-lovelace.git
+```
+
+- Add the cards as resources inside your `ui-lovelace.yaml`
+
+Example:
+
+```yaml
+resources:
+  - url: /local/custom-lovelace/monster-card/monster-card.js?v=1
+    type: js
+```
+
+- Configure the cards inside `ui-lovelace.yaml` according to the instructions provided
+- Configure [tracker-card](/tracker-card/) acording to the [instructions](/tracker-card/README.md)
+
 
 ⭐️ this repository if you found it useful ❤️
 
