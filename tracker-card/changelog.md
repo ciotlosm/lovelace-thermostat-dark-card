@@ -1,5 +1,8 @@
+## 0.1.2
+Fixed color when using themes
+
 ## 0.1.1
-- Added repo link to all names.
+Added repo link to all names
 
 ## 0.1.0
 - Renamed to tracker-card

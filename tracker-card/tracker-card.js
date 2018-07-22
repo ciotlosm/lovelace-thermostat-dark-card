@@ -47,7 +47,7 @@ class TrackerCard extends HTMLElement {
             float: right;
           }
           tbody td.name a {
-            color: black;
+            color: var(--primary-text-color);
             text-decoration-line: none;
             font-weight: normal;
           }
