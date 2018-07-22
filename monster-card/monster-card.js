@@ -36,7 +36,7 @@ class MonsterCard extends HTMLElement {
       }
       return _compare[operator](x, y);
     }
-    const entities = new Set();
+    const entities = new Map();
     filters.forEach((filter) => {
       const filters = [];
       if (filter.domain) {
@@ -57,17 +57,15 @@ class MonsterCard extends HTMLElement {
         filters.push(stateObj => _complexCompare(stateObj.state, filter.state));
       }
 
+      const options = filter.options ? filter.options : {}
+
       Object.keys(hass.states).sort().forEach(key => {
         if (filters.every(filterFunc => filterFunc(hass.states[key]))) {
-          if (filter.options) {
-            entities.add(Object.assign({ "entity": hass.states[key].entity_id }, filter.options));
-          } else {
-            entities.add({"entity": hass.states[key].entity_id})
-          }
+          entities.set(hass.states[key].entity_id, Object.assign({ "entity": hass.states[key].entity_id }, options));
         }
       });
     });
-    return Array.from(entities);
+    return Array.from(entities.values());
   }
 
   setConfig(config) {
