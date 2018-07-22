@@ -1,2 +1,1 @@
-- [ ] Enabled/disabled state for buttons
-- [ ] Panel correct scaling
+- [ ] Enabled/disabled state corrected for auto_enter

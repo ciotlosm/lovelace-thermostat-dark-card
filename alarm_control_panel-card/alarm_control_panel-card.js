@@ -52,10 +52,12 @@ class AlarmControlPanelCard extends HTMLElement {
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
     if (!config.states) config.states = ['arm_home', 'arm_away'];
+    if (!config.scale) config.scale = '15px';
 
     this._card = document.createElement('ha-card');
     const content = document.createElement('div');
     content.id = "content";
+    this._config = Object.assign({}, config);
     this._card.appendChild(this._style(config.style));
     this._card.appendChild(content);
     root.appendChild(this._card);
@@ -164,7 +166,7 @@ class AlarmControlPanelCard extends HTMLElement {
       } else {
         element.addEventListener('click', event => {
           input.value += element.getAttribute('value');
-          this._autoEnter()
+          this._autoEnter();
         })
       }
     });
@@ -211,7 +213,6 @@ class AlarmControlPanelCard extends HTMLElement {
   _keypadButton(button, alpha) {
     let letterHTML = '';
     if (this._config.display_letters) {
-      // TODO: add HTML and possibly CSS
       letterHTML = `<div class='alpha'>${alpha}</div>`
     }
     return `<paper-button noink raised value="${button}">${button}${letterHTML}
@@ -230,6 +231,8 @@ class AlarmControlPanelCard extends HTMLElement {
         --alarm-color-armed: var(--label-badge-red);
         --alarm-color-autoarm: rgba(0, 153, 255, .1);
         --alarm-state-color: var(--alarm-color-armed);
+        --base-unit: ${this._config.scale};
+        font-size: calc(var(--base-unit));
         ${icon_style}
       }
       ha-icon {
@@ -267,9 +270,11 @@ class AlarmControlPanelCard extends HTMLElement {
       paper-input {
         margin: auto;
         max-width: 200px;
+        font-size: calc(var(--base-unit));
       }
       .state {
         margin-left: 20px;
+        font-size: calc(var(--base-unit) * 0.9);
         position: relative;
         bottom: 16px;
         color: var(--alarm-state-color);
@@ -284,17 +289,19 @@ class AlarmControlPanelCard extends HTMLElement {
         flex-direction: column;
       }
       .pad paper-button {
-        width: 80px;
-        margin-bottom: 8px;
+        margin-bottom: 10%;
         position: relative;
+        padding: calc(var(--base-unit));
+        font-size: calc(var(--base-unit) * 1.1);
       }
       .actions {
         margin: 0 8px;
         display: flex;
         justify-content: center;
+        font-size: calc(var(--base-unit) * 1);
       }
       .actions paper-button {
-        min-width: 115px;
+        min-width: calc(var(--base-unit) * 9);
         color: var(--primary-color);
       }
       .actions .autoarm {
@@ -306,9 +313,9 @@ class AlarmControlPanelCard extends HTMLElement {
       .alpha {
         position: absolute;
         text-align: center;
-        bottom: -10%;
+        bottom: calc(var(--base-unit) * 0.1);
         color: var(--secondary-text-color);
-        font-size: .7em;
+        font-size: calc(var(--base-unit) * 0.7);
       }
     `;
     return style;

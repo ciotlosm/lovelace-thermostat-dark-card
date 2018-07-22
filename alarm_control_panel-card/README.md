@@ -1,7 +1,7 @@
 # Alarm control panel card
 Alarm control panel card allows you to control [alarm_control_panel](https://www.home-assistant.io/components/alarm_control_panel) domain alarms.
 
-![alarm](https://user-images.githubusercontent.com/7738048/42747472-2e456128-88e5-11e8-80ba-2521721dd291.gif)
+![alarm](https://user-images.githubusercontent.com/7738048/43046718-b51efbc4-8dd5-11e8-83ad-330dbbb51b1a.gif)
 
 **Options**
 
@@ -12,6 +12,7 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
 | title | string | optional | A title for the alarm
 | hide_keypad | boolean | false | Force hiding of number keypad
 | display_letters | boolean | false | Show letters on keypad
+| scale | string | 15px | Allows you to scale the alarm panel
 | states | list | optional | A list of possible arm buttons. Supports `arm_home`, `arm_away`, `arm_night`, `arm_custom_bypass`.
 | style | string | optional | Allows to override some default styles. Example `--alarm-color-disarmed: var(--label-badge-blue);`
 | auto_enter | object | optional | Options to auto arm and disarm. See `auto_enter` options.
