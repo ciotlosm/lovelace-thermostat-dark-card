@@ -3,10 +3,46 @@ class EntityAttributesCard extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
   }
-  setConfig(config) {
-    if (!config.attributes || !Array.isArray(config.attributes)) {
-      throw new Error('Incorrect attributes list.');
+
+  _getAttributes(hass, filters) {
+    function _filterName(stateObj, pattern) {
+      let entity_id;
+      let parts;
+      let attr_id;
+      if (typeof (pattern) === "object") {
+        parts = pattern["key"].split(".");
+        // attr_name = pattern["name"]
+      } else {
+        parts = pattern.split(".");
+        // attr_name = parts[2];
+      }
+      entity_id = `${parts[0]}.${parts[1]}`;
+      attr_id = parts[2];
+      if (attr_id.indexOf('*') === -1) {
+        return stateObj == pattern["key"];
+      }
+      const regEx = new RegExp(`^${pattern["key"].replace(/\*/g, '.*')}$`, 'i');
+      return stateObj.search(regEx) === 0;
     }
+    const attributes = new Map();
+    filters.forEach((filter) => {
+      const filters = [];
+      filters.push(stateObj => _filterName(stateObj, filter));
+      Object.keys(hass.states).sort().forEach(key => {
+        Object.keys(hass.states[key].attributes).sort().forEach(attr_key => {
+          if (filters.every(filterFunc => filterFunc(`${key}.${attr_key}`))) {
+            attributes.set(`${key}.${attr_key}`, {
+              name: `${attr_key}`,
+              value: hass.states[key].attributes[attr_key],
+            });
+          }  
+        });
+      });
+    });
+    return Array.from(attributes.values());
+  }
+
+  setConfig(config) {
 
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
@@ -66,32 +102,40 @@ class EntityAttributesCard extends HTMLElement {
     const root = this.shadowRoot;
     const attrList = [];
 
-    config.attributes.forEach(attribute => {
-      let entity_id;
-      let attr_name;
-      let parts;
-      let attr_id;
-      let attr_value;
-      if (typeof (attribute) === "object") {
-        parts = attribute["key"].split(".");
-        attr_name = attribute["name"]
-      } else {
-        parts = attribute.split(".");
-        attr_name = parts[2];
-      }
-      entity_id = `${parts[0]}.${parts[1]}`;
-      attr_id = parts[2];
-      if (hass.states[entity_id]) {
-        attr_value = hass.states[entity_id].attributes[attr_id];
-        if (attr_value) {
-          attrList.push({
-            "name": attr_name,
-            "value": attr_value,
-          });
-        }
-      }
-    });
-    this._updateContent(root.getElementById('attributes'), attrList);
+    let attributes = this._getAttributes(hass, config.filter.include);
+    if (config.filter.exclude) {
+      const excludeAttributes = this._getAttributes(hass, config.filter.exclude);
+      attributes = attributes.filter(attr => !excludeAttributes.includes(attr));
+    }
+
+
+
+    // config.attributes.forEach(attribute => {
+    //   let entity_id;
+    //   let attr_name;
+    //   let parts;
+    //   let attr_id;
+    //   let attr_value;
+    //   if (typeof (attribute) === "object") {
+    //     parts = attribute["key"].split(".");
+    //     attr_name = attribute["name"]
+    //   } else {
+    //     parts = attribute.split(".");
+    //     attr_name = parts[2];
+    //   }
+    //   entity_id = `${parts[0]}.${parts[1]}`;
+    //   attr_id = parts[2];
+    //   if (hass.states[entity_id]) {
+    //     attr_value = hass.states[entity_id].attributes[attr_id];
+    //     if (attr_value) {
+    //       attrList.push({
+    //         "name": attr_name,
+    //         "value": attr_value,
+    //       });
+    //     }
+    //   }
+    // });
+    this._updateContent(root.getElementById('attributes'), attributes);
   }
 
   getCardSize() {
