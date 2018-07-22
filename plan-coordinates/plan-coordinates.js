@@ -31,13 +31,19 @@ class PlanCoordinates extends HTMLElement {
     root.appendChild(style);
     root.appendChild(card);
     document.addEventListener("mousemove", el => {
+      let calc_top = 16 - (document.body.querySelector('home-assistant').getBoundingClientRect().top);
+      card.style.top = `${calc_top}px`;
       if (el.path[0] && el.path[0].tagName == 'IMG') {
         this.style.display = 'block';
-        const percentX = Math.ceil((el.pageX - el.path[0].x) * 100 / el.path[0].width);
-        const percentY = Math.ceil((el.pageY - el.path[0].y) * 100 / el.path[0].height);
+        const percentX = Math.ceil((el.clientX - el.path[0].x) * 100 / el.path[0].width);
+        const percentY = Math.ceil((el.clientY - el.path[0].y) * 100 / el.path[0].height);
         content.innerHTML = `left: ${percentX}%<br/>top: ${percentY}%`;
       }
     });
+    document.addEventListener('scroll', el => {
+      let calc_top = 16 - (document.body.querySelector('home-assistant').getBoundingClientRect().top);
+      card.style.top = `${calc_top}px`;
+    }, true);
   }
   set hass(hass) {
   }
