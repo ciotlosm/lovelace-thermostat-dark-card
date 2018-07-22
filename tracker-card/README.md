@@ -1,6 +1,6 @@
 # 📣 Tracker card
 
-A card to track updates for custom cards and custom comopnents. It uses sensors to get various 
+A card to track updates for [custom cards](https://github.com/custom-components/custom_cards) and [custom components](https://github.com/custom-components/custom_components). It uses custom_components to sync versions and allows for **automatic updates of cards**. ♠️♣️♥️♦️
 
 ![tracker-card](https://user-images.githubusercontent.com/7738048/42875398-50ee1622-8a8c-11e8-97ed-ea6de6843504.png)
 
