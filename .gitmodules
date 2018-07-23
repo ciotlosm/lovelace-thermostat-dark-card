@@ -1,3 +1,6 @@
 [submodule "vertical-stack-in-card"]
 	path = vertical-stack-in-card
 	url = git@github.com:custom-cards/vertical-stack-in-card.git
+[submodule "tracker-card"]
+	path = tracker-card
+	url = git@github.com:custom-cards/tracker-card.git
