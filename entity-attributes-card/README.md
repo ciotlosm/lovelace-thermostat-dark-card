@@ -14,7 +14,7 @@ Entity attributes allows you to show basic attributes from multiple entities.
 | heading_state | string | 'States' | Heading of the states column
 | filter | object | **Required** | A filter object that can contain `include` and `exclude` sections
 
-⚠️ `include` and `exclude` can be simple lists or objects of type below
+⚠️ `include` and `exclude` can be simple lists (format `[domain]`.`[entity]`.`[attribute]`) or objects of type below. `[attribute]` can also be a pattern.
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
