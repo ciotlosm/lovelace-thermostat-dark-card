@@ -1,5 +1,5 @@
 ## 0.1.3
-- Added support for the new `cusom_updater`
+- Added support for the new `custom_updater`
 - Added new linktypes
 
 ## 0.1.2
