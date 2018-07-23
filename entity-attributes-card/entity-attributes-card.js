@@ -3,10 +3,52 @@ class EntityAttributesCard extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
   }
-  setConfig(config) {
-    if (!config.attributes || !Array.isArray(config.attributes)) {
-      throw new Error('Incorrect attributes list.');
+
+  _getAttributes(hass, filters) {
+    function _filterName(stateObj, pattern) {
+      let parts;
+      let attr_id;
+      let attribute;
+      if (typeof (pattern) === "object") {
+        parts = pattern["key"].split(".");
+        attribute = pattern["key"];
+        
+      } else {
+        parts = pattern.split(".");
+        attribute = pattern;
+      }
+      attr_id = parts[2];
+      if (attr_id.indexOf('*') === -1) {
+        return stateObj == attribute;
+      }
+      const regEx = new RegExp(`^${attribute.replace(/\*/g, '.*')}$`, 'i');
+      return stateObj.search(regEx) === 0;
     }
+    const attributes = new Map();
+    filters.forEach((filter) => {
+      const filters = [];
+      filters.push(stateObj => _filterName(stateObj, filter));
+      Object.keys(hass.states).sort().forEach(key => {
+        Object.keys(hass.states[key].attributes).sort().forEach(attr_key => {
+          if (filters.every(filterFunc => filterFunc(`${key}.${attr_key}`))) {
+            attributes.set(`${key}.${attr_key}`, {
+              name: `${filter.name?filter.name:attr_key.replace(/_/g, ' ')}`,
+              value: hass.states[key].attributes[attr_key],
+            });
+          }  
+        });
+      });
+    });
+    return Array.from(attributes.values());
+  }
+
+  setConfig(config) {
+    if (!config.filter.include || !Array.isArray(config.filter.include)) {
+      throw new Error('Please define filters');
+    }
+
+    if (!config.heading_name) config.heading_name = 'Attributes';
+    if (!config.heading_state) config.heading_state = 'States';
 
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
@@ -35,8 +77,8 @@ class EntityAttributesCard extends HTMLElement {
       <table>
         <thead>
           <tr>
-            <th>Attribute</th>
-            <th>Status</th> 
+            <th>${config.heading_name}</th>
+            <th>${config.heading_state}</th>
           </tr>
         </thead>
         <tbody id='attributes'>
@@ -64,34 +106,15 @@ class EntityAttributesCard extends HTMLElement {
   set hass(hass) {
     const config = this._config;
     const root = this.shadowRoot;
-    const attrList = [];
 
-    config.attributes.forEach(attribute => {
-      let entity_id;
-      let attr_name;
-      let parts;
-      let attr_id;
-      let attr_value;
-      if (typeof (attribute) === "object") {
-        parts = attribute["key"].split(".");
-        attr_name = attribute["name"]
-      } else {
-        parts = attribute.split(".");
-        attr_name = parts[2];
-      }
-      entity_id = `${parts[0]}.${parts[1]}`;
-      attr_id = parts[2];
-      if (hass.states[entity_id]) {
-        attr_value = hass.states[entity_id].attributes[attr_id];
-        if (attr_value) {
-          attrList.push({
-            "name": attr_name,
-            "value": attr_value,
-          });
-        }
-      }
-    });
-    this._updateContent(root.getElementById('attributes'), attrList);
+    let attributes = this._getAttributes(hass, config.filter.include);
+    if (config.filter.exclude) {
+      const excludeAttributes = this._getAttributes(hass, config.filter.exclude).map(attr => attr.name);
+      attributes = attributes.filter(attr => {
+        return !excludeAttributes.includes(attr.name)
+      });
+    }
+    this._updateContent(root.getElementById('attributes'), attributes);
   }
 
   getCardSize() {
