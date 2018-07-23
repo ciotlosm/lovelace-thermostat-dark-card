@@ -9,20 +9,33 @@ Entity attributes allows you to show basic attributes from multiple entities.
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:entity-attributes-card`
-| entity | string | **Required** | An entity_id: 'media_player.bedroom'
-| attributes | list | **Required** | A list of objects or entity attributes in the format [domain].[entity].[attribute].<br/> Example 'climate.heatpump.current_temperature'
+| title | string | optional | A title for the card
+| heading_name | string | 'Attributes' | Heading of the attribute column
+| heading_state | string | 'States' | Heading of the states column
+| filter | object | **Required** | A filter object that can contain `include` and `exclude` sections
+
+⚠️ `include` and `exclude` can be simple lists or objects of type below
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| key | string | **Required** | A pattern for the attribute. Example: `media_player.bedroom.media_title`
+| name | string | optional | A string to replace the actual attribute name with
 
 **Example**
 
 ```yaml
 - type: custom:entity-attributes-card
   title: Attributes Card
-  attributes:
-    - key: media_player.bedroom.app_name
-      name: Application
-    - key: media_player.bedroom.media_title
-      name: Media center
-    - climate.heatpump.current_temperature
+  heading_name: List
+  heading_state: States
+  filter:
+    include:
+      - key: climate.hvac.*
+      - key: media_player.bedroom.app_name
+        name: Application
+      - key: media_player.bedroom.media_title
+        name: Media center
+      - climate.heatpump.current_temperature
 ```
 
 How to embed this inside `entities` card:
@@ -36,9 +49,10 @@ How to embed this inside `entities` card:
     - media_player.bedroom
     - type: custom:entity-attributes-card
       entity: media_player.bedroom
-      attributes:
-        - media_player.bedroom.app_name
-        - media_player.bedroom.media_title
+      filter:
+        include:
+          - media_player.bedroom.app_name
+          - media_player.bedroom.media_title
     - sensor.short_name
     - sensor.battery_sensor
 ```
