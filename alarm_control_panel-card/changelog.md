@@ -1,3 +1,7 @@
+## 0.3.1
+- Fixed alarm not working with no code
+- Fixed bug for auto arm when clicking disarm
+
 ## 0.3.0
 - Refactoring by [@gwww](https://github.com/gwww)
 - Added support for `auto_enter` when pressing a fixed number of diggits
