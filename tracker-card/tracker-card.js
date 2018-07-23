@@ -106,11 +106,11 @@ class TrackerCard extends HTMLElement {
             ${list.map(elem => `
 
                 <tr>
-                  <td class='name'><a href="${repo.replace('%s', elem[0])}" target='_blank'>${elem[0]}</a></td>
+                  <td class='name'><a href="${elem[1].repo?elem[1].repo:'#'}" target='_blank'>${elem[0]}</a></td>
                   <td>${elem[1].local?elem[1].local:'n/a'}</td>
                   <td>
                     ${elem[1].has_update?`
-                    <a href="${repo.replace('%s', elem[0])}" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
+                    <a href="${elem[1].change_log?elem[1].change_log:'#'}" target='_blank'>${elem[1].remote?elem[1].remote:'n/a'}</a>
                     `:(elem[1].remote?elem[1].remote:'n/a')}
                     </td>
                 </tr>
