@@ -1,1 +1,0 @@
-- [ ] Enabled/disabled state corrected for auto_enter
