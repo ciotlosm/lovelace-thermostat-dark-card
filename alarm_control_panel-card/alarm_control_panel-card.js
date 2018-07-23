@@ -76,12 +76,12 @@ class AlarmControlPanelCard extends HTMLElement {
     }
 
     root.getElementById("content").innerHTML = `
-      ${this._icon(entity)}
+      ${this._icon()}
       ${config.title ? `<div class='state ${this._state}'>
         ${this._stateToText(this._state)}</div>` : ''}
-      ${this._actionButtons(entity)}
-      <paper-input label="Alarm code" type="password"></paper-input>
-      ${this._keypad()}
+      ${this._actionButtons()}
+      ${entity.attributes.code_format ? '<paper-input label="Alarm code" type="password"></paper-input>' : ''}
+      ${this._keypad(entity)}
     `;
 
     this._setupActions();
@@ -89,12 +89,12 @@ class AlarmControlPanelCard extends HTMLElement {
     this._setupKeypad();
   }
 
-  _icon(entity) {
+  _icon() {
     return `<ha-icon icon='${this._stateToIcon(this._state)}'
       class='${this._state}'></ha-icon>`
   }
 
-  _actionButtons(entity) {
+  _actionButtons() {
     const armVisible = (this._state === 'disarmed');
     return `
       <div class="actions">
@@ -110,36 +110,37 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   _setupActions() {
+    // TODO: fix memory leak for reattaching handlers every time
+    // Need a way to avoid doing innerHTML, at least without detaching handlers first
     const card = this.shadowRoot.lastChild;
     const config = this._config;
 
     if (config.auto_enter) {
       card.querySelectorAll(".actions paper-button").forEach(element => {
+        element.classList.remove('autoarm');
         if (element.id === this._arm_action || element.id === 'disarm') {
           element.classList.add('autoarm');
-        } else {
-          element.classList.remove('autoarm');
         }
         element.addEventListener('click', event => {
           card.querySelectorAll(".actions paper-button").forEach(element => {
             element.classList.remove('autoarm');
           })
           element.classList.add('autoarm');
-          this._arm_action = element.id
+          if (element.id !== 'disarm') this._arm_action = element.id;
         })
       })
     } else {
       card.querySelectorAll(".actions paper-button").forEach(element => {
         element.addEventListener('click', event => {
-          this._callService(element.id, card.querySelector('paper-input').value);
+          const input = card.querySelector('paper-input');
+          const value = input ? input.value : '';
+          this._callService(element.id, value);
         })
       })
     }
   }
 
   _callService(service, code) {
-    if (code.length == 0) return;
-
     this.myhass.callService('alarm_control_panel', `alarm_${service}`, {
       entity_id: this._config.entity,
       code: code,
@@ -150,7 +151,7 @@ class AlarmControlPanelCard extends HTMLElement {
   _setupInput() {
     if (this._config.auto_enter) {
       const input = this.shadowRoot.lastChild.querySelector("paper-input");
-      input.addEventListener('input', event => {this._autoEnter()})
+      input.addEventListener('input', event => { this._autoEnter() })
     }
   }
 
@@ -185,8 +186,8 @@ class AlarmControlPanelCard extends HTMLElement {
     }
   }
 
-  _keypad() {
-    if (this._config.hide_keypad) return '';
+  _keypad(entity) {
+    if (this._config.hide_keypad || !entity.attributes.code_format) return '';
 
     return `
       <div class="pad">
