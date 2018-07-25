@@ -2,9 +2,26 @@ export default class ThermostatUI {
   get container() {
     return this._container
   }
+  set dual(val) {
+    this._dual = val
+  }
+  get dual() {
+    return this._dual;
+  }
+  get center_text() {
+    return this.dual ? `${SvgUtil.superscript(this._low)}∙${SvgUtil.superscript(this._high)}` : SvgUtil.superscript(this._target);
+  }
+  set temperature(val) {
+    this._ambient = val.ambient;
+    this._low = val.low;
+    this._high = val.high;
+    this._target = val.target;
+    if (this._low && this._high) this.dual = true;
+  }
   constructor(config) {
     this._config = config; // need certain options for updates
     this._ticks = []; // need for dynamic tick updates
+    this._dual = false; // by default is single temperature
     this._container = document.createElement('div');
     this._container.className = 'dial_container';
     const style = document.createElement('style');
@@ -16,8 +33,9 @@ export default class ThermostatUI {
     root.appendChild(this._buildTicks(config.num_ticks));
     root.appendChild(this._buildRing(config.radius));
     root.appendChild(this._buildLeaf(config.radius));
-    root.appendChild(this._buildAmbientSlot());
-    root.appendChild(this._buildTargetTemperature(config.radius));
+    root.appendChild(this._buildTemperatureSlot1());
+    root.appendChild(this._buildTemperatureSlot2());
+    root.appendChild(this._buildCenterTemperature(config.radius));
     root.appendChild(this._buildAway(config.radius));
     this._container.appendChild(root);
     this._root = root;
@@ -28,69 +46,54 @@ export default class ThermostatUI {
     const away = options.away || false;
     const max_value = options.max_value || 30;
     const hvac_state = options.hvac_state;
-    const ambient_temperature = options.ambient_temperature;
-    const target_temperature = options.target_temperature;
-    const target_temperature_low = options.target_temperature_low;
-    const target_temperature_high = options.target_temperature_high;
+    this.temperature = {
+      low: options.target_temperature_low,
+      high: options.target_temperature_high,
+      target: options.target_temperature,
+      ambient: options.ambient_temperature,
+    }
 
     // update states (must make checks in the future)
     this._updateLeaf(away);
     this._updateAway(away);
     this._updateHvacState(hvac_state);
-    this._updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value, target_temperature_low, target_temperature_high)
-    this._updateTicks(min_value, max_value, ambient_temperature, target_temperature, target_temperature_low, target_temperature_high);
-    this._updateTargetTemperature(target_temperature, target_temperature_low, target_temperature_high);
+    this._updateTemperatureSlot1(min_value, max_value)
+    //this._updateTemperatureSlot2(min_value, max_value)
+    this._updateTicks(min_value, max_value);
+    this._updateCenterTemperature();
   }
 
   _updateLeaf(show_leaf) {
     SvgUtil.setClass(this._root, 'has-leaf', show_leaf);
   }
 
-  _updateTargetTemperature(target_temperature, target_temperature_low, target_temperature_high) {
-    const lblTarget = this._root.querySelector('#target_temperature');
-    let text;
-    if (target_temperature) {
-      SvgUtil.setClass(lblTarget, 'has-dual', false);
-      text = Math.floor(target_temperature) + (target_temperature % 1 != 0 ? '⁵' : '');
-    } else if (target_temperature_low && target_temperature_high) {
-      SvgUtil.setClass(lblTarget, 'has-dual', true);
-      text = Math.floor(target_temperature_low) + (target_temperature_low % 1 != 0 ? '⁵' : '') + '∙' + Math.floor(target_temperature_high) + (target_temperature_high % 1 != 0 ? '⁵' : '');
-    } else {
-      text = '';
-    }
-    lblTarget.textContent = text;
+  _updateCenterTemperature() {
+    const lblTarget = this._root.querySelector('#center_temperature');
+    SvgUtil.setClass(lblTarget, 'long_text', this.center_text.length > 3);
+    lblTarget.textContent = this.center_text;
   }
 
-  _updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value, target_temperature_low, target_temperature_high) {
+  _updateTemperatureSlot1(min_value, max_value) {
     const config = this._config;
-    const lblAmbient = this._root.querySelector('#ambient_temperature');
+    const lblSlot1 = this._root.querySelector('#temperature_slot_1');
     let bottom_temperature;
     let top_temperature;
-    if (target_temperature) {
-      bottom_temperature = ambient_temperature;
-      top_temperature = target_temperature
-    } else if (target_temperature_low && target_temperature_high) {
-      bottom_temperature = target_temperature_low;
-      top_temperature = target_temperature_high
+    if (this.dual) {
+      bottom_temperature = this._low;
+      top_temperature = this._high;
     } else {
-      bottom_temperature = min_value;
-      top_temperature = max_value
+      bottom_temperature = this._ambient;
+      top_temperature = this._target;
     }
 
-    lblAmbient.textContent = Math.floor(bottom_temperature);
-    if (bottom_temperature % 1 != 0) {
-      lblAmbient.textContent += '⁵';
-    }
+    lblSlot1.textContent = SvgUtil.superscript(bottom_temperature);
     const peggedValue = SvgUtil.restrictToRange(bottom_temperature, min_value, max_value);
-    const ambient_position = [config.radius, config.ticks_outer_radius - (config.ticks_outer_radius - config.ticks_inner_radius) / 2];
+    const position = [config.radius, config.ticks_outer_radius - (config.ticks_outer_radius - config.ticks_inner_radius) / 2];
     let degs = config.tick_degrees * (peggedValue - min_value) / (max_value - min_value) - config.offset_degrees;
-    if (peggedValue > top_temperature) {
-      degs += 8;
-    } else {
-      degs -= 8;
-    }
-    var pos = SvgUtil.rotatePoint(ambient_position, degs, [config.radius, config.radius]);
-    SvgUtil.attributes(lblAmbient, {
+    (peggedValue > top_temperature) ? degs += 8 : degs -= 8;
+
+    var pos = SvgUtil.rotatePoint(position, degs, [config.radius, config.radius]);
+    SvgUtil.attributes(lblSlot1, {
       x: pos[0],
       y: pos[1]
     });
@@ -108,7 +111,7 @@ export default class ThermostatUI {
     this._root.classList.add('dial--state--' + hvac_state);
   }
 
-  _updateTicks(min_value, max_value, ambient_temperature, target_temperature, target_temperature_low, target_temperature_high) {
+  _updateTicks(min_value, max_value) {
     const config = this._config;
     let bottom_temperature;
     let top_temperature;
@@ -208,19 +211,25 @@ export default class ThermostatUI {
     });
   }
 
-  _buildAmbientSlot() {
+  _buildTemperatureSlot1() {
     return SvgUtil.createSVGElement('text', {
-      class: 'dial__lbl dial__lbl--ambient',
-      id: 'ambient_temperature'
+      class: 'dial__lbl dial__lbl--ring',
+      id: 'temperature_slot_1'
+    })
+  }
+  _buildTemperatureSlot2() {
+    return SvgUtil.createSVGElement('text', {
+      class: 'dial__lbl dial__lbl--ring',
+      id: 'temperature_slot_2'
     })
   }
   // TODO: Refactor this to allow dual temperature & link to decimals
-  _buildTargetTemperature(radius) {
+  _buildCenterTemperature(radius) {
     return SvgUtil.createSVGElement('text', {
       x: radius,
       y: radius,
       class: 'dial__lbl dial__lbl--target',
-      id: 'target_temperature'
+      id: 'center_temperature'
     })
   }
 
@@ -309,10 +318,10 @@ export default class ThermostatUI {
         font-size: 120px;
         font-weight: bold;
       }
-      .dial__lbl--target.has-dual {
+      .dial__lbl--target.long_text {
         font-size: 75px;
       }
-      .dial__lbl--ambient {
+      .dial__lbl--ring {
         font-size: 22px;
         font-weight: bold;
       }
@@ -364,6 +373,10 @@ class SvgUtil {
   }
   static donutPath(cx, cy, rOuter, rInner) {
     return this.circleToPath(cx, cy, rOuter) + " " + this.circleToPath(cx, cy, rInner);
+  }
+
+  static superscript(number) {
+    return `${Math.floor(number)}${number % 1 != 0 ? '⁵' : ''}`;
   }
 
   // Restrict a number to a min + max range
