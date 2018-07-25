@@ -6,8 +6,10 @@ export default class ThermostatUI {
     this._config = config; // need certain options for updates
     this._ticks = []; // need for dynamic tick updates
     this._container = document.createElement('div');
+    this._container.className = 'dial_container';
     const style = document.createElement('style');
     style.textContent = this._renderStyle();
+    this._container.appendChild(this._buildTitle(config.title));
     this._container.appendChild(style);
     const root = this._buildCore(config.diameter);
     root.appendChild(this._buildDial(config.radius));
@@ -121,6 +123,14 @@ export default class ThermostatUI {
       class: 'dial'
     })
   }
+
+  _buildTitle(title) {
+    const lblTitle = document.createElement('div');
+    lblTitle.className = 'dial_title';
+    lblTitle.textContent = title;
+    return lblTitle;
+  }
+
   // build black dial
   _buildDial(radius) {
     return SvgUtil.createSVGElement('circle', {
@@ -192,6 +202,14 @@ export default class ThermostatUI {
 
   _renderStyle() {
     return `
+      .dial_container {
+        padding: 8px;
+      }
+      .dial_title {
+        font-size: 20px;
+        text-align: center;
+        color: var(--primary-text-color);
+      }
       .dial {
         user-select: none;
       

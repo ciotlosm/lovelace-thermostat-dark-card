@@ -42,8 +42,6 @@ class ThermostatCard extends HTMLElement {
     cardConfig.offset_degrees = 180 - (360 - cardConfig.tick_degrees) / 2;
 
     const card = document.createElement('ha-card');
-    card.header = cardConfig.title
-    card.style.padding = '16px';
     this.thermostat = new ThermostatUI(cardConfig);
     card.appendChild(this.thermostat.container);
     root.appendChild(card);
