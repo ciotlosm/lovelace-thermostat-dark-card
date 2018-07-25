@@ -98,6 +98,8 @@ export default class ThermostatUI {
               this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
             else if (this.hvac_state == 'heat' && tick_indexes[1] - tick_indexes[0] > 6)
               this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
+            else if (this.hvac_state == 'off' && tick_indexes[1] - tick_indexes[0] > 6 && tick_indexes[2] - tick_indexes[1] > 6)
+              this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
           break;
         case 2:
           if (this.hvac_state == 'cool' && tick_indexes[2] - tick_indexes[1] > 6)
@@ -126,7 +128,7 @@ export default class ThermostatUI {
 
     const config = this._config;
     const lblSlot1 = this._root.querySelector(`#${slot}`)
-    lblSlot1.textContent = value!=null?SvgUtil.superscript(value):'';
+    lblSlot1.textContent = value != null ? SvgUtil.superscript(value) : '';
     const peggedValue = SvgUtil.restrictToRange(value, this.min_value, this.max_value);
     const position = [config.radius, config.ticks_outer_radius - (config.ticks_outer_radius - config.ticks_inner_radius) / 2];
     let degs = config.tick_degrees * (peggedValue - this.min_value) / (this.max_value - this.min_value) - config.offset_degrees + offset;
