@@ -30,6 +30,8 @@ export default class ThermostatUI {
     const hvac_state = options.hvac_state;
     const ambient_temperature = options.ambient_temperature;
     const target_temperature = options.target_temperature;
+    const target_temperature_low = options.target_temperature_low;
+    const target_temperature_high = options.target_temperature_high;
 
     // update states (must make checks in the future)
     this._updateLeaf(away);
@@ -37,19 +39,26 @@ export default class ThermostatUI {
     this._updateHvacState(hvac_state);
     this._updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value)
     this._updateTicks(min_value, max_value, ambient_temperature, target_temperature);
-    this._updateTargetTemperature(target_temperature);
+    this._updateTargetTemperature(target_temperature, target_temperature_low, target_temperature_high);
   }
 
   _updateLeaf(show_leaf) {
     SvgUtil.setClass(this._root, 'has-leaf', show_leaf);
   }
 
-  _updateTargetTemperature(target_temperature) {
+  _updateTargetTemperature(target_temperature, target_temperature_low, target_temperature_high) {
     const lblTarget = this._root.querySelector('#target_temperature');
-    lblTarget.textContent = Math.floor(target_temperature);
-    if (target_temperature % 1 != 0) {
-      lblTarget.textContent += '⁵';
+    let text;
+    if (target_temperature) {
+      SvgUtil.setClass(lblTarget, 'has-dual', false);
+      text = Math.floor(target_temperature) + (target_temperature % 1 != 0 ? '⁵' : '');
+    } else if (target_temperature_low && target_temperature_high) {
+      SvgUtil.setClass(lblTarget, 'has-dual', true);
+      text = Math.floor(target_temperature_low) + (target_temperature_low % 1 != 0 ? '⁵' : '') + ' - ' + Math.floor(target_temperature_high) + (target_temperature_high % 1 != 0 ? '⁵' : '');
+    } else {
+      text = '';
     }
+    lblTarget.textContent = text;
   }
 
   _updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value) {
@@ -274,6 +283,9 @@ export default class ThermostatUI {
       .dial__lbl--target {
         font-size: 120px;
         font-weight: bold;
+      }
+      .dial__lbl--target.has-dual {
+        font-size: 70px;
       }
       .dial__lbl--ambient {
         font-size: 22px;

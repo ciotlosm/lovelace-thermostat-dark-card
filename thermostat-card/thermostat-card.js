@@ -7,12 +7,21 @@ class ThermostatCard extends HTMLElement {
   set hass(hass) {
     const config = this._config;
     const entity = hass.states[config.entity];
+    let hvac_state;
+    if (config.hvac.attribute) {
+      hvac_state = hass.states[config.entity].attributes[config.hvac.attribute];
+      console.log(config.hvac.states);
+    } else {
+      hvac_state = hass.states[config.entity].state;
+    }
     this.thermostat.updateState({
       min_value: entity.attributes.min_temp,
       max_value: entity.attributes.max_temp,
       ambient_temperature: entity.attributes.current_temperature,
       target_temperature: entity.attributes.temperature,
-      hvac_state: config.hvac_states[entity.state] || 'off',
+      target_temperature_low: entity.attributes.target_temp_low,
+      target_temperature_high: entity.attributes.target_temp_high,
+      hvac_state: config.hvac.states[hvac_state] || 'off',
       away: (entity.attributes.away_mode == 'on' ? true : false),
     });
     this._hass = hass
@@ -30,10 +39,11 @@ class ThermostatCard extends HTMLElement {
 
     // Prepare config defaults
     const cardConfig = Object.assign({}, config);
+    cardConfig.hvac = Object.assign({}, config.hvac);
     if (!cardConfig.diameter) cardConfig.diameter = 400;
     if (!cardConfig.num_ticks) cardConfig.num_ticks = 150;
     if (!cardConfig.tick_degrees) cardConfig.tick_degrees = 300;
-    if (!cardConfig.hvac_states) cardConfig.hvac_states = {'off': 'off', 'heat': 'heat', 'cool': 'cool',};
+    if (!cardConfig.hvac.states) cardConfig.hvac.states = { 'off': 'off', 'heat': 'heat', 'cool': 'cool', };
 
     // Extra config values generated for simplicity of updates
     cardConfig.radius = cardConfig.diameter / 2;

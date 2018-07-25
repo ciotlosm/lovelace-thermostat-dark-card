@@ -11,8 +11,15 @@ A simple thermostat implemented in CSS based on <a href="https://codepen.io/dalh
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:thermostat-card`
 | title | string | optional | Card title
-| hvac_states | object | optional | Map your custom hvac states to `off`, `cool` and `heat`
+| hvac | object | optional | Allows mapping of custom states or using a custom attribute for state
 | entity | string | **Required** | The entity id of climate entity. Example: `climate.hvac`
+
+**hvac** object 
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| states | optional | optional | A list of states. See examples.
+| attribute | string | optional | An attribute of the entity to use as state
 
 **Example**
 
@@ -41,11 +48,13 @@ views:
     cards:
       - type: custom:thermostat-card
         title: Bedroom
-        entity: climate.ecobee
-        hvac_states:
-          off: off
-          heating: heat
-          cooling: cool
+        entity: climate.hvac
+        hvac:
+          states:
+            'Off': 'off'
+            'Cooling': 'cool'
+            'Heaing': 'heat'
+          attribute: operation_mode
 ```
 
 ⚠️ Make sure you set type to `module` when including the resource file.

@@ -6,3 +6,4 @@
 - [ ] Add controls for tap +/- target temperature change
 - [ ] Add support for no temperature display if all temperatures are null
 - [ ] Title scaling (low priority)
+- [ ] Add support for custom hvac_state source (attribute)
