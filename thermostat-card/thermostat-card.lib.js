@@ -37,8 +37,8 @@ export default class ThermostatUI {
     this._updateLeaf(away);
     this._updateAway(away);
     this._updateHvacState(hvac_state);
-    this._updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value)
-    this._updateTicks(min_value, max_value, ambient_temperature, target_temperature);
+    this._updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value, target_temperature_low, target_temperature_high)
+    this._updateTicks(min_value, max_value, ambient_temperature, target_temperature, target_temperature_low, target_temperature_high);
     this._updateTargetTemperature(target_temperature, target_temperature_low, target_temperature_high);
   }
 
@@ -54,24 +54,37 @@ export default class ThermostatUI {
       text = Math.floor(target_temperature) + (target_temperature % 1 != 0 ? '⁵' : '');
     } else if (target_temperature_low && target_temperature_high) {
       SvgUtil.setClass(lblTarget, 'has-dual', true);
-      text = Math.floor(target_temperature_low) + (target_temperature_low % 1 != 0 ? '⁵' : '') + ' - ' + Math.floor(target_temperature_high) + (target_temperature_high % 1 != 0 ? '⁵' : '');
+      text = Math.floor(target_temperature_low) + (target_temperature_low % 1 != 0 ? '⁵' : '') + '∙' + Math.floor(target_temperature_high) + (target_temperature_high % 1 != 0 ? '⁵' : '');
     } else {
       text = '';
     }
     lblTarget.textContent = text;
   }
 
-  _updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value) {
+  _updateAmbientTemperature(ambient_temperature, target_temperature, min_value, max_value, target_temperature_low, target_temperature_high) {
     const config = this._config;
     const lblAmbient = this._root.querySelector('#ambient_temperature');
-    lblAmbient.textContent = Math.floor(ambient_temperature);
-    if (ambient_temperature % 1 != 0) {
+    let bottom_temperature;
+    let top_temperature;
+    if (target_temperature) {
+      bottom_temperature = ambient_temperature;
+      top_temperature = target_temperature
+    } else if (target_temperature_low && target_temperature_high) {
+      bottom_temperature = target_temperature_low;
+      top_temperature = target_temperature_high
+    } else {
+      bottom_temperature = min_value;
+      top_temperature = max_value
+    }
+
+    lblAmbient.textContent = Math.floor(bottom_temperature);
+    if (bottom_temperature % 1 != 0) {
       lblAmbient.textContent += '⁵';
     }
-    const peggedValue = SvgUtil.restrictToRange(ambient_temperature, min_value, max_value);
+    const peggedValue = SvgUtil.restrictToRange(bottom_temperature, min_value, max_value);
     const ambient_position = [config.radius, config.ticks_outer_radius - (config.ticks_outer_radius - config.ticks_inner_radius) / 2];
     let degs = config.tick_degrees * (peggedValue - min_value) / (max_value - min_value) - config.offset_degrees;
-    if (peggedValue > target_temperature) {
+    if (peggedValue > top_temperature) {
       degs += 8;
     } else {
       degs -= 8;
@@ -95,8 +108,20 @@ export default class ThermostatUI {
     this._root.classList.add('dial--state--' + hvac_state);
   }
 
-  _updateTicks(min_value, max_value, ambient_temperature, target_temperature) {
+  _updateTicks(min_value, max_value, ambient_temperature, target_temperature, target_temperature_low, target_temperature_high) {
     const config = this._config;
+    let bottom_temperature;
+    let top_temperature;
+    if (target_temperature) {
+      bottom_temperature = ambient_temperature;
+      top_temperature = target_temperature
+    } else if (target_temperature_low && target_temperature_high) {
+      bottom_temperature = target_temperature_low;
+      top_temperature = target_temperature_high
+    } else {
+      bottom_temperature = min_value;
+      top_temperature = max_value
+    }
     const tickPoints = [
       [config.radius - 1, config.ticks_outer_radius],
       [config.radius + 1, config.ticks_outer_radius],
@@ -110,8 +135,8 @@ export default class ThermostatUI {
       [config.radius - 1.5, config.ticks_inner_radius + 20]
     ];
 
-    const min = SvgUtil.restrictToRange(Math.round((Math.min(ambient_temperature, target_temperature) - min_value) / (max_value - min_value) * config.num_ticks), 0, config.num_ticks - 1);
-    const max = SvgUtil.restrictToRange(Math.round((Math.max(ambient_temperature, target_temperature) - min_value) / (max_value - min_value) * config.num_ticks), 0, config.num_ticks - 1);
+    const min = SvgUtil.restrictToRange(Math.round((Math.min(bottom_temperature, top_temperature) - min_value) / (max_value - min_value) * config.num_ticks), 0, config.num_ticks - 1);
+    const max = SvgUtil.restrictToRange(Math.round((Math.max(bottom_temperature, top_temperature) - min_value) / (max_value - min_value) * config.num_ticks), 0, config.num_ticks - 1);
     this._ticks.forEach((tick, iTick) => {
       const isLarge = iTick == min || iTick == max;
       const isActive = iTick >= min && iTick <= max;
@@ -285,7 +310,7 @@ export default class ThermostatUI {
         font-weight: bold;
       }
       .dial__lbl--target.has-dual {
-        font-size: 70px;
+        font-size: 75px;
       }
       .dial__lbl--ambient {
         font-size: 22px;

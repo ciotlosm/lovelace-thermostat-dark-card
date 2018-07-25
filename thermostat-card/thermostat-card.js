@@ -10,7 +10,6 @@ class ThermostatCard extends HTMLElement {
     let hvac_state;
     if (config.hvac.attribute) {
       hvac_state = hass.states[config.entity].attributes[config.hvac.attribute];
-      console.log(config.hvac.states);
     } else {
       hvac_state = hass.states[config.entity].state;
     }
