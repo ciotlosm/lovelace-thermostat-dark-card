@@ -9,7 +9,7 @@ export default class ThermostatUI {
     this._container.className = 'dial_container';
     const style = document.createElement('style');
     style.textContent = this._renderStyle();
-    this._container.appendChild(this._buildTitle(config.title));
+    if (config.title) this._container.appendChild(this._buildTitle(config.title));
     this._container.appendChild(style);
     const root = this._buildCore(config.diameter);
     root.appendChild(this._buildDial(config.radius));
@@ -207,8 +207,9 @@ export default class ThermostatUI {
       }
       .dial_title {
         font-size: 20px;
+        padding: 8px;
         text-align: center;
-        color: var(--primary-text-color);
+        color: var(--secondary-text-color);
       }
       .dial {
         user-select: none;
