@@ -150,7 +150,7 @@ export default class ThermostatUI {
             isActive = (index >= major_index[1] && index <= major_index[2]) ? 'active' : '';
             break
         }
-      //isLarge = isLarge || (index == tick_index);
+        major_index.forEach(i => isLarge = isLarge || (index == i));
 
       const theta = config.tick_degrees / config.num_ticks;
       SvgUtil.attributes(tick, {
