@@ -33,8 +33,9 @@ export default class ThermostatUI {
     root.appendChild(this._buildTicks(config.num_ticks));
     root.appendChild(this._buildRing(config.radius));
     root.appendChild(this._buildLeaf(config.radius));
-    root.appendChild(this._buildTemperatureSlot1());
-    root.appendChild(this._buildTemperatureSlot2());
+    root.appendChild(this._buildDialSlot(1));
+    root.appendChild(this._buildDialSlot(2));
+    root.appendChild(this._buildDialSlot(3));
     root.appendChild(this._buildCenterTemperature(config.radius));
     root.appendChild(this._buildAway(config.radius));
     this._container.appendChild(root);
@@ -42,10 +43,10 @@ export default class ThermostatUI {
   }
 
   updateState(options) {
-    const min_value = options.min_value || 10;
     const away = options.away || false;
-    const max_value = options.max_value || 30;
-    const hvac_state = options.hvac_state;
+    this.min_value = options.min_value;
+    this.max_value = options.max_value;
+    this.hvac_state = options.hvac_state;
     this.temperature = {
       low: options.target_temperature_low,
       high: options.target_temperature_high,
@@ -54,12 +55,22 @@ export default class ThermostatUI {
     }
 
     // update states (must make checks in the future)
+    let tick_label;
+    let offset;
+    if (this.dual) {
+      tick_label = [this._low, this._high, this._ambient].sort();
+      offset = [-8, -8, 8]; // default offset
+      if (this.hvac_state == 'cool') offset[1] = 8;
+    }
+    else {
+      tick_label = [this._target, this._ambient].sort();
+      offset = [-8, 8];
+    }
     this._updateLeaf(away);
     this._updateAway(away);
-    this._updateHvacState(hvac_state);
-    this._updateTemperatureSlot1(min_value, max_value)
-    //this._updateTemperatureSlot2(min_value, max_value)
-    this._updateTicks(min_value, max_value);
+    this._updateHvacState();
+    tick_label.forEach((item, index) => this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`));
+    this._updateTicks(tick_label);
     this._updateCenterTemperature();
   }
 
@@ -73,26 +84,14 @@ export default class ThermostatUI {
     lblTarget.textContent = this.center_text;
   }
 
-  _updateTemperatureSlot1(min_value, max_value) {
+  _updateTemperatureSlot(value, offset, slot) {
     const config = this._config;
-    const lblSlot1 = this._root.querySelector('#temperature_slot_1');
-    let bottom_temperature;
-    let top_temperature;
-    if (this.dual) {
-      bottom_temperature = this._low;
-      top_temperature = this._high;
-    } else {
-      bottom_temperature = this._ambient;
-      top_temperature = this._target;
-    }
-
-    lblSlot1.textContent = SvgUtil.superscript(bottom_temperature);
-    const peggedValue = SvgUtil.restrictToRange(bottom_temperature, min_value, max_value);
+    const lblSlot1 = this._root.querySelector(`#${slot}`)
+    lblSlot1.textContent = SvgUtil.superscript(value);
+    const peggedValue = SvgUtil.restrictToRange(value, this.min_value, this.max_value);
     const position = [config.radius, config.ticks_outer_radius - (config.ticks_outer_radius - config.ticks_inner_radius) / 2];
-    let degs = config.tick_degrees * (peggedValue - min_value) / (max_value - min_value) - config.offset_degrees;
-    (peggedValue > top_temperature) ? degs += 8 : degs -= 8;
-
-    var pos = SvgUtil.rotatePoint(position, degs, [config.radius, config.radius]);
+    let degs = config.tick_degrees * (peggedValue - this.min_value) / (this.max_value - this.min_value) - config.offset_degrees + offset;
+    const pos = SvgUtil.rotatePoint(position, degs, [config.radius, config.radius]);
     SvgUtil.attributes(lblSlot1, {
       x: pos[0],
       y: pos[1]
@@ -103,28 +102,17 @@ export default class ThermostatUI {
     SvgUtil.setClass(this._root, 'away', away);
   }
 
-  _updateHvacState(hvac_state) {
+  _updateHvacState() {
     this._root.classList.forEach(c => {
       if (c.indexOf('dial--state--') != -1)
         this._root.classList.remove(c);
     });
-    this._root.classList.add('dial--state--' + hvac_state);
+    this._root.classList.add('dial--state--' + this.hvac_state);
   }
 
-  _updateTicks(min_value, max_value) {
+  _updateTicks(tick_label) {
     const config = this._config;
-    let bottom_temperature;
-    let top_temperature;
-    if (target_temperature) {
-      bottom_temperature = ambient_temperature;
-      top_temperature = target_temperature
-    } else if (target_temperature_low && target_temperature_high) {
-      bottom_temperature = target_temperature_low;
-      top_temperature = target_temperature_high
-    } else {
-      bottom_temperature = min_value;
-      top_temperature = max_value
-    }
+
     const tickPoints = [
       [config.radius - 1, config.ticks_outer_radius],
       [config.radius + 1, config.ticks_outer_radius],
@@ -138,15 +126,17 @@ export default class ThermostatUI {
       [config.radius - 1.5, config.ticks_inner_radius + 20]
     ];
 
-    const min = SvgUtil.restrictToRange(Math.round((Math.min(bottom_temperature, top_temperature) - min_value) / (max_value - min_value) * config.num_ticks), 0, config.num_ticks - 1);
-    const max = SvgUtil.restrictToRange(Math.round((Math.max(bottom_temperature, top_temperature) - min_value) / (max_value - min_value) * config.num_ticks), 0, config.num_ticks - 1);
-    this._ticks.forEach((tick, iTick) => {
-      const isLarge = iTick == min || iTick == max;
-      const isActive = iTick >= min && iTick <= max;
+    this._ticks.forEach((tick, index) => {
+      let isLarge = false;
+      let isActive = false;
+      tick_label.forEach(item => {
+        const tick_index = SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+        isLarge = isLarge || (index == tick_index);
+      });
       const theta = config.tick_degrees / config.num_ticks;
       SvgUtil.attributes(tick, {
-        d: SvgUtil.pointsToPath(SvgUtil.rotatePoints(isLarge ? tickPointsLarge : tickPoints, iTick * theta - config.offset_degrees, [config.radius, config.radius])),
-        class: isActive ? 'active' : ''
+        d: SvgUtil.pointsToPath(SvgUtil.rotatePoints(isLarge ? tickPointsLarge : tickPoints, index * theta - config.offset_degrees, [config.radius, config.radius])),
+        class: isActive
       });
     });
   }
@@ -211,16 +201,10 @@ export default class ThermostatUI {
     });
   }
 
-  _buildTemperatureSlot1() {
+  _buildDialSlot(index) {
     return SvgUtil.createSVGElement('text', {
       class: 'dial__lbl dial__lbl--ring',
-      id: 'temperature_slot_1'
-    })
-  }
-  _buildTemperatureSlot2() {
-    return SvgUtil.createSVGElement('text', {
-      class: 'dial__lbl dial__lbl--ring',
-      id: 'temperature_slot_2'
+      id: `temperature_slot_${index}`
     })
   }
   // TODO: Refactor this to allow dual temperature & link to decimals
