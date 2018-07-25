@@ -8,11 +8,11 @@ export default class ThermostatUI {
   get dual() {
     return this._dual;
   }
-  get center_text() {
+  get target_text() {
     return this.dual ? `${SvgUtil.superscript(this._low)}∙${SvgUtil.superscript(this._high)}` : SvgUtil.superscript(this._target);
   }
   set temperature(val) {
-    this._ambient = val.ambient;
+    this.ambient = val.ambient;
     this._low = val.low;
     this._high = val.high;
     this._target = val.target;
@@ -40,6 +40,7 @@ export default class ThermostatUI {
     root.appendChild(this._buildAway(config.radius));
     this._container.appendChild(root);
     this._root = root;
+    this._root.addEventListener('click', () => this._enableControls());
   }
 
   updateState(options) {
@@ -60,7 +61,7 @@ export default class ThermostatUI {
     let offset;
     const tick_indexes = [];
     if (this.dual) {
-      tick_label = [this._low, this._high, this._ambient].sort();
+      tick_label = [this._low, this._high, this.ambient].sort();
       offset = [-8, 0, 8]; // default offset
       switch (this.hvac_state) {
         case 'cool':
@@ -72,7 +73,7 @@ export default class ThermostatUI {
       }
     }
     else {
-      tick_label = [this._target, this._ambient].sort();
+      tick_label = [this._target, this.ambient].sort();
       offset = [-8, 8];
     }
     tick_label.forEach(item => {
@@ -111,17 +112,23 @@ export default class ThermostatUI {
 
     });
     this._updateTicks(tick_indexes);
-    this._updateCenterTemperature();
+    this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
+  }
+
+  _enableControls() {
+    clearTimeout(this._timeoutHandler);
+    this._updateCenterTemperature(this.target_text);
+    this._timeoutHandler = setTimeout(() => this._updateCenterTemperature(SvgUtil.superscript(this.ambient)), 10000);
   }
 
   _updateLeaf(show_leaf) {
     SvgUtil.setClass(this._root, 'has-leaf', show_leaf);
   }
 
-  _updateCenterTemperature() {
+  _updateCenterTemperature(text) {
     const lblTarget = this._root.querySelector('#center_temperature');
-    SvgUtil.setClass(lblTarget, 'long_text', this.center_text.length > 3);
-    lblTarget.textContent = this.center_text;
+    SvgUtil.setClass(lblTarget, 'long_text', text.length > 3);
+    lblTarget.textContent = text;
   }
 
   _updateTemperatureSlot(value, offset, slot) {
