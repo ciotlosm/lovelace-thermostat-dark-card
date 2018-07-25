@@ -59,8 +59,15 @@ export default class ThermostatUI {
     let offset;
     if (this.dual) {
       tick_label = [this._low, this._high, this._ambient].sort();
-      offset = [-8, -8, 8]; // default offset
-      if (this.hvac_state == 'cool') offset[1] = 8;
+      offset = [-8, 0, 8]; // default offset
+      switch (this.hvac_state) {
+        case 'cool':
+          offset[1] = 8;
+          break;
+        case 'heat':
+          offset[1] = -8;
+          break;
+      }
     }
     else {
       tick_label = [this._target, this._ambient].sort();
@@ -125,14 +132,26 @@ export default class ThermostatUI {
       [config.radius + 1.5, config.ticks_inner_radius + 20],
       [config.radius - 1.5, config.ticks_inner_radius + 20]
     ];
+    const major_index = [];
+    tick_label.forEach(item => {
+      major_index.push(SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1));
+    });
 
     this._ticks.forEach((tick, index) => {
       let isLarge = false;
       let isActive = false;
-      tick_label.forEach(item => {
-        const tick_index = SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
-        isLarge = isLarge || (index == tick_index);
-      });
+      if (!this.dual) isActive = (index >= major_index[0] && index <= major_index[major_index.length - 1]) ? 'active' : '';
+      else
+        switch (this.hvac_state) {
+          case 'cool':
+            isActive = (index >= major_index[0] && index <= major_index[1]) ? 'active' : '';
+            break;
+          case 'heat':
+            isActive = (index >= major_index[1] && index <= major_index[2]) ? 'active' : '';
+            break
+        }
+      //isLarge = isLarge || (index == tick_index);
+
       const theta = config.tick_degrees / config.num_ticks;
       SvgUtil.attributes(tick, {
         d: SvgUtil.pointsToPath(SvgUtil.rotatePoints(isLarge ? tickPointsLarge : tickPoints, index * theta - config.offset_degrees, [config.radius, config.radius])),
