@@ -56,62 +56,64 @@ export default class ThermostatUI {
       ambient: options.ambient_temperature,
     }
 
-    // update states (must make checks in the future)
-    let tick_label;
-    let offset;
+    let tick_label, from, to;
     const tick_indexes = [];
-    if (this.dual) {
+    if (!this.dual) {
+      tick_label = [this._target, this.ambient].sort();
+      tick_indexes[0] = SvgUtil.restrictToRange(Math.round((tick_label[0] - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+      tick_indexes[1] = SvgUtil.restrictToRange(Math.round((tick_label[1] - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+      this._updateTemperatureSlot(tick_label[0], -8, `temperature_slot_${1}`)
+      this._updateTemperatureSlot(tick_label[1], 8, `temperature_slot_${2}`)
+      from = tick_indexes[0];
+      to = tick_indexes[1];
+    } else {
+      const ambient_index = SvgUtil.restrictToRange(Math.round((this.ambient - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+      const high_index = SvgUtil.restrictToRange(Math.round((this._high - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+      const low_index = SvgUtil.restrictToRange(Math.round((this._low - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+
       tick_label = [this._low, this._high, this.ambient].sort();
-      offset = [-8, 0, 8]; // default offset
+      tick_label.forEach(item => tick_indexes.push(SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1)));
       switch (this.hvac_state) {
         case 'cool':
-          offset[1] = 8;
+          // active ticks
+          if (high_index < ambient_index) {
+            from = high_index;
+            to = ambient_index;
+            this._updateTemperatureSlot(this.ambient, 8, `temperature_slot_3`);
+          }
+          // numbers over lap
+
           break;
         case 'heat':
-          offset[1] = -8;
+          // active ticks
+          if (low_index > ambient_index) {
+            from = ambient_index;
+            to = low_index;
+            this._updateTemperatureSlot(this.ambient, -8, `temperature_slot_1`);
+          }
+          // numbers over lap
           break;
+        default:
       }
     }
-    else {
-      tick_label = [this._target, this.ambient].sort();
-      offset = [-8, 8];
-    }
-    tick_label.forEach(item => {
-      tick_indexes.push(SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1));
-    })
+
+    // cool: ambient to high only if high < ambient
+    // check low vs high - display low only if close
+    // else check ambient vs low - display lowest
+
+    // heat: ambient to low only if low > ambient
+    // check low vs high - display high only if close
+    // else check ambient vs high - display highest
+
+    // off : nothing active
+    // check ambient vs low - display lowest if close
+    // check ambient vs high - display highest if close
+    //           this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
+
+    this._updateTicks(from, to, tick_indexes);
     this._updateLeaf(away);
     this._updateAway(away);
     this._updateHvacState();
-    tick_label.forEach((item, index) => {
-      this._updateTemperatureSlot(null, offset[index], `temperature_slot_${index + 1}`)
-      switch (index) {
-        case 0:
-          if (this.hvac_state == 'heat' && tick_indexes[1] - tick_indexes[0] > 6)
-            this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-          else
-            this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-          break;
-        case 1:
-          if (!this.dual)
-            this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-          else
-            if (this.hvac_state == 'cool' && tick_indexes[2] - tick_indexes[1] > 6)
-              this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-            else if (this.hvac_state == 'heat' && tick_indexes[1] - tick_indexes[0] > 6)
-              this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-            else if (this.hvac_state == 'off' && tick_indexes[1] - tick_indexes[0] > 6 && tick_indexes[2] - tick_indexes[1] > 6)
-              this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-          break;
-        case 2:
-          if (this.hvac_state == 'cool' && tick_indexes[2] - tick_indexes[1] > 6)
-            this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-          else
-            this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-          break;
-      }
-
-    });
-    this._updateTicks(tick_indexes);
     this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
   }
 
@@ -132,7 +134,6 @@ export default class ThermostatUI {
   }
 
   _updateTemperatureSlot(value, offset, slot) {
-
     const config = this._config;
     const lblSlot1 = this._root.querySelector(`#${slot}`)
     lblSlot1.textContent = value != null ? SvgUtil.superscript(value) : '';
@@ -158,7 +159,7 @@ export default class ThermostatUI {
     this._root.classList.add('dial--state--' + this.hvac_state);
   }
 
-  _updateTicks(major_index) {
+  _updateTicks(from, to, large_ticks) {
     const config = this._config;
 
     const tickPoints = [
@@ -176,19 +177,8 @@ export default class ThermostatUI {
 
     this._ticks.forEach((tick, index) => {
       let isLarge = false;
-      let isActive = false;
-      if (!this.dual) isActive = (index >= major_index[0] && index <= major_index[major_index.length - 1]) ? 'active' : '';
-      else
-        switch (this.hvac_state) {
-          case 'cool':
-            isActive = (index >= major_index[0] && index <= major_index[1]) ? 'active' : '';
-            break;
-          case 'heat':
-            isActive = (index >= major_index[1] && index <= major_index[2]) ? 'active' : '';
-            break
-        }
-      major_index.forEach(i => isLarge = isLarge || (index == i));
-
+      const isActive = (index >= from && index <= to) ? 'active' : '';
+      large_ticks.forEach(i => isLarge = isLarge || (index == i));
       const theta = config.tick_degrees / config.num_ticks;
       SvgUtil.attributes(tick, {
         d: SvgUtil.pointsToPath(SvgUtil.rotatePoints(isLarge ? tickPointsLarge : tickPoints, index * theta - config.offset_degrees, [config.radius, config.radius])),
