@@ -85,6 +85,9 @@ export default class ThermostatUI {
       }
     } else {
       tick_label = [this._low, this._high, this.ambient].sort();
+      this._updateTemperatureSlot(null, 0, `temperature_slot_1`);
+      this._updateTemperatureSlot(null, 0, `temperature_slot_2`);
+      this._updateTemperatureSlot(null, 0, `temperature_slot_3`);
       switch (this.hvac_state) {
         case 'cool':
           // active ticks
@@ -92,6 +95,7 @@ export default class ThermostatUI {
             from = high_index;
             to = ambient_index;
             this._updateTemperatureSlot(this.ambient, 8, `temperature_slot_3`);
+            this._updateTemperatureSlot(this._high, -8, `temperature_slot_2`);
           }
           // numbers over lap
 
@@ -102,6 +106,7 @@ export default class ThermostatUI {
             from = ambient_index;
             to = low_index;
             this._updateTemperatureSlot(this.ambient, -8, `temperature_slot_1`);
+            this._updateTemperatureSlot(this._low, 8, `temperature_slot_2`);
           }
           // numbers over lap
           break;
@@ -127,6 +132,7 @@ export default class ThermostatUI {
     this._updateAway(away);
     this._updateHvacState();
     this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
+    SvgUtil.setClass(this._root, 'dial--edit', false);
   }
 
   _enableControls() {
