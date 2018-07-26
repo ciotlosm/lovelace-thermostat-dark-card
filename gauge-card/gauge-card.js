@@ -151,9 +151,17 @@ class GaugeCard extends HTMLElement {
     return severityMap["normal"];
   }
 
+  _getEntityStateValue(entity, attribute) {
+    if (!attribute) {
+      return entity.state;
+    }
+
+    return entity.attributes[attribute];
+  }
+
   set hass(hass) {
     const config = this._config;
-    const entityState = hass.states[config.entity].state;
+    const entityState = this._getEntityStateValue(hass.states[config.entity], config.attribute);
     const measurement = hass.states[config.entity].attributes.unit_of_measurement;
     const root = this.shadowRoot;
     if (entityState !== this._entityState) {
