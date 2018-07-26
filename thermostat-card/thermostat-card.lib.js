@@ -58,21 +58,33 @@ export default class ThermostatUI {
 
     let tick_label, from, to;
     const tick_indexes = [];
+    const ambient_index = SvgUtil.restrictToRange(Math.round((this.ambient - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+    const target_index = SvgUtil.restrictToRange(Math.round((this._target - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+    const high_index = SvgUtil.restrictToRange(Math.round((this._high - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
+    const low_index = SvgUtil.restrictToRange(Math.round((this._low - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
     if (!this.dual) {
       tick_label = [this._target, this.ambient].sort();
-      tick_indexes[0] = SvgUtil.restrictToRange(Math.round((tick_label[0] - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
-      tick_indexes[1] = SvgUtil.restrictToRange(Math.round((tick_label[1] - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
-      this._updateTemperatureSlot(tick_label[0], -8, `temperature_slot_${1}`)
-      this._updateTemperatureSlot(tick_label[1], 8, `temperature_slot_${2}`)
-      from = tick_indexes[0];
-      to = tick_indexes[1];
+      this._updateTemperatureSlot(tick_label[0], -8, `temperature_slot_1`);
+      this._updateTemperatureSlot(tick_label[1], 8, `temperature_slot_2`);
+      switch (this.hvac_state) {
+        case 'cool':
+          // active ticks
+          if (target_index < ambient_index) {
+            from = target_index;
+            to = ambient_index;
+          }
+          break;
+        case 'heat':
+          // active ticks
+          if (target_index > ambient_index) {
+            from = ambient_index;
+            to = target_index;
+          }
+          break;
+        default:
+      }
     } else {
-      const ambient_index = SvgUtil.restrictToRange(Math.round((this.ambient - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
-      const high_index = SvgUtil.restrictToRange(Math.round((this._high - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
-      const low_index = SvgUtil.restrictToRange(Math.round((this._low - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
-
       tick_label = [this._low, this._high, this.ambient].sort();
-      tick_label.forEach(item => tick_indexes.push(SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1)));
       switch (this.hvac_state) {
         case 'cool':
           // active ticks
@@ -109,7 +121,7 @@ export default class ThermostatUI {
     // check ambient vs low - display lowest if close
     // check ambient vs high - display highest if close
     //           this._updateTemperatureSlot(item, offset[index], `temperature_slot_${index + 1}`)
-
+    tick_label.forEach(item => tick_indexes.push(SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1)));
     this._updateTicks(from, to, tick_indexes);
     this._updateLeaf(away);
     this._updateAway(away);
@@ -119,8 +131,12 @@ export default class ThermostatUI {
 
   _enableControls() {
     clearTimeout(this._timeoutHandler);
+    SvgUtil.setClass(this._root, 'dial--edit', true);
     this._updateCenterTemperature(this.target_text);
-    this._timeoutHandler = setTimeout(() => this._updateCenterTemperature(SvgUtil.superscript(this.ambient)), 10000);
+    this._timeoutHandler = setTimeout(() => {
+      this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
+      SvgUtil.setClass(this._root, 'dial--edit', false);
+    }, 10000);
   }
 
   _updateLeaf(show_leaf) {
