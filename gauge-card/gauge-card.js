@@ -15,6 +15,7 @@ class GaugeCard extends HTMLElement {
     if (!cardConfig.scale) cardConfig.scale = "50px";
     if (!cardConfig.min) cardConfig.min = 0;
     if (!cardConfig.max) cardConfig.max = 100;
+    this._splitEntityAndAttribute(cardConfig);
 
     const card = document.createElement('ha-card');
     const shadow = card.attachShadow({ mode: 'open' });
@@ -104,6 +105,16 @@ class GaugeCard extends HTMLElement {
     });
     root.appendChild(card);
     this._config = cardConfig;
+  }
+
+  _splitEntityAndAttribute(config) {
+      let splits = config.entity.split('.');
+      if (splits.length < 3) {
+          return;
+      }
+
+      config.attribute = splits.pop();
+      config.entity = splits.join('.');
   }
 
   _fire(type, detail, options) {

@@ -62,3 +62,9 @@ Using an attribute
   attribute: current_temperature
 ```
 
+Using an attribute with dot notation
+```yaml
+- type: custom:gauge-card
+  entity: climate.living_room.current_temperature
+```
+
