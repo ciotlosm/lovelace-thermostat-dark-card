@@ -39,6 +39,7 @@ class ThermostatCard extends HTMLElement {
     const cardConfig = Object.assign({}, config);
     cardConfig.hvac = Object.assign({}, config.hvac);
     if (!cardConfig.diameter) cardConfig.diameter = 400;
+    if (!cardConfig.no_card) cardConfig.no_card = false;
     if (!cardConfig.num_ticks) cardConfig.num_ticks = 150;
     if (!cardConfig.tick_degrees) cardConfig.tick_degrees = 300;
     if (!cardConfig.hvac.states) cardConfig.hvac.states = { 'off': 'off', 'heat': 'heat', 'cool': 'cool', };
@@ -48,11 +49,16 @@ class ThermostatCard extends HTMLElement {
     cardConfig.ticks_outer_radius = cardConfig.diameter / 30;
     cardConfig.ticks_inner_radius = cardConfig.diameter / 8;
     cardConfig.offset_degrees = 180 - (360 - cardConfig.tick_degrees) / 2;
-
-    const card = document.createElement('ha-card');
     this.thermostat = new ThermostatUI(cardConfig);
-    card.appendChild(this.thermostat.container);
-    root.appendChild(card);
+    
+    if (cardConfig.no_card === true) {
+      root.appendChild(this.thermostat.container);  
+    }
+    else {
+      const card = document.createElement('ha-card');
+      card.appendChild(this.thermostat.container);
+      root.appendChild(card);
+    }
     this._config = cardConfig;
   }
 }

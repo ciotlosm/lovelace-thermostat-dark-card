@@ -11,6 +11,7 @@ A simple thermostat implemented in CSS based on <a href="https://codepen.io/dalh
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:thermostat-card`
 | title | string | optional | Card title
+| no_card | boolean | false | Set to true to avoid the card background and use the custom element in picture-elements.
 | hvac | object | optional | Allows mapping of custom states or using a custom attribute for state
 | entity | string | **Required** | The entity id of climate entity. Example: `climate.hvac`
 
