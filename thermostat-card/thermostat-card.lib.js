@@ -38,7 +38,6 @@ export default class ThermostatUI {
     root.appendChild(this._buildDialSlot(2));
     root.appendChild(this._buildDialSlot(3));
     root.appendChild(this._buildCenterTemperature(config.radius));
-    root.appendChild(this._buildAway(config.radius));
     this._container.appendChild(root);
     this._root = root;
     this._root.addEventListener('click', () => this._enableControls());
@@ -117,7 +116,6 @@ export default class ThermostatUI {
     tick_label.forEach(item => tick_indexes.push(SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1)));
     this._updateTicks(from, to, tick_indexes);
     this._updateLeaf(away);
-    this._updateAway(away);
     this._updateHvacState();
     this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
     this._updateEdit(false);
@@ -295,16 +293,6 @@ export default class ThermostatUI {
     })
   }
 
-  _buildAway(radius) {
-    const lblAway = SvgUtil.createSVGElement('text', {
-      x: radius,
-      y: radius,
-      class: 'dial__lbl dial__lbl--away'
-    });
-    lblAway.textContent = 'AWAY';
-    return lblAway
-  }
-
   _renderStyle() {
     return `
       .dial_container {
@@ -326,11 +314,8 @@ export default class ThermostatUI {
         --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
         --thermostat-text-color: white;
       }
-      .dial.away .dial__lbl--target {
+      .dial.has-thermo .dial__ico__leaf {
         visibility: hidden;
-      }
-      .dial.away .dial__lbl--away {
-        opacity: 1;
       }
       .dial .dial__shape {
         transition: fill 0.5s;
@@ -397,12 +382,6 @@ export default class ThermostatUI {
       .dial__lbl--ring {
         font-size: 22px;
         font-weight: bold;
-      }
-      .dial__lbl--away {
-        font-size: 72px;
-        font-weight: bold;
-        opacity: 0;
-        pointer-events: none;
       }`
   }
 }
