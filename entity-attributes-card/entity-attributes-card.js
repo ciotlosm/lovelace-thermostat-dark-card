@@ -5,25 +5,33 @@ class EntityAttributesCard extends HTMLElement {
   }
 
   _getAttributes(hass, filters) {
-    function _filterName(stateObj, pattern) {
+    function _getPart(pattern) {
       let parts;
-      let attr_id;
       let attribute;
       if (typeof (pattern) === "object") {
         parts = pattern["key"].split(".");
         attribute = pattern["key"];
-        
       } else {
         parts = pattern.split(".");
         attribute = pattern;
       }
-      attr_id = parts[2];
-      if (attr_id.indexOf('*') === -1) {
-        return stateObj == attribute;
+      return { parts: parts, attr: attribute, 
+	       match_by_entity: parts[1].indexOf('*') != -1, 
+	       match_by_attr: parts[2].indexOf('*') != -1
+      };
+    }
+
+    function _filterName(stateObj, pattern) {
+      const res = _getPart(pattern);
+      let attr_id = res.parts[2];
+      let entity_id = res.parts[1];
+      if (attr_id.indexOf('*') === -1 && entity_id.indexOf('*') === -1) {
+        return stateObj == res.attr;
       }
-      const regEx = new RegExp(`^${attribute.replace(/\*/g, '.*')}$`, 'i');
+      const regEx = new RegExp(`^${res.attr.replace(/\*/g, '.*')}$`, 'i');
       return stateObj.search(regEx) === 0;
     }
+
     const attributes = new Map();
     filters.forEach((filter) => {
       const filters = [];
@@ -31,8 +39,24 @@ class EntityAttributesCard extends HTMLElement {
       Object.keys(hass.states).sort().forEach(key => {
         Object.keys(hass.states[key].attributes).sort().forEach(attr_key => {
           if (filters.every(filterFunc => filterFunc(`${key}.${attr_key}`))) {
+
+	    // based on which part of the URI was machted the (distinguishing) 
+	    // name is chosen as label for this attribute 
+	    // to be fully consistent, shall wildcarding also work for the domain? 
+	    let my_name = '';
+	    if (filter.name) {
+	      my_name = filter.name;
+	    } else {
+	      const res = _getPart(filter);
+	      if (res.match_by_entity)
+	        my_name += key.split(".")[1];
+	      if (res.match_by_attr || my_name == '')
+                my_name += attr_key;
+	      my_name = my_name.replace(/_/g, ' ');
+	    }
+
             attributes.set(`${key}.${attr_key}`, {
-              name: `${filter.name?filter.name:attr_key.replace(/_/g, ' ')}`,
+              name: my_name,
               value: hass.states[key].attributes[attr_key],
             });
           }  
