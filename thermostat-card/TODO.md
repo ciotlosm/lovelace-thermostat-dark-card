@@ -1,7 +1,7 @@
 - [x] Correct vertical centering
 - [x] Add dual temperature support
 - [ ] Add controls for hold and drag for temperature change (single temperature only)
-- [ ] Add setting to swap target and ambient temperature places
+- [x] Add setting to swap target and ambient temperature places
 - [ ] Add support for multiple entities for different functions (zwave thermostats hot/cold, tado away mode, etc)
 - [ ] Add controls for tap +/- target temperature change
 - [ ] Add support for no temperature display if all temperatures are null
