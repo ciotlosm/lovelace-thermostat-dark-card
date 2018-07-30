@@ -1,4 +1,4 @@
-import ThermostatUI from './thermostat-card.lib.js?v=0.1'
+import ThermostatUI from './thermostat-card.lib.js?v=0.2'
 class ThermostatCard extends HTMLElement {
   constructor() {
     super();
@@ -12,7 +12,7 @@ class ThermostatCard extends HTMLElement {
       hvac_state = entity.attributes[config.hvac.attribute];
     else
       hvac_state = entity.state;
-    this.thermostat.updateState({
+    const new_state = {
       min_value: entity.attributes.min_temp,
       max_value: entity.attributes.max_temp,
       ambient_temperature: entity.attributes.current_temperature,
@@ -21,7 +21,19 @@ class ThermostatCard extends HTMLElement {
       target_temperature_high: entity.attributes.target_temp_high,
       hvac_state: config.hvac.states[hvac_state] || 'off',
       away: (entity.attributes.away_mode == 'on' ? true : false),
-    });
+    }
+    if (!this._saved_state ||
+      (this._saved_state.min_value != new_state.min_value ||
+        this._saved_state.max_value != new_state.max_value ||
+        this._saved_state.ambient_temperature != new_state.ambient_temperature ||
+        this._saved_state.target_temperature != new_state.target_temperature ||
+        this._saved_state.target_temperature_low != new_state.target_temperature_low ||
+        this._saved_state.target_temperature_high != new_state.target_temperature_high ||
+        this._saved_state.hvac_state != new_state.hvac_state ||
+        this._saved_state.away != new_state.away)) {
+      this._saved_state = new_state;
+      this.thermostat.updateState(new_state);
+    }
     this._hass = hass;
   }
 
