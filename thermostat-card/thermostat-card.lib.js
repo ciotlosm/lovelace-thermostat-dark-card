@@ -187,27 +187,34 @@ export default class ThermostatUI {
             if (this._low < this.min_value) this._low = this.min_value;
             break;
         }
-        SvgUtil.setClass(this._controls[index], 'control-visible', true);
+        if (config.highlight_tap)
+          SvgUtil.setClass(this._controls[index], 'control-visible', true);
       }
       else {
         if (index < 2) {
           this._target = this._target + config.step;
           if (this._target > this.max_value) this._target = this.max_value;
-          SvgUtil.setClass(this._controls[0], 'control-visible', true);
-          SvgUtil.setClass(this._controls[1], 'control-visible', true);
+          if (config.highlight_tap) {
+            SvgUtil.setClass(this._controls[0], 'control-visible', true);
+            SvgUtil.setClass(this._controls[1], 'control-visible', true);
+          }
         } else {
           this._target = this._target - config.step;
           if (this._target < this.min_value) this._target = this.in_value;
-          SvgUtil.setClass(this._controls[2], 'control-visible', true);
-          SvgUtil.setClass(this._controls[3], 'control-visible', true);
+          if (config.highlight_tap) {
+            SvgUtil.setClass(this._controls[2], 'control-visible', true);
+            SvgUtil.setClass(this._controls[3], 'control-visible', true);
+          }
         }
       }
-      setTimeout(() => {
-        SvgUtil.setClass(this._controls[0], 'control-visible', false);
-        SvgUtil.setClass(this._controls[1], 'control-visible', false);
-        SvgUtil.setClass(this._controls[2], 'control-visible', false);
-        SvgUtil.setClass(this._controls[3], 'control-visible', false);
-      }, 200);
+      if (config.highlight_tap) {
+        setTimeout(() => {
+          SvgUtil.setClass(this._controls[0], 'control-visible', false);
+          SvgUtil.setClass(this._controls[1], 'control-visible', false);
+          SvgUtil.setClass(this._controls[2], 'control-visible', false);
+          SvgUtil.setClass(this._controls[3], 'control-visible', false);
+        }, 200);
+      }
     } else {
       this._enableControls();
     }

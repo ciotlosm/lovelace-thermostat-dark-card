@@ -57,6 +57,7 @@ class ThermostatCard extends HTMLElement {
     if (!cardConfig.pending) cardConfig.pending = 3;
     if (!cardConfig.idle_zone) cardConfig.idle_zone = 2;
     if (!cardConfig.step) cardConfig.step = 0.5;
+    if (!cardConfig.highlight_tap) cardConfig.highlight_tap = false;
     if (!cardConfig.no_card) cardConfig.no_card = false;
     if (!cardConfig.num_ticks) cardConfig.num_ticks = 150;
     if (!cardConfig.tick_degrees) cardConfig.tick_degrees = 300;
