@@ -39,16 +39,19 @@ class ThermostatCard extends HTMLElement {
 
   _controlSetPoints() {
     if (this.thermostat.dual) {
-      this._hass.callService('climate', 'set_temperature', {
-        entity_id: this._config.entity,
-        target_temp_high: this.thermostat.temperature.high,
-        target_temp_low: this.thermostat.temperature.low,
-      });
+      if (this.thermostat.temperature.high != this._saved_state.target_temperature_high ||
+        this.thermostat.temperature.low != this._saved_state.target_temperature_low)
+        this._hass.callService('climate', 'set_temperature', {
+          entity_id: this._config.entity,
+          target_temp_high: this.thermostat.temperature.high,
+          target_temp_low: this.thermostat.temperature.low,
+        });
     } else {
-      this._hass.callService('climate', 'set_temperature', {
-        entity_id: this._config.entity,
-        temperature: this.thermostat.temperature.target,
-      });
+      if (this.thermostat.temperature.target != this._saved_state.target_temperature)
+        this._hass.callService('climate', 'set_temperature', {
+          entity_id: this._config.entity,
+          temperature: this.thermostat.temperature.target,
+        });
     }
   }
 
