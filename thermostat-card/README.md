@@ -10,6 +10,7 @@ A simple thermostat implemented in CSS based on <a href="https://codepen.io/dalh
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:thermostat-card`
+| entity | string | **Required** | The entity id of climate entity. Example: `climate.hvac`
 | title | string | optional | Card title
 | no_card | boolean | false | Set to true to avoid the card background and use the custom element in picture-elements.
 | hvac | object | optional | Allows mapping of custom states or using a custom attribute for state
@@ -17,7 +18,6 @@ A simple thermostat implemented in CSS based on <a href="https://codepen.io/dalh
 | highlight_tap | boolean | false | Show the tap area highlight when changing temperature settings
 | pending | number | 3 | Seconds to wait in control mode until state changes are sent back to the server
 | idle_zone | number | 2 | Degrees of minimum difference between set points when thermostat supports both heating and cooling
-| entity | string | **Required** | The entity id of climate entity. Example: `climate.hvac`
 
 **hvac** object 
 
