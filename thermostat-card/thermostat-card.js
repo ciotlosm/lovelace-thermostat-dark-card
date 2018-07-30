@@ -22,7 +22,22 @@ class ThermostatCard extends HTMLElement {
       hvac_state: config.hvac.states[hvac_state] || 'off',
       away: (entity.attributes.away_mode == 'on' ? true : false),
     });
-    this._hass = hass
+    this._hass = hass;
+  }
+
+  _controlSetPoints() {
+    if (this.thermostat.dual) {
+      this._hass.callService('climate', 'set_temperature', {
+        entity_id: this._config.entity,
+        target_temp_high: this.thermostat.temperature.high,
+        target_temp_low: this.thermostat.temperature.low,
+      });
+    } else {
+      this._hass.callService('climate', 'set_temperature', {
+        entity_id: this._config.entity,
+        temperature: this.thermostat.temperature.target,
+      });
+    }
   }
 
   setConfig(config) {
@@ -39,6 +54,9 @@ class ThermostatCard extends HTMLElement {
     const cardConfig = Object.assign({}, config);
     cardConfig.hvac = Object.assign({}, config.hvac);
     if (!cardConfig.diameter) cardConfig.diameter = 400;
+    if (!cardConfig.pending) cardConfig.pending = 3;
+    if (!cardConfig.idle_zone) cardConfig.idle_zone = 2;
+    if (!cardConfig.step) cardConfig.step = 0.5;
     if (!cardConfig.no_card) cardConfig.no_card = false;
     if (!cardConfig.num_ticks) cardConfig.num_ticks = 150;
     if (!cardConfig.tick_degrees) cardConfig.tick_degrees = 300;
@@ -49,10 +67,11 @@ class ThermostatCard extends HTMLElement {
     cardConfig.ticks_outer_radius = cardConfig.diameter / 30;
     cardConfig.ticks_inner_radius = cardConfig.diameter / 8;
     cardConfig.offset_degrees = 180 - (360 - cardConfig.tick_degrees) / 2;
+    cardConfig.control = this._controlSetPoints.bind(this);
     this.thermostat = new ThermostatUI(cardConfig);
-    
+
     if (cardConfig.no_card === true) {
-      root.appendChild(this.thermostat.container);  
+      root.appendChild(this.thermostat.container);
     }
     else {
       const card = document.createElement('ha-card');
