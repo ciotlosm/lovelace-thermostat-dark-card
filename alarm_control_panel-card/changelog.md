@@ -1,3 +1,6 @@
+## 0.3.2
+- Fixed javascript error on code clear when no code was used 
+
 ## 0.3.1
 - Fixed alarm not working with no code
 - Fixed bug for auto arm when clicking disarm
