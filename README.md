@@ -22,7 +22,7 @@ resources:
 
 ### Using tracker-card
 
-If you ended up using more cards and want to get update notifications and easier to use workflow you can use [tracker-card](/tracker-card/).
+If you ended up using more cards and want to get update notifications and easier to use workflow you can use [tracker-card](https://github.com/custom-cards/tracker-card).
 
 - Clone this repository inside your `config/www`
 
@@ -41,7 +41,7 @@ resources:
 ```
 
 - Configure the cards inside `ui-lovelace.yaml` according to the instructions provided
-- Configure [tracker-card](/tracker-card/) acording to the [instructions](/tracker-card/README.md)
+- Configure [tracker-card](https://github.com/custom-cards/tracker-card) acording to the [instructions](https://github.com/custom-cards/tracker-card/blob/master/README.md)
 
 
 ⭐️ this repository if you found it useful ❤️
