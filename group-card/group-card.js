@@ -10,7 +10,7 @@ class GroupCard extends HTMLElement {
     if (!cardConfig.card) cardConfig.card = {};
     if (!cardConfig.card.type) cardConfig.card.type = 'entities';
 
-    const element = document.createElement(`hui-${cardConfig.card.type}-card`);
+    const element = document.createElement(`hui-${cardConfig.card.type.startsWith("custom:") ? cardConfig.card.type.substr("custom:".length) : cardConfig.card.type}-card`);
     this.appendChild(element);
     this._config = cardConfig;
   }
