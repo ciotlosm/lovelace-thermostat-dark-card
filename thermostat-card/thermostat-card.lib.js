@@ -21,8 +21,11 @@ export default class ThermostatUI {
       target: this._target,
     }
   }
+  get ambient() {
+    return this._ambient;
+  }
   set temperature(val) {
-    this.ambient = val.ambient;
+    this._ambient = val.ambient;
     this._low = val.low;
     this._high = val.high;
     this._target = val.target;
@@ -48,7 +51,15 @@ export default class ThermostatUI {
     root.appendChild(this._buildDialSlot(1));
     root.appendChild(this._buildDialSlot(2));
     root.appendChild(this._buildDialSlot(3));
-    root.appendChild(this._buildCenterTemperature(config.radius));
+
+    // ambient
+    root.appendChild(this._buildAmbient(config.radius));
+    // target - includes chevrons
+    root.appendChild(this._buildTarget(config.radius));
+    // low /high - includes chevrons
+    root.appendChild(this._buildHigh(config.radius));
+    root.appendChild(this._buildLow(config.radius));
+
     this._container.appendChild(root);
     this._root = root;
     this._buildControls(config.radius);
@@ -68,6 +79,7 @@ export default class ThermostatUI {
       ambient: options.ambient_temperature,
     }
 
+    this._updateClass('has_dual', this.dual);
     let tick_label, from, to;
     const tick_indexes = [];
     const ambient_index = SvgUtil.restrictToRange(Math.round((this.ambient - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1);
@@ -139,30 +151,11 @@ export default class ThermostatUI {
     }
     tick_label.forEach(item => tick_indexes.push(SvgUtil.restrictToRange(Math.round((item - this.min_value) / (this.max_value - this.min_value) * config.num_ticks), 0, config.num_ticks - 1)));
     this._updateTicks(from, to, tick_indexes);
-    this._updateLeaf(away);
+    this._updateClass('has-leaf', away);
     this._updateHvacState();
-    this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
+    this._updateText('#ambient', this.ambient);
     this._updateEdit(false);
-    this._updateThermoIcon(false);
-  }
-  _buildControls(radius) {
-    let startAngle = 270;
-    let loop = 4;
-    for (let index = 0; index < loop; index++) {
-      const angle = 360 / loop;
-      const sector = SvgUtil.anglesToSectors(radius, startAngle, angle);
-      const controlsDef = 'M' + sector.L + ',' + sector.L + ' L' + sector.L + ',0 A' + sector.L + ',' + sector.L + ' 1 0,1 ' + sector.X + ', ' + sector.Y + ' z';
-      const path = SvgUtil.createSVGElement('path', {
-        class: 'dial__temperatureControl',
-        fill: 'blue',
-        d: controlsDef,
-        transform: 'rotate(' + sector.R + ', ' + sector.L + ', ' + sector.L + ')'
-      });
-      this._controls.push(path);
-      path.addEventListener('click', () => this._temperatureControlClicked(index));
-      this._root.appendChild(path);
-      startAngle = startAngle + angle;
-    }
+    this._updateClass('has-thermo', false);
   }
 
   _temperatureControlClicked(index) {
@@ -227,30 +220,28 @@ export default class ThermostatUI {
   _enableControls() {
     const config = this._config;
     this._in_control = true;
+    this._updateClass('in_control', this.in_control);
     if (this._timeoutHandler) clearTimeout(this._timeoutHandler);
     this._updateEdit(true);
-    this._updateThermoIcon(true);
-    this._updateCenterTemperature(this.target_text);
+    this._updateClass('has-thermo', true);
+    //this._updateCenterTemperature(this.target_text);
     this._timeoutHandler = setTimeout(() => {
-      this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
+      this._updateText('#ambient', this.ambient);
+      //this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
       this._updateEdit(false);
-      this._updateThermoIcon(false);
+      this._updateClass('has-thermo', false);
       this._in_control = false;
+      this._updateClass('in_control', this.in_control);
       config.control();
     }, config.pending * 1000);
   }
 
-  _updateLeaf(show_leaf) {
-    SvgUtil.setClass(this._root, 'has-leaf', show_leaf);
+  _updateClass(class_name, flag) {
+    SvgUtil.setClass(this._root, class_name, flag);
   }
 
-  _updateThermoIcon(show_thermo) {
-    SvgUtil.setClass(this._root, 'has-thermo', show_thermo);
-  }
-
-  _updateCenterTemperature(text) {
-    const lblTarget = this._root.querySelector('#center_temperature');
-    SvgUtil.setClass(lblTarget, 'long_text', text.length > 3);
+  _updateText(id, text) {
+    const lblTarget = this._root.querySelector(id);
     lblTarget.textContent = text;
   }
 
@@ -266,10 +257,6 @@ export default class ThermostatUI {
       x: pos[0],
       y: pos[1]
     });
-  }
-
-  _updateAway(away) {
-    SvgUtil.setClass(this._root, 'away', away);
   }
 
   _updateHvacState() {
@@ -386,13 +373,60 @@ export default class ThermostatUI {
     })
   }
 
-  _buildCenterTemperature(radius) {
+  _buildAmbient(radius) {
+    return SvgUtil.createSVGElement('text', {
+      x: radius,
+      y: radius,
+      class: 'dial__lbl dial__lbl--ambient',
+      id: 'ambient'
+    })
+  }
+
+  _buildTarget(radius) {
     return SvgUtil.createSVGElement('text', {
       x: radius,
       y: radius,
       class: 'dial__lbl dial__lbl--target',
-      id: 'center_temperature'
+      id: 'target'
     })
+  }
+
+  _buildLow(radius) {
+    return SvgUtil.createSVGElement('text', {
+      x: radius,
+      y: radius,
+      class: 'dial__lbl dial__lbl--low',
+      id: 'low'
+    })
+  }
+
+  _buildHigh(radius) {
+    return SvgUtil.createSVGElement('text', {
+      x: radius,
+      y: radius,
+      class: 'dial__lbl dial__lbl--high',
+      id: 'high'
+    })
+  }
+
+  _buildControls(radius) {
+    let startAngle = 270;
+    let loop = 4;
+    for (let index = 0; index < loop; index++) {
+      const angle = 360 / loop;
+      const sector = SvgUtil.anglesToSectors(radius, startAngle, angle);
+      const controlsDef = 'M' + sector.L + ',' + sector.L + ' L' + sector.L + ',0 A' + sector.L + ',' + sector.L + ' 1 0,1 ' + sector.X + ', ' + sector.Y + ' z';
+      const path = SvgUtil.createSVGElement('path', {
+        class: 'dial__temperatureControl',
+        fill: 'blue',
+        d: controlsDef,
+        transform: 'rotate(' + sector.R + ', ' + sector.L + ', ' + sector.L + ')'
+      });
+      this._controls.push(path);
+      path.addEventListener('click', () => this._temperatureControlClicked(index));
+      this._root.appendChild(path);
+      startAngle = startAngle + angle;
+    }
   }
 
   _renderStyle() {
@@ -426,7 +460,7 @@ export default class ThermostatUI {
       .dial__ico__leaf {
         fill: #13EB13;
         opacity: 0;
-        transition: opacity 0.2s;
+        transition: opacity 0.5s;
         pointer-events: none;
       }
       .dial.has-leaf .dial__ico__leaf {
@@ -486,12 +520,27 @@ export default class ThermostatUI {
         font-family: Helvetica, sans-serif;
         alignment-baseline: central;
       }
-      .dial__lbl--target {
+      .dial__lbl--target, .dial__lbl--low, .dial__lbl--high {
         font-size: 120px;
         font-weight: bold;
+        visibility: hidden;
       }
-      .dial__lbl--target.long_text {
-        font-size: 75px;
+      .dial.in_control .dial__lbl--target {
+        visibility: visible;
+      }
+      .dial.in_control .dial__lbl--low {
+        visibility: visible;
+      }
+      .dial.in_control .dial__lbl--high {
+        visibility: visible;
+      }
+      .dial__lbl--ambient {
+        font-size: 120px;
+        font-weight: bold;
+        visibility: visible;
+      }
+      .dial.in_control .dial__lbl--ambient {
+        visibility: hidden;
       }
       .dial__lbl--ring {
         font-size: 22px;
