@@ -11,9 +11,6 @@ export default class ThermostatUI {
   get in_control() {
     return this._in_control;
   }
-  get target_text() {
-    return this.dual ? `${SvgUtil.superscript(this._low)}∙${SvgUtil.superscript(this._high)}` : SvgUtil.superscript(this._target);
-  }
   get temperature() {
     return {
       low: this._low,
