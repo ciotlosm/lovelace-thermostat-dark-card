@@ -209,7 +209,7 @@ export default class ThermostatUI {
           // clicked bottom
           chevron = this._root.querySelectorAll('path.dial__chevron--target')[0];
           this._target = this._target - config.step;
-          if (this._target < this.min_value) this._target = this.in_value;
+          if (this._target < this.min_value) this._target = this.min_value;
           if (config.highlight_tap) {
             SvgUtil.setClass(this._controls[2], 'control-visible', true);
             SvgUtil.setClass(this._controls[3], 'control-visible', true);
