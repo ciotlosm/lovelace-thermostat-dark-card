@@ -1,7 +1,6 @@
 # Cartoon Weather card
 
-An annimated weather card implemented based on <a href="https://codepen.io/ste-vg/pen/Gqakbo">Animated Weather Cards</a> by Steve Gardner
- (<a href="https://twitter.com/steeevg">@steeevg</a>) on <a href="https://codepen.io">CodePen</a>
+An annimated weather card implemented based on <a href="https://codepen.io/GooeyIdeas/pen/NRvoQv">Animated Weather Cards (Enhanced w/Yahoo Weather)</a> by Steve Gardner (<a href="https://twitter.com/steeevg">@steeevg</a>) and Kenneth Moore (<a href="https://codepen.io/GooeyIdeas/">@GooeyIdeas</a> on <a href="https://codepen.io">CodePen</a>
 
 ## Options
 
