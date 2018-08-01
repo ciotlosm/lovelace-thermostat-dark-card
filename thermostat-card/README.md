@@ -5,6 +5,14 @@ A simple thermostat implemented in CSS based on <a href="https://codepen.io/dalh
 
 ![thermostat](https://user-images.githubusercontent.com/7738048/42817026-7972be8e-89d5-11e8-994f-e5f556fb46fc.png)
 
+### TODO
+There are many things still missing, but I'll add below those that I know of
+- [ ] Allow canceling of schedules for thermostats like Ecobee
+- [ ] Allow settings Away mode
+- [ ] Allow changing of Opration mode
+- [ ] Add support for multiple entities for different functions (zwave thermostats hot/cold, tado away mode, etc)
+- [ ] Title scaling
+
 **Options**
 
 | Name | Type | Default | Description
