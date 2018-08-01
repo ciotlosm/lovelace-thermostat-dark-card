@@ -386,8 +386,9 @@ export default class ThermostatUI {
   }
 
   _buildChevrons(radius, rotation, id, scale, offset) {
+    const config = this._config;
     const translation = rotation > 0 ? -1 : 1;
-    const width = 50;
+    const width = config.chevron_size;
     const chevron_def = ["M", 0, 0, "L", width / 2, width * 0.3, "L", width, 0].map((x) => isNaN(x) ? x : x * scale).join(' ');
     const translate = [radius - width / 2 * scale * translation + offset, radius + 70 * scale * 1.1 * translation];
     const chevron = SvgUtil.createSVGElement('path', {

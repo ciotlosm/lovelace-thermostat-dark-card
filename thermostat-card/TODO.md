@@ -6,8 +6,8 @@
 - [x] Add controls for tap +/- target temperature change
 
 ### TODO before 1st stable
-- [ ] Add versioning to the library for cache busting
-- [ ] Add chevron to UI when in control mode
+- [x] Add versioning to the library for cache busting
+- [x] Add chevron to UI when in control mode
 
 ### Lower priority
 - [ ] Add support for no temperature display if all temperatures are null
