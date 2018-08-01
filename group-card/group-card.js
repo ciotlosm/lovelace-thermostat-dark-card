@@ -9,7 +9,6 @@ class GroupCard extends HTMLElement {
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.card) cardConfig.card = {};
     if (!cardConfig.card.type) cardConfig.card.type = 'entities';
-
     const element = document.createElement(`hui-${cardConfig.card.type}-card`);
     this.appendChild(element);
     this._config = cardConfig;
@@ -18,17 +17,11 @@ class GroupCard extends HTMLElement {
   set hass(hass) {
     const config = this._config;
     const entities = hass.states[config.group].attributes['entity_id'];
-    if (entities.length === 0 && config.show_empty === false) {
-      this.style.display = 'none';
-    } else {
-      this.style.display = 'block';
-    }
-
     if (!config.card.entities || config.card.entities.length !== entities.length ||
       !config.card.entities.every((value, index) => value.entity === entities[index].entity)) {
       config.card.entities = entities;
-      this.lastChild.setConfig(config.card);
     }
+    this.lastChild.setConfig(config.card);
     this.lastChild.hass = hass;
   }
 
