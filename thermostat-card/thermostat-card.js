@@ -1,4 +1,4 @@
-import ThermostatUI from './thermostat-card.lib.js?v=0.2'
+import ThermostatUI from './thermostat-card.lib.js?v=0.3'
 class ThermostatCard extends HTMLElement {
   constructor() {
     super();
@@ -91,6 +91,7 @@ class ThermostatCard extends HTMLElement {
     }
     else {
       const card = document.createElement('ha-card');
+      card.style.padding = '5%';
       card.appendChild(this.thermostat.container);
       root.appendChild(card);
     }
