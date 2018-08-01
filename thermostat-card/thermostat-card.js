@@ -1,4 +1,4 @@
-import ThermostatUI from './thermostat-card.lib.js?v=0.3'
+import ThermostatUI from './thermostat-card.lib.js?v=0.0.1'
 class ThermostatCard extends HTMLElement {
   constructor() {
     super();
