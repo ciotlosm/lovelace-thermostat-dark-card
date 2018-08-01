@@ -87,5 +87,18 @@ Please make sure you have `javascript_version: latest` in your `configuration.ya
 
 This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button.
 
+3. For the following errors:
+  - `Uncaught SyntaxError: Unexpected identifier`
+
+You probably are using `thermostat-card` and didn't specify `module` for `type` in `resources`
+
+```yaml
+  - url: /local/custom-lovelace/thermostat-card/thermostat-card.js?v=0.1
+    type: module
+```
+
+## License
+Majority of cards use Apache License, however there are some that have their own LICENSE file.
+
 ## Credits
 - [@ciotlosm](https://github.com/ciotlosm)
