@@ -163,31 +163,45 @@ export default class ThermostatUI {
 
   _temperatureControlClicked(index) {
     const config = this._config;
+    let chevron;
+    this._root.querySelectorAll('path.dial__chevron').forEach(el => SvgUtil.setClass(el, 'pressed', false));
     if (this.in_control) {
       if (this.dual) {
         switch (index) {
           case 0:
+            // clicked top left 
+            chevron = this._root.querySelectorAll('path.dial__chevron--low')[1];
             this._low = this._low + config.step;
             if ((this._low + config.idle_zone) >= this._high) this._low = this._high - config.idle_zone;
             break;
           case 1:
+            // clicked top right
+            chevron = this._root.querySelectorAll('path.dial__chevron--high')[1];
             this._high = this._high + config.step;
             if (this._high > this.max_value) this._high = this.max_value;
             break;
           case 2:
+            // clicked bottom right
+            chevron = this._root.querySelectorAll('path.dial__chevron--high')[0];
             this._high = this._high - config.step;
             if ((this._high - config.idle_zone) <= this._low) this._high = this._low + config.idle_zone;
             break;
           case 3:
+            // clicked bottom left
+            chevron = this._root.querySelectorAll('path.dial__chevron--low')[0];
             this._low = this._low - config.step;
             if (this._low < this.min_value) this._low = this.min_value;
             break;
         }
+        SvgUtil.setClass(chevron, 'pressed', true);
+        setTimeout(() => SvgUtil.setClass(chevron, 'pressed', false), 200);
         if (config.highlight_tap)
           SvgUtil.setClass(this._controls[index], 'control-visible', true);
       }
       else {
         if (index < 2) {
+          // clicked top
+          chevron = this._root.querySelectorAll('path.dial__chevron--target')[1];
           this._target = this._target + config.step;
           if (this._target > this.max_value) this._target = this.max_value;
           if (config.highlight_tap) {
@@ -195,6 +209,8 @@ export default class ThermostatUI {
             SvgUtil.setClass(this._controls[1], 'control-visible', true);
           }
         } else {
+          // clicked bottom
+          chevron = this._root.querySelectorAll('path.dial__chevron--target')[0];
           this._target = this._target - config.step;
           if (this._target < this.min_value) this._target = this.in_value;
           if (config.highlight_tap) {
@@ -202,6 +218,8 @@ export default class ThermostatUI {
             SvgUtil.setClass(this._controls[3], 'control-visible', true);
           }
         }
+        SvgUtil.setClass(chevron, 'pressed', true);
+        setTimeout(() => SvgUtil.setClass(chevron, 'pressed', false), 200);
       }
       if (config.highlight_tap) {
         setTimeout(() => {
@@ -372,8 +390,9 @@ export default class ThermostatUI {
 
   _buildChevrons(radius, rotation, id, scale, offset) {
     const translation = rotation > 0 ? -1 : 1;
-    const chevron_def = ["M", 0, 0, "L", 50, 30, "L", 100, 0].map((x) => isNaN(x) ? x : x * scale).join(' ');
-    const translate = [radius - 50 * scale * translation + offset, radius + 70 * scale * 1.1 * translation];
+    const width = 50;
+    const chevron_def = ["M", 0, 0, "L", width / 2, width * 0.3, "L", width, 0].map((x) => isNaN(x) ? x : x * scale).join(' ');
+    const translate = [radius - width / 2 * scale * translation + offset, radius + 70 * scale * 1.1 * translation];
     const chevron = SvgUtil.createSVGElement('path', {
       class: `dial__chevron dial__chevron--${id}`,
       d: chevron_def,
@@ -574,7 +593,6 @@ export default class ThermostatUI {
         opacity: 0.3;
       }
       .dial .dial__chevron.pressed {
-        transition: opacity 0.3s;
         opacity: 1;
       }
       .dial.in_control .dial__lbl--ambient {
