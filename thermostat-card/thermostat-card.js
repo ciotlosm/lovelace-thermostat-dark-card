@@ -91,6 +91,7 @@ class ThermostatCard extends HTMLElement {
     }
     else {
       const card = document.createElement('ha-card');
+      card.style.padding = '5%';
       card.appendChild(this.thermostat.container);
       root.appendChild(card);
     }
