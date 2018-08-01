@@ -52,13 +52,16 @@ export default class ThermostatUI {
     root.appendChild(this._buildDialSlot(2));
     root.appendChild(this._buildDialSlot(3));
 
-    // ambient
-    root.appendChild(this._buildAmbient(config.radius));
-    // target - includes chevrons
-    root.appendChild(this._buildTarget(config.radius));
-    // low /high - includes chevrons
-    root.appendChild(this._buildHigh(config.radius));
-    root.appendChild(this._buildLow(config.radius));
+    root.appendChild(this._buildText(config.radius, 'ambient', 0));
+    root.appendChild(this._buildText(config.radius, 'target', 0));
+    root.appendChild(this._buildText(config.radius, 'low', -config.radius / 2.5));
+    root.appendChild(this._buildText(config.radius, 'high', config.radius / 3));
+    root.appendChild(this._buildChevrons(config.radius, 0, 'low', 0.7, -config.radius / 2.5));
+    root.appendChild(this._buildChevrons(config.radius, 0, 'high', 0.7, config.radius / 3));
+    root.appendChild(this._buildChevrons(config.radius, 0, 'target', 1, 0));
+    root.appendChild(this._buildChevrons(config.radius, 180, 'low', 0.7, -config.radius / 2.5));
+    root.appendChild(this._buildChevrons(config.radius, 180, 'high', 0.7, config.radius / 3));
+    root.appendChild(this._buildChevrons(config.radius, 180, 'target', 1, 0));
 
     this._container.appendChild(root);
     this._root = root;
@@ -153,7 +156,7 @@ export default class ThermostatUI {
     this._updateTicks(from, to, tick_indexes);
     this._updateClass('has-leaf', away);
     this._updateHvacState();
-    this._updateText('#ambient', this.ambient);
+    this._updateText('ambient', this.ambient);
     this._updateEdit(false);
     this._updateClass('has-thermo', false);
   }
@@ -224,10 +227,11 @@ export default class ThermostatUI {
     if (this._timeoutHandler) clearTimeout(this._timeoutHandler);
     this._updateEdit(true);
     this._updateClass('has-thermo', true);
-    //this._updateCenterTemperature(this.target_text);
+    this._updateText('target', this.temperature.target);
+    this._updateText('low', this.temperature.low);
+    this._updateText('high', this.temperature.high);
     this._timeoutHandler = setTimeout(() => {
-      this._updateText('#ambient', this.ambient);
-      //this._updateCenterTemperature(SvgUtil.superscript(this.ambient));
+      this._updateText('ambient', this.ambient);
       this._updateEdit(false);
       this._updateClass('has-thermo', false);
       this._in_control = false;
@@ -240,9 +244,20 @@ export default class ThermostatUI {
     SvgUtil.setClass(this._root, class_name, flag);
   }
 
-  _updateText(id, text) {
-    const lblTarget = this._root.querySelector(id);
-    lblTarget.textContent = text;
+  _updateText(id, value) {
+    const lblTarget = this._root.querySelector(`#${id}`).querySelectorAll('tspan');
+    const text = Math.floor(value);
+    if (value) {
+      lblTarget[0].textContent = text;
+      if (value % 1 != 0) {
+        lblTarget[1].textContent = '5';
+      } else {
+        lblTarget[1].textContent = '';
+      }
+    }
+    if (this.in_control && id == 'target' && this.dual) {
+      lblTarget[0].textContent = '·';
+    }
   }
 
   _updateTemperatureSlot(value, offset, slot) {
@@ -355,6 +370,18 @@ export default class ThermostatUI {
     });
   }
 
+  _buildChevrons(radius, rotation, id, scale, offset) {
+    const translation = rotation > 0 ? -1 : 1;
+    const chevron_def = ["M", 0, 0, "L", 50, 30, "L", 100, 0].map((x) => isNaN(x) ? x : x * scale).join(' ');
+    const translate = [radius - 50 * scale * translation + offset, radius + 70 * scale * 1.1 * translation];
+    const chevron = SvgUtil.createSVGElement('path', {
+      class: `dial__chevron dial__chevron--${id}`,
+      d: chevron_def,
+      transform: `translate(${translate[0]},${translate[1]}) rotate(${rotation})`
+    });
+    return chevron;
+  }
+
   _buildThermoIcon(radius) {
     const thermoScale = radius / 3 / 100;
     const thermoDef = 'M 37.999 38.261 V 7 c 0 -3.859 -3.141 -7 -7 -7 s -7 3.141 -7 7 v 31.261 c -3.545 2.547 -5.421 6.769 -4.919 11.151 c 0.629 5.482 5.066 9.903 10.551 10.512 c 0.447 0.05 0.895 0.074 1.339 0.074 c 2.956 0 5.824 -1.08 8.03 -3.055 c 2.542 -2.275 3.999 -5.535 3.999 -8.943 C 42.999 44.118 41.14 40.518 37.999 38.261 Z M 37.666 55.453 c -2.146 1.921 -4.929 2.8 -7.814 2.482 c -4.566 -0.506 -8.261 -4.187 -8.785 -8.752 c -0.436 -3.808 1.28 -7.471 4.479 -9.56 l 0.453 -0.296 V 38 h 1 c 0.553 0 1 -0.447 1 -1 s -0.447 -1 -1 -1 h -1 v -3 h 1 c 0.553 0 1 -0.447 1 -1 s -0.447 -1 -1 -1 h -1 v -3 h 1 c 0.553 0 1 -0.447 1 -1 s -0.447 -1 -1 -1 h -1 v -3 h 1 c 0.553 0 1 -0.447 1 -1 s -0.447 -1 -1 -1 h -1 v -3 h 1 c 0.553 0 1 -0.447 1 -1 s -0.447 -1 -1 -1 h -1 v -3 h 1 c 0.553 0 1 -0.447 1 -1 s -0.447 -1 -1 -1 h -1 V 8 h 1 c 0.553 0 1 -0.447 1 -1 s -0.447 -1 -1 -1 H 26.1 c 0.465 -2.279 2.484 -4 4.899 -4 c 2.757 0 5 2.243 5 5 v 1 h -1 c -0.553 0 -1 0.447 -1 1 s 0.447 1 1 1 h 1 v 3 h -1 c -0.553 0 -1 0.447 -1 1 s 0.447 1 1 1 h 1 v 3 h -1 c -0.553 0 -1 0.447 -1 1 s 0.447 1 1 1 h 1 v 3 h -1 c -0.553 0 -1 0.447 -1 1 s 0.447 1 1 1 h 1 v 3 h -1 c -0.553 0 -1 0.447 -1 1 s 0.447 1 1 1 h 1 v 3 h -1 c -0.553 0 -1 0.447 -1 1 s 0.447 1 1 1 h 1 v 4.329 l 0.453 0.296 c 2.848 1.857 4.547 4.988 4.547 8.375 C 40.999 50.841 39.784 53.557 37.666 55.453 Z'.split(' ').map((x) => isNaN(x) ? x : x * thermoScale).join(' ');
@@ -373,40 +400,25 @@ export default class ThermostatUI {
     })
   }
 
-  _buildAmbient(radius) {
-    return SvgUtil.createSVGElement('text', {
-      x: radius,
+  _buildText(radius, name, offset) {
+    const target = SvgUtil.createSVGElement('text', {
+      x: radius + offset,
       y: radius,
-      class: 'dial__lbl dial__lbl--ambient',
-      id: 'ambient'
-    })
-  }
-
-  _buildTarget(radius) {
-    return SvgUtil.createSVGElement('text', {
-      x: radius,
-      y: radius,
-      class: 'dial__lbl dial__lbl--target',
-      id: 'target'
-    })
-  }
-
-  _buildLow(radius) {
-    return SvgUtil.createSVGElement('text', {
-      x: radius,
-      y: radius,
-      class: 'dial__lbl dial__lbl--low',
-      id: 'low'
-    })
-  }
-
-  _buildHigh(radius) {
-    return SvgUtil.createSVGElement('text', {
-      x: radius,
-      y: radius,
-      class: 'dial__lbl dial__lbl--high',
-      id: 'high'
-    })
+      class: `dial__lbl dial__lbl--${name}`,
+      id: name
+    });
+    const text = SvgUtil.createSVGElement('tspan', {
+    });
+    // hack
+    if (name == 'target' || name == 'ambient') offset += 20;
+    const superscript = SvgUtil.createSVGElement('tspan', {
+      x: radius + radius / 3.1 + offset,
+      y: radius - radius / 6,
+      class: `dial__lbl--super--${name}`
+    });
+    target.appendChild(text);
+    target.appendChild(superscript);
+    return target;
   }
 
   _buildControls(radius) {
@@ -514,14 +526,19 @@ export default class ThermostatUI {
       .dial__ticks path.active.large {
         fill: var(--thermostat-path-active-color-large);
       }
-      .dial text {
+      .dial text, .dial text tspan {
         fill: var(--thermostat-text-color);
         text-anchor: middle;
         font-family: Helvetica, sans-serif;
         alignment-baseline: central;
       }
-      .dial__lbl--target, .dial__lbl--low, .dial__lbl--high {
+      .dial__lbl--target {
         font-size: 120px;
+        font-weight: bold;
+        visibility: hidden;
+      }
+      .dial__lbl--low, .dial__lbl--high {
+        font-size: 90px;
         font-weight: bold;
         visibility: hidden;
       }
@@ -539,8 +556,37 @@ export default class ThermostatUI {
         font-weight: bold;
         visibility: visible;
       }
+      .dial.in_control.has_dual .dial__chevron--low,
+      .dial.in_control.has_dual .dial__chevron--high {
+        visibility: visible;
+      }
+      .dial.in_control .dial__chevron--target {
+        visibility: visible;
+      }
+      .dial.in_control.has_dual .dial__chevron--target {
+        visibility: hidden;
+      }
+      .dial .dial__chevron {
+        visibility: hidden;
+        fill: none;
+        stroke: var(--thermostat-text-color);
+        stroke-width: 4px;
+        opacity: 0.3;
+      }
+      .dial .dial__chevron.pressed {
+        transition: opacity 0.3s;
+        opacity: 1;
+      }
       .dial.in_control .dial__lbl--ambient {
         visibility: hidden;
+      }
+      .dial__lbl--super--ambient, .dial__lbl--super--target {
+        font-size: 40px;
+        font-weight: bold;
+      }
+      .dial__lbl--super--high, .dial__lbl--super--low {
+        font-size: 30px;
+        font-weight: bold;
       }
       .dial__lbl--ring {
         font-size: 22px;
