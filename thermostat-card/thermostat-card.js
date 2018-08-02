@@ -22,6 +22,7 @@ class ThermostatCard extends HTMLElement {
       hvac_state: config.hvac.states[hvac_state] || 'off',
       away: (entity.attributes.away_mode == 'on' ? true : false),
     }
+
     if (!this._saved_state ||
       (this._saved_state.min_value != new_state.min_value ||
         this._saved_state.max_value != new_state.max_value ||
@@ -35,6 +36,7 @@ class ThermostatCard extends HTMLElement {
       this.thermostat.updateState(new_state);
     }
     this._hass = hass;
+    if (!this._controlsBuilt) this._buildControls(this._controls);
   }
 
   _controlSetPoints() {
@@ -64,6 +66,7 @@ class ThermostatCard extends HTMLElement {
     // Cleanup DOM
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
+    this._controlsBuilt = false;
 
     // Prepare config defaults
     const cardConfig = Object.assign({}, config);
@@ -86,7 +89,7 @@ class ThermostatCard extends HTMLElement {
     cardConfig.offset_degrees = 180 - (360 - cardConfig.tick_degrees) / 2;
     cardConfig.control = this._controlSetPoints.bind(this);
     this.thermostat = new ThermostatUI(cardConfig);
-
+    this._config = cardConfig;
     if (cardConfig.no_card === true) {
       root.appendChild(this.thermostat.container);
     }
@@ -94,9 +97,31 @@ class ThermostatCard extends HTMLElement {
       const card = document.createElement('ha-card');
       card.style.padding = '5%';
       card.appendChild(this.thermostat.container);
+      if (cardConfig.services) {
+        const controls = document.createElement('div');
+        this._controls = controls;
+        card.appendChild(controls);
+      }
       root.appendChild(card);
     }
-    this._config = cardConfig;
+  }
+  _buildControls(element) {
+    const config = this._config;
+    const entity = this._hass.states[config.entity];
+    if (config.services) {
+      let content = '';
+      // controls
+      config.services.forEach(el => {
+        content += ` <br/>${el.name}: `
+        // get all values
+        entity.attributes[el.values].forEach(el => {
+          content += `${el},`
+        })
+        content += '<br/>';
+        element.innerHTML += content;
+      });
+      this._controlsBuilt = true;
+    }
   }
 }
 customElements.define('thermostat-card', ThermostatCard);
