@@ -105,14 +105,28 @@ class ThermostatCard extends HTMLElement {
       root.appendChild(card);
     }
   }
+  _computeIcon(name) {
+    switch (name) {
+      case 'operation_mode':
+        return 'mdi:sync'
+      case 'swing_mode':
+        return 'mdi:cursor-move';
+      case 'fan_mode':
+        return 'mdi:fan';
+    }
+    return 'mdi:settings';
+  }
+
   _buildControls(element) {
+    this._controlsBuilt = true;
     const config = this._config;
     const entity = this._hass.states[config.entity];
     if (config.services) {
-      let content = '';
       // controls
       config.services.forEach(el => {
-        content += ` <br/>${el.name}: `
+        let content = '';
+        console.log(el.name);
+        content += `<ha-icon icon='${this._computeIcon(el.name)}' name='${el.name}'></ha-icon>`
         // get all values
         entity.attributes[el.values].forEach(el => {
           content += `${el},`
@@ -120,7 +134,6 @@ class ThermostatCard extends HTMLElement {
         content += '<br/>';
         element.innerHTML += content;
       });
-      this._controlsBuilt = true;
     }
   }
 }
