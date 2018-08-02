@@ -548,6 +548,7 @@ export default class ThermostatUI {
         text-anchor: middle;
         font-family: Helvetica, sans-serif;
         alignment-baseline: central;
+        dominant-baseline: central;
       }
       .dial__lbl--target {
         font-size: 120px;
