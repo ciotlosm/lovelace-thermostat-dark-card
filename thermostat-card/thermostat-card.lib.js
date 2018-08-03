@@ -59,11 +59,13 @@ export default class ThermostatUI {
     root.appendChild(this._buildChevrons(config.radius, 180, 'low', 0.7, -config.radius / 2.5));
     root.appendChild(this._buildChevrons(config.radius, 180, 'high', 0.7, config.radius / 3));
     root.appendChild(this._buildChevrons(config.radius, 180, 'target', 1, 0));
-
     this._container.appendChild(root);
     this._root = root;
     this._buildControls(config.radius);
+    this._servicesControls = this._buildSettingsIcon(config.radius); // after build controls to catch 'click'
+    this._root.appendChild(this._servicesControls);
     this._root.addEventListener('click', () => this._enableControls());
+    this._servicesControls.addEventListener('click', () => this._serviceControlClick());
   }
 
   updateState(options) {
@@ -156,6 +158,11 @@ export default class ThermostatUI {
     this._updateText('ambient', this.ambient);
     this._updateEdit(false);
     this._updateClass('has-thermo', false);
+  }
+
+  _serviceControlClick() {
+    console.log('Switching views');
+    //this._root.style.display = 'none';
   }
 
   _temperatureControlClicked(index) {
@@ -257,6 +264,7 @@ export default class ThermostatUI {
 
   _updateClass(class_name, flag) {
     SvgUtil.setClass(this._root, class_name, flag);
+    SvgUtil.setClass(this.container, class_name, flag);
   }
 
   _updateText(id, value) {
@@ -458,6 +466,16 @@ export default class ThermostatUI {
     }
   }
 
+  _buildSettingsIcon(radius) {
+    const thermoScale = Math.ceil(radius / 100);
+    const iconDef = `M 3 17 V 19 H 9 V 17 H 3 M 3 5 V 7 H 13 V 5 H 3 M 13 21 V 19 H 21 V 17 H 13 V 15 H 11 V 21 H 13 M 7 9 V 11 H 3 V 13 H 7 V 15 H 9 V 9 H 7 M 21 13 V 11 H 11 V 13 H 21 M 15 9 H 17 V 7 H 21 V 5 H 17 V 3 H 15 V 9 Z`.split(' ').map((x) => isNaN(x) ? x : x * thermoScale).join(' ');
+    return SvgUtil.createSVGElement('path', {
+      class: 'dial__ico__settings',
+      d: iconDef,
+      transform: `translate(${radius * 2 - 30 * thermoScale}, ${5 * thermoScale})`
+    });
+  }
+
   _renderStyle() {
     return `
       .dial_container {
@@ -491,6 +509,11 @@ export default class ThermostatUI {
         opacity: 0;
         transition: opacity 0.5s;
         pointer-events: none;
+      }
+      .dial__ico__settings {
+        fill: var(--thermostat-off-fill);
+        opacity: 0;
+        transition: opacity 0.5s;
       }
       .dial.has-leaf .dial__ico__leaf {
         display: block;
@@ -567,6 +590,9 @@ export default class ThermostatUI {
       }
       .dial.in_control .dial__lbl--high {
         visibility: visible;
+      }
+      .in_control .dial__ico__settings {
+        opacity: 1;
       }
       .dial__lbl--ambient {
         font-size: 120px;

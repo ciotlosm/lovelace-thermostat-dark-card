@@ -1,4 +1,4 @@
-import ThermostatUI from './thermostat-card.lib.js?v=0.0.1'
+import ThermostatUI from './thermostat-card.lib.js?v=0.0.2'
 class ThermostatCard extends HTMLElement {
   constructor() {
     super();
@@ -36,7 +36,7 @@ class ThermostatCard extends HTMLElement {
       this.thermostat.updateState(new_state);
     }
     this._hass = hass;
-    if (!this._controlsBuilt) this._buildControls(this._controls);
+    //if (!this._controlsBuilt) this._buildControls(this._controls);
   }
 
   _controlSetPoints() {
@@ -97,11 +97,6 @@ class ThermostatCard extends HTMLElement {
       const card = document.createElement('ha-card');
       card.style.padding = '5%';
       card.appendChild(this.thermostat.container);
-      if (cardConfig.services) {
-        const controls = document.createElement('div');
-        this._controls = controls;
-        card.appendChild(controls);
-      }
       root.appendChild(card);
     }
   }
