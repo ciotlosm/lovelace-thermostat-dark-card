@@ -1,6 +1,6 @@
 # Home setter card
 
-A card that lets you choose a different homepage to be the default on the current device.
+A card that lets you choose a different homepage to be the default on the current browser.
 
 ## Options
 
@@ -17,9 +17,8 @@ Pages object
 | title | string | optional | Title of the page to display on the ard
 | path | string | **Required** | The path that is used when using this as default
 
-## Examples
+## Example
 
-Show all with some exceptions:
 ```yaml
 - type: custom:home-setter
   pages:
