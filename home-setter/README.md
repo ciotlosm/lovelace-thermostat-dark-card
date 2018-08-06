@@ -23,9 +23,9 @@ Show all with some exceptions:
 ```yaml
 - type: custom:home-setter
   pages:
-    - title: Main
+    - name: Main
       path: lovelace/0
-    - title: Mobile
+    - name: Mobile
       path: lovelace/mobile
 ```
 
