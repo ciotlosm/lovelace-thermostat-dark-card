@@ -14,6 +14,7 @@ A simple gauge implemented in CSS based on https://github.com/JohnrBell/Gauge_CS
 | type | string | **Required** | `custom:gauge-card`
 | title | string | optional | Name to display on card
 | entity | string | **Required** | `sensor.my_temperature`
+| attribute | string | optional | If set, this attribute of the entity is used, instead of its state
 | min | number | 0 | Minimum value for graph
 | max | number | 100 | Maximum value for graph
 | scale | string | '50px' | Base value for graph visual size
@@ -53,3 +54,17 @@ Simple one
   entity: sensor.my_oil_sensor
   scale: 100px
 ```
+
+Using an attribute
+```yaml
+- type: custom:gauge-card
+  entity: climate.living_room
+  attribute: current_temperature
+```
+
+Using an attribute with dot notation
+```yaml
+- type: custom:gauge-card
+  entity: climate.living_room.current_temperature
+```
+

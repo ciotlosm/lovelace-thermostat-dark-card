@@ -16,6 +16,10 @@ class GaugeCard extends HTMLElement {
     if (!cardConfig.min) cardConfig.min = 0;
     if (!cardConfig.max) cardConfig.max = 100;
 
+    const entityParts = this._splitEntityAndAttribute(cardConfig.entity);
+    cardConfig.entity = entityParts.entity;
+    if (entityParts.attribute) cardConfig.attribute = entityParts.attribute;
+
     const card = document.createElement('ha-card');
     const shadow = card.attachShadow({ mode: 'open' });
     const content = document.createElement('div');
@@ -106,6 +110,15 @@ class GaugeCard extends HTMLElement {
     this._config = cardConfig;
   }
 
+  _splitEntityAndAttribute(entity) {
+      let parts = entity.split('.');
+      if (parts.length < 3) {
+          return { entity: entity };
+      }
+
+      return { attribute: parts.pop(), entity: parts.join('.') };
+  }
+
   _fire(type, detail, options) {
     const node = this.shadowRoot;
     options = options || {};
@@ -151,9 +164,17 @@ class GaugeCard extends HTMLElement {
     return severityMap["normal"];
   }
 
+  _getEntityStateValue(entity, attribute) {
+    if (!attribute) {
+      return entity.state;
+    }
+
+    return entity.attributes[attribute];
+  }
+
   set hass(hass) {
     const config = this._config;
-    const entityState = hass.states[config.entity].state;
+    const entityState = this._getEntityStateValue(hass.states[config.entity], config.attribute);
     const measurement = hass.states[config.entity].attributes.unit_of_measurement;
     const root = this.shadowRoot;
     if (entityState !== this._entityState) {
