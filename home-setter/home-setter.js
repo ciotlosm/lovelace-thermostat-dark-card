@@ -62,7 +62,7 @@ class HomeSetter extends HTMLElement {
   _setupContent() {
     return `
       <thead>
-        <tr><td>Name</td><td>Path</td><td>Default?</td></tr>
+        <tr><th>Name</th><th>Path</th><th>Default?</th></tr>
       </thead>
       <tbody id='content'></tbody>
     `
@@ -75,6 +75,7 @@ class HomeSetter extends HTMLElement {
       }
       thead th {
         text-align: left;
+        font-weight: bold;
       }
       tbody tr:nth-child(odd) {
         background-color: var(--paper-card-background-color);
