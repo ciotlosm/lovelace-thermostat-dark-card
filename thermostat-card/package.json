@@ -1,0 +1,19 @@
+{
+    "name": "thermostat-card",
+    "version": "0.0.1",
+    "description": "An svg thermostat card",
+    "private": true,
+    "scripts": {
+        "build": "WEBPACK_ENV=build webpack",
+        "dev": "WEBPACK_ENV=dev webpack --progress --colors --watch --display-error-details",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "webpack": "^4.0.1",
+        "webpack-cli": "^2.0.9"
+    },
+    "dependencies": {}
+}

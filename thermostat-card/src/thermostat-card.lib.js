@@ -273,9 +273,9 @@ export default class ThermostatUI {
     if (value) {
       lblTarget[0].textContent = text;
       if (value % 1 != 0) {
-        lblTarget[1].textContent = '5';
+        lblTarget[1].textContent = '5a';
       } else {
-        lblTarget[1].textContent = '';
+        lblTarget[1].textContent = 'a';
       }
     }
     if (this.in_control && id == 'target' && this.dual) {
