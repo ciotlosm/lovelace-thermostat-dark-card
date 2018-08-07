@@ -1,19 +1,21 @@
 {
     "name": "thermostat-card",
     "version": "0.0.1",
-    "description": "An svg thermostat card",
+    "description": "Svg thermostat card",
     "private": true,
     "scripts": {
         "build": "WEBPACK_ENV=build webpack",
-        "dev": "WEBPACK_ENV=dev webpack --progress --colors --watch --display-error-details",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "dev": "WEBPACK_ENV=dev webpack --progress --colors --watch --mode=development"
     },
     "keywords": [],
-    "author": "",
+    "author": "ciotlosm",
     "license": "MIT",
     "devDependencies": {
+        "css-loader": "^1.0.0",
+        "style-loader": "^0.21.0",
+        "to-string-loader": "^1.1.5",
         "webpack": "^4.0.1",
-        "webpack-cli": "^2.0.9"
+        "webpack-cli": "^2.1.5"
     },
     "dependencies": {}
 }

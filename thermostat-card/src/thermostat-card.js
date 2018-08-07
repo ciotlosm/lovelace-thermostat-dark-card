@@ -1,4 +1,4 @@
-import ThermostatUI from './thermostat-card.lib'
+import ThermostatUI from './thermostat.lib'
 
 class ThermostatCard extends HTMLElement {
   constructor() {
@@ -37,7 +37,7 @@ class ThermostatCard extends HTMLElement {
       this.thermostat.updateState(new_state);
     }
     this._hass = hass;
-    //if (!this._controlsBuilt) this._buildControls(this._controls);
+    // if (!this._controlsBuilt) this._buildControls(this._controls);
   }
 
   _controlSetPoints() {

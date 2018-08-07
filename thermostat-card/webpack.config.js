@@ -4,5 +4,16 @@ module.exports = {
     output: {
         path: __dirname,
         filename: `${card}.bundle.js`
-      }
+    },
+    module: {
+        rules: [
+            {
+                test: /\.css$/,
+                use: [
+                    { loader: "to-string-loader" },
+                    { loader: "css-loader" }
+                ]
+            }
+        ]
+    },
 };

@@ -1,3 +1,5 @@
+import css from './thermostat.lib.css';
+
 export default class ThermostatUI {
   get container() {
     return this._container
@@ -35,8 +37,9 @@ export default class ThermostatUI {
     this._dual = false; // by default is single temperature
     this._container = document.createElement('div');
     this._container.className = 'dial_container';
+    
     const style = document.createElement('style');
-    style.textContent = this._renderStyle();
+    style.textContent = css;
     if (config.title) this._container.appendChild(this._buildTitle(config.title));
     this._container.appendChild(style);
     const root = this._buildCore(config.diameter);
@@ -162,7 +165,6 @@ export default class ThermostatUI {
 
   _serviceControlClick() {
     console.log('Switching views');
-    //this._root.style.display = 'none';
   }
 
   _temperatureControlClicked(index) {
@@ -273,13 +275,11 @@ export default class ThermostatUI {
     if (value) {
       lblTarget[0].textContent = text;
       if (value % 1 != 0) {
-        lblTarget[1].textContent = '5a';
+        const fraction = Math.ceil(((value < 1.0) ? value : (value % Math.floor(value))) * 10)
+        lblTarget[1].textContent = `${fraction}`;
       } else {
-        lblTarget[1].textContent = 'a';
+        lblTarget[1].textContent = '';
       }
-    }
-    if (this.in_control && id == 'target' && this.dual) {
-      lblTarget[0].textContent = '·';
     }
   }
 
@@ -455,7 +455,6 @@ export default class ThermostatUI {
       const controlsDef = 'M' + sector.L + ',' + sector.L + ' L' + sector.L + ',0 A' + sector.L + ',' + sector.L + ' 1 0,1 ' + sector.X + ', ' + sector.Y + ' z';
       const path = SvgUtil.createSVGElement('path', {
         class: 'dial__temperatureControl',
-        fill: 'blue',
         d: controlsDef,
         transform: 'rotate(' + sector.R + ', ' + sector.L + ', ' + sector.L + ')'
       });
@@ -474,166 +473,6 @@ export default class ThermostatUI {
       d: iconDef,
       transform: `translate(${radius * 2 - 30 * thermoScale}, ${5 * thermoScale})`
     });
-  }
-
-  _renderStyle() {
-    return `
-      .dial_container {
-        padding: 8px;
-      }
-      .dial_title {
-        font-size: 20px;
-        padding: 8px;
-        text-align: center;
-        color: var(--secondary-text-color);
-      }
-      .dial {
-        user-select: none;
-      
-        --thermostat-off-fill: #222;
-        --thermostat-path-color: rgba(255, 255, 255, 0.3);
-        --thermostat-heat-fill: #E36304;
-        --thermostat-cool-fill: #007AF1;
-        --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
-        --thermostat-path-active-color-large: rgba(255, 255, 255, 1);
-        --thermostat-text-color: white;
-      }
-      .dial.has-thermo .dial__ico__leaf {
-        visibility: hidden;
-      }
-      .dial .dial__shape {
-        transition: fill 0.5s;
-      }
-      .dial__ico__leaf {
-        fill: #13EB13;
-        opacity: 0;
-        transition: opacity 0.5s;
-        pointer-events: none;
-      }
-      .dial__ico__settings {
-        fill: var(--thermostat-off-fill);
-        opacity: 0;
-        transition: opacity 0.5s;
-      }
-      .dial.has-leaf .dial__ico__leaf {
-        display: block;
-        opacity: 1;
-        pointer-events: initial;
-      }
-      .dial__ico__thermo {
-        fill: var(--thermostat-path-active-color);
-        opacity: 0;
-        transition: opacity 0.5s;
-        pointer-events: none;
-      }
-      .dial.has-thermo .dial__ico__thermo {
-        display: block;
-        opacity: 1;
-        pointer-events: initial;
-      }
-      .dial__editableIndicator {
-        fill: white;
-        fill-rule: evenodd;
-        opacity: 0;
-        transition: opacity 0.5s;
-      }
-      .dial__temperatureControl {
-        fill: white;
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-      .dial__temperatureControl.control-visible {
-        opacity: 0.2;
-      }
-      .dial--edit .dial__editableIndicator {
-        opacity: 1;
-      }
-      .dial--state--off .dial__shape {
-        fill: var(--thermostat-off-fill);
-      }
-      .dial--state--heat .dial__shape {
-        fill: var(--thermostat-heat-fill);
-      }
-      .dial--state--cool .dial__shape {
-        fill: var(--thermostat-cool-fill);
-      }
-      .dial__ticks path {
-        fill: var(--thermostat-path-color);
-      }
-      .dial__ticks path.active {
-        fill: var(--thermostat-path-active-color);
-      }
-      .dial__ticks path.active.large {
-        fill: var(--thermostat-path-active-color-large);
-      }
-      .dial text, .dial text tspan {
-        fill: var(--thermostat-text-color);
-        text-anchor: middle;
-        font-family: Helvetica, sans-serif;
-        alignment-baseline: central;
-      }
-      .dial__lbl--target {
-        font-size: 120px;
-        font-weight: bold;
-        visibility: hidden;
-      }
-      .dial__lbl--low, .dial__lbl--high {
-        font-size: 90px;
-        font-weight: bold;
-        visibility: hidden;
-      }
-      .dial.in_control .dial__lbl--target {
-        visibility: visible;
-      }
-      .dial.in_control .dial__lbl--low {
-        visibility: visible;
-      }
-      .dial.in_control .dial__lbl--high {
-        visibility: visible;
-      }
-      .in_control .dial__ico__settings {
-        opacity: 1;
-      }
-      .dial__lbl--ambient {
-        font-size: 120px;
-        font-weight: bold;
-        visibility: visible;
-      }
-      .dial.in_control.has_dual .dial__chevron--low,
-      .dial.in_control.has_dual .dial__chevron--high {
-        visibility: visible;
-      }
-      .dial.in_control .dial__chevron--target {
-        visibility: visible;
-      }
-      .dial.in_control.has_dual .dial__chevron--target {
-        visibility: hidden;
-      }
-      .dial .dial__chevron {
-        visibility: hidden;
-        fill: none;
-        stroke: var(--thermostat-text-color);
-        stroke-width: 4px;
-        opacity: 0.3;
-      }
-      .dial .dial__chevron.pressed {
-        opacity: 1;
-      }
-      .dial.in_control .dial__lbl--ambient {
-        visibility: hidden;
-      }
-      .dial__lbl--super--ambient, .dial__lbl--super--target {
-        font-size: 40px;
-        font-weight: bold;
-      }
-      .dial__lbl--super--high, .dial__lbl--super--low {
-        font-size: 30px;
-        font-weight: bold;
-      }
-      .dial__lbl--ring {
-        font-size: 22px;
-        font-weight: bold;
-      }`
   }
 }
 
