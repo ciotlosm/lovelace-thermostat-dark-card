@@ -85,7 +85,7 @@ Please make sure you have `javascript_version: latest` in your `configuration.ya
 2. For the following errors:
   - `Uncaught SyntaxError: Unexpected token <`
 
-This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button.
+This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button. After downloading the file again with the 'raw' button, remember to bump the version number for the custom component speficied in the 'resources' of your lovelace-ui.yaml file.
 
 3. For the following errors:
   - `Uncaught SyntaxError: Unexpected identifier`
