@@ -2,21 +2,6 @@ class AlarmControlPanelCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this._stateStrings = {
-      'arm_away': 'Arm away',
-      'arm_custom_bypass': 'Custom',
-      'arm_home': 'Arm home',
-      'arming': 'Arming',
-      'arm_night': 'Arm night',
-      'armed_away': 'Armed away',
-      'armed_custom_bypass': 'Armed custom',
-      'armed_home': 'Armed home',
-      'armed_night': 'Armed night',
-      'disarm': 'Disarm',
-      'disarmed': 'Disarmed',
-      'pending': 'Pending',
-      'triggered': 'Triggered',
-    }
     this._icons = {
       'armed_away': 'mdi:security-lock',
       'armed_custom_bypass': 'mdi:security',
@@ -29,12 +14,41 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   set hass(hass) {
-    this.myhass = hass;
     const entity = hass.states[this._config.entity];
-    if (entity && entity.state != this._state) {
-      this._state = entity.state;
-      this._updateCardContent(entity);
+
+    if (entity) {
+      this.myhass = hass;
+      if(!this.shadowRoot.lastChild) {
+        this._createCard(entity);
+      }
+      if (entity.state != this._state) {
+        this._state = entity.state;
+        this._updateCardContent(entity);
+      }
     }
+  }
+
+  _createCard(entity) {
+    const config = this._config;
+
+    const card = document.createElement('ha-card');
+    const content = document.createElement('div');
+    content.id = "content";
+    content.innerHTML = `
+      ${config.title ? '<div id="state-text"></div>' : ''}
+      <ha-icon id="state-icon"></ha-icon>
+      ${this._actionButtons()}
+      ${entity.attributes.code_format ? 
+        '<paper-input label="Alarm code" type="password"></paper-input>' : ''}
+      ${this._keypad(entity)}
+    `;
+    card.appendChild(this._style(config.style));
+    card.appendChild(content);
+    this.shadowRoot.appendChild(card);
+
+    this._setupInput();
+    this._setupKeypad();
+    this._setupActions();
   }
 
   setConfig(config) {
@@ -48,20 +62,12 @@ class AlarmControlPanelCard extends HTMLElement {
       }
       this._arm_action = config.auto_enter.arm_action;
     }
+    if (!config.states) config.states = ['arm_away', 'arm_home'];
+    if (!config.scale) config.scale = '15px';
+    this._config = Object.assign({}, config);
 
     const root = this.shadowRoot;
     if (root.lastChild) root.removeChild(root.lastChild);
-    if (!config.states) config.states = ['arm_home', 'arm_away'];
-    if (!config.scale) config.scale = '15px';
-
-    this._card = document.createElement('ha-card');
-    const content = document.createElement('div');
-    content.id = "content";
-    this._config = Object.assign({}, config);
-    this._card.appendChild(this._style(config.style));
-    this._card.appendChild(content);
-    root.appendChild(this._card);
-    this._config = Object.assign({}, config);
   }
 
   _updateCardContent(entity) {
@@ -69,49 +75,43 @@ class AlarmControlPanelCard extends HTMLElement {
     const card = root.lastChild;
     const config = this._config;
 
-    if (!config.title) {
-      card.header = this._stateToText(this._state);
-    } else {
+    if (config.title) {
       card.header = config.title;
+      root.getElementById("state-text").innerHTML = this._stateToText(this._state);
+      root.getElementById("state-text").className = `state ${this._state}`;
+    } else {
+      card.header = this._stateToText(this._state);
     }
 
-    root.getElementById("content").innerHTML = `
-      ${this._icon()}
-      ${config.title ? `<div class='state ${this._state}'>
-        ${this._stateToText(this._state)}</div>` : ''}
-      ${this._actionButtons()}
-      ${entity.attributes.code_format ? '<paper-input label="Alarm code" type="password"></paper-input>' : ''}
-      ${this._keypad(entity)}
-    `;
+    root.getElementById("state-icon").setAttribute("icon",
+      this._icons[this._state] || 'mdi:shield-outline');
+    root.getElementById("state-icon").className = this._state;
 
-    this._setupActions();
-    this._setupInput();
-    this._setupKeypad();
-  }
-
-  _icon() {
-    return `<ha-icon icon='${this._stateToIcon(this._state)}'
-      class='${this._state}'></ha-icon>`
+    const armVisible = (this._state === 'disarmed');
+    Array.from(root.getElementById("actions").children).forEach(function(item) {
+      if (armVisible) {
+        item.style.display = (item.id === "disarm") ? 'none' : "";
+      } else {
+        item.style.display = (item.id === "disarm") ? "" : "none";
+      }
+    });
   }
 
   _actionButtons() {
     const armVisible = (this._state === 'disarmed');
     return `
-      <div class="actions">
-        ${armVisible
-        ? `${this._config.states.map(el => `${this._actionButton(el)}`).join('')}`
-        : `${this._actionButton('disarm')}`}
-      </div>`
+      <div id="actions" class="actions">
+        ${this._config.states.map(el => `${this._actionButton(el)}`).join('')}
+        ${this._actionButton('disarm')}
+      </div>`;
   }
 
   _actionButton(state) {
-    return `<paper-button noink raised id="${state}">${this._stateToText(state)}
-      </paper-button>`;
+    return `<paper-button noink raised id="${state}">
+      ${this._stateToText(state)}</paper-button>`;
   }
 
   _setupActions() {
-    // TODO: fix memory leak for reattaching handlers every time
-    // Need a way to avoid doing innerHTML, at least without detaching handlers first
     const card = this.shadowRoot.lastChild;
     const config = this._config;
 
@@ -324,12 +324,8 @@ class AlarmControlPanelCard extends HTMLElement {
     return style;
   }
 
-  _stateToIcon(state) {
-    return this._icons[state] || 'mdi:shield-outline'
-  }
-
   _stateToText(state) {
-    return this._stateStrings[state] || 'Unknown'
+    return state.split('_').join(' ').replace(/^\w/, c => c.toUpperCase());
   }
 
   getCardSize() {
