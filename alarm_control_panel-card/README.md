@@ -16,6 +16,8 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
 | states | list | optional | A list of possible arm buttons. Supports `arm_home`, `arm_away`, `arm_night`, `arm_custom_bypass`.
 | style | string | optional | Allows to override some default styles. Example `--alarm-color-disarmed: var(--label-badge-blue);`
 | auto_enter | object | optional | Options to auto arm and disarm. See `auto_enter` options.
+| labels | object | optional | Labels that augment/override defaults.
+| show_labels | boolean | optional | Show constant that a label is based on. Useful to know label constants when you want to create your own `labels`. Default `true`.
 
 `auto_enter` options:
 
@@ -23,6 +25,9 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
 | ---- | ---- | ------- | -----------
 | code_length | integer | Required | When number of digits entered system will arm/disarm
 | arm_action | string | Required | Action to invoke when after digits entered. Can be any of the same values as `states` above.
+
+`labels`:
+The labels to display. Label name and value. See example.
 
 **Example**
 
@@ -35,6 +40,9 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
   states:
     - arm_home
     - arm_away
+  labels:
+    alarm_code: Inserire un codice a 4 cifre
+    arm_away: Away!!
 ```
 
 **Credits**
