@@ -1,6 +1,5 @@
 class AlarmControlPanelCard extends HTMLElement {
   constructor() {
-    console.log("AlarmControlPanelCard constructor");
     super();
     this.attachShadow({ mode: 'open' });
     this._icons = {
@@ -17,7 +16,6 @@ class AlarmControlPanelCard extends HTMLElement {
   set hass(hass) {
     const entity = hass.states[this._config.entity];
 
-    console.log("set hass");
     if (entity) {
       this.myhass = hass;
       if(!this.shadowRoot.lastChild) {
@@ -54,19 +52,9 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log("connectedCallback");
-  }
-
-  disconnectedCallback() {
-    console.log("disconnectedCallback");
-  }
-
-  attributeChangedCallback(attrName, oldVal, newVal) {
-    console.log("attrChanged: ", attrName, oldVal, newVal);
   }
 
   setConfig(config) {
-    console.log("setConfig");
     if (!config.entity || config.entity.split(".")[0] !== "alarm_control_panel") {
       throw new Error('Please specify an entity from alarm_control_panel domain.');
     }
