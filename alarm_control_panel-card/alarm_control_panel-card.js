@@ -1,5 +1,6 @@
 class AlarmControlPanelCard extends HTMLElement {
   constructor() {
+    console.log("AlarmControlPanelCard constructor");
     super();
     this.attachShadow({ mode: 'open' });
     this._icons = {
@@ -16,6 +17,7 @@ class AlarmControlPanelCard extends HTMLElement {
   set hass(hass) {
     const entity = hass.states[this._config.entity];
 
+    console.log("set hass");
     if (entity) {
       this.myhass = hass;
       if(!this.shadowRoot.lastChild) {
@@ -51,7 +53,20 @@ class AlarmControlPanelCard extends HTMLElement {
     this._setupActions();
   }
 
+  connectedCallback() {
+    console.log("connectedCallback");
+  }
+
+  disconnectedCallback() {
+    console.log("disconnectedCallback");
+  }
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    console.log("attrChanged: ", attrName, oldVal, newVal);
+  }
+
   setConfig(config) {
+    console.log("setConfig");
     if (!config.entity || config.entity.split(".")[0] !== "alarm_control_panel") {
       throw new Error('Please specify an entity from alarm_control_panel domain.');
     }
@@ -88,20 +103,17 @@ class AlarmControlPanelCard extends HTMLElement {
     root.getElementById("state-icon").className = this._state;
 
     const armVisible = (this._state === 'disarmed');
-    Array.from(root.getElementById("actions").children).forEach(function(item) {
-      if (armVisible) {
-        item.style.display = (item.id === "disarm") ? 'none' : "";
-      } else {
-        item.style.display = (item.id === "disarm") ? "" : "none";
-      }
-    });
+    root.getElementById("arm-actions").style.display = armVisible ? "" : "none";
+    root.getElementById("disarm-actions").style.display = armVisible ? "none" : "";
   }
 
   _actionButtons() {
     const armVisible = (this._state === 'disarmed');
     return `
-      <div id="actions" class="actions">
+      <div id="arm-actions" class="actions">
         ${this._config.states.map(el => `${this._actionButton(el)}`).join('')}
+      </div>
+      <div id="disarm-actions" class="actions">
         ${this._actionButton('disarm')}
       </div>`;
   }
@@ -325,6 +337,8 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   _stateToText(state) {
+    if (this._config.labels[state]) return this._config.labels[state];
+    // if (this.myhass.translations[state]) return this.myhass.translations[state];
     return state.split('_').join(' ').replace(/^\w/, c => c.toUpperCase());
   }
 
