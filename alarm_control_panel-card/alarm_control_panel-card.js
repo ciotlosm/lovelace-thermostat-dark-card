@@ -38,8 +38,9 @@ class AlarmControlPanelCard extends HTMLElement {
       ${config.title ? '<div id="state-text"></div>' : ''}
       <ha-icon id="state-icon"></ha-icon>
       ${this._actionButtons()}
-      ${entity.attributes.code_format ? 
-        '<paper-input label="Alarm code" type="password"></paper-input>' : ''}
+      ${entity.attributes.code_format ?
+          `<paper-input label='${this._label("alarm_code")}'
+          type="password"></paper-input>` : ''}
       ${this._keypad(entity)}
     `;
     card.appendChild(this._style(config.style));
@@ -80,10 +81,10 @@ class AlarmControlPanelCard extends HTMLElement {
 
     if (config.title) {
       card.header = config.title;
-      root.getElementById("state-text").innerHTML = this._stateToText(this._state);
+      root.getElementById("state-text").innerHTML = this._label(this._state);
       root.getElementById("state-text").className = `state ${this._state}`;
     } else {
-      card.header = this._stateToText(this._state);
+      card.header = this._label(this._state);
     }
 
     root.getElementById("state-icon").setAttribute("icon",
@@ -108,7 +109,7 @@ class AlarmControlPanelCard extends HTMLElement {
 
   _actionButton(state) {
     return `<paper-button noink raised id="${state}">
-      ${this._stateToText(state)}</paper-button>`;
+      ${this._label(state)}</paper-button>`;
   }
 
   _setupActions() {
@@ -207,7 +208,7 @@ class AlarmControlPanelCard extends HTMLElement {
           ${this._keypadButton("3", "DEF")}
           ${this._keypadButton("6", "MNO")}
           ${this._keypadButton("9", "WXYZ")}
-          ${this._keypadButton("Clear", "")}
+          ${this._keypadButton(this._label("clear"), "")}
         </div>
       </div>`
   }
@@ -323,10 +324,20 @@ class AlarmControlPanelCard extends HTMLElement {
     return style;
   }
 
-  _stateToText(state) {
-    if (this._config.labels[state]) return this._config.labels[state];
+  _label(label, default_label=undefined) {
+    // Just show "raw" label; useful when want to see underlying const
+    // so you can define your own label.
+    if (this._config.show_labels === false) return label;
+
+    if (this._config.labels[label]) return this._config.labels[label];
+
+    // Potential way of using loaded translations... (not implemented in core yet)
     // if (this.myhass.translations[state]) return this.myhass.translations[state];
-    return state.split('_').join(' ').replace(/^\w/, c => c.toUpperCase());
+
+    if (default_label) return default_label;
+
+    // If all else fails then pretify the passed in label
+    return label.split('_').join(' ').replace(/^\w/, c => c.toUpperCase());
   }
 
   getCardSize() {
