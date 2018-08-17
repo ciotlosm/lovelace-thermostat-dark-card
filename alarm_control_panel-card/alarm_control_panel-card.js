@@ -39,7 +39,7 @@ class AlarmControlPanelCard extends HTMLElement {
       <ha-icon id="state-icon"></ha-icon>
       ${this._actionButtons()}
       ${entity.attributes.code_format ?
-          `<paper-input label='${this._label("alarm_code")}'
+          `<paper-input label='${this._label("ui.card.alarm_control_panel.code")}'
           type="password"></paper-input>` : ''}
       ${this._keypad(entity)}
     `;
@@ -79,12 +79,13 @@ class AlarmControlPanelCard extends HTMLElement {
     const card = root.lastChild;
     const config = this._config;
 
+    const state_str = "state.alarm_control_panel." + this._state;
     if (config.title) {
       card.header = config.title;
-      root.getElementById("state-text").innerHTML = this._label(this._state);
+      root.getElementById("state-text").innerHTML = this._label(state_str);
       root.getElementById("state-text").className = `state ${this._state}`;
     } else {
-      card.header = this._label(this._state);
+      card.header = this._label(state_str);
     }
 
     root.getElementById("state-icon").setAttribute("icon",
@@ -109,7 +110,7 @@ class AlarmControlPanelCard extends HTMLElement {
 
   _actionButton(state) {
     return `<paper-button noink raised id="${state}">
-      ${this._label(state)}</paper-button>`;
+      ${this._label("ui.card.alarm_control_panel." + state)}</paper-button>`;
   }
 
   _setupActions() {
@@ -208,7 +209,7 @@ class AlarmControlPanelCard extends HTMLElement {
           ${this._keypadButton("3", "DEF")}
           ${this._keypadButton("6", "MNO")}
           ${this._keypadButton("9", "WXYZ")}
-          ${this._keypadButton(this._label("clear"), "")}
+          ${this._keypadButton(this._label("ui.card.alarm_control_panel.clear_code"), "")}
         </div>
       </div>`
   }
@@ -300,6 +301,7 @@ class AlarmControlPanelCard extends HTMLElement {
       .actions {
         margin: 0 8px;
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
         font-size: calc(var(--base-unit) * 1);
       }
@@ -331,13 +333,15 @@ class AlarmControlPanelCard extends HTMLElement {
 
     if (this._config.labels[label]) return this._config.labels[label];
 
-    // Potential way of using loaded translations... (not implemented in core yet)
-    // if (this.myhass.translations[state]) return this.myhass.translations[state];
+    const lang = this.myhass.selectedLanguage || this.myhass.language;
+    const translations = this.myhass.resources[lang];
+    if (translations && translations[label]) return translations[label];
 
     if (default_label) return default_label;
 
-    // If all else fails then pretify the passed in label
-    return label.split('_').join(' ').replace(/^\w/, c => c.toUpperCase());
+    // If all else fails then pretify the passed in label const
+    const last_bit = label.split('.').pop();
+    return last_bit.split('_').join(' ').replace(/^\w/, c => c.toUpperCase());
   }
 
   getCardSize() {
