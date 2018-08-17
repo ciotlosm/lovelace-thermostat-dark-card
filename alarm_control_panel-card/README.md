@@ -41,10 +41,11 @@ The labels to display. Label name and value. See example.
     - arm_home
     - arm_away
   labels:
-    alarm_code: Inserire un codice a 4 cifre
-    arm_away: Away!!
+    ui.card.alarm_control_panel.code: Inserire un codice a 4 cifre
+    state.alarm_control_panel.arm_away: Away!!
 ```
 
 **Credits**
+- [@gwww](https://github.com/gwww) Added translations
 - [@gwww](https://github.com/gwww) Awesome refactoring
 - [@ciotlosm](https://github.com/ciotlosm)
