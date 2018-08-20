@@ -69,3 +69,6 @@ Using an attribute with dot notation
   entity: climate.living_room.current_temperature
 ```
 
+## Credits
+- [@ciotlosm](https://github.com/ciotlosm)
+- [@isabellaalstrom](https://github.com/isabellaalstrom)
