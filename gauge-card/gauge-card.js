@@ -175,7 +175,12 @@ class GaugeCard extends HTMLElement {
   set hass(hass) {
     const config = this._config;
     const entityState = this._getEntityStateValue(hass.states[config.entity], config.attribute);
-    const measurement = hass.states[config.entity].attributes.unit_of_measurement;
+    let measurement = "";
+    if (config.measurement == null)
+      measurement = hass.states[config.entity].attributes.unit_of_measurement;
+    else
+      measurement = config.measurement;
+
     const root = this.shadowRoot;
     if (entityState !== this._entityState) {
       root.getElementById("percent").textContent = `${entityState} ${measurement}`;
