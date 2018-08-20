@@ -81,6 +81,33 @@ Show all in `device_tracker` with battery at 53:
           source_type: gps
 ```
 
+Show all lights that are on (two methods):
+```yaml
+- type: custom:monster-card
+  show_empty: false
+  card:
+    type: entities
+    title: Lights On
+  filter:
+    include:
+      - domain: light
+        state: 'on'
+```
+
+```yaml
+- type: custom:monster-card
+  show_empty: false
+  card:
+    type: glance
+    title: Lights On
+  filter:
+    include:
+      - domain: light
+    exclude:
+      - state: 'off'
+      - state: 'unavailable'
+```
+
 
 Show all in `device_tracker` with battery lower than 25:
 ```yaml
