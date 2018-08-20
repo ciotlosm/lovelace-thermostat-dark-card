@@ -13,6 +13,7 @@ A simple gauge implemented in CSS based on https://github.com/JohnrBell/Gauge_CS
 | ---- | ---- | ------- | -----------
 | type | string | **Required** | `custom:gauge-card`
 | title | string | optional | Name to display on card
+| measurement | string | optional | If not set, uses the unit_of_measurement on the entity
 | entity | string | **Required** | `sensor.my_temperature`
 | attribute | string | optional | If set, this attribute of the entity is used, instead of its state
 | min | number | 0 | Minimum value for graph
