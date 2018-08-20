@@ -4,8 +4,10 @@ Helper to display `left:` and `top:` to use as coordinates in entities in [pictu
 
 ![plan](https://user-images.githubusercontent.com/7738048/42569358-ede62cae-8518-11e8-989e-25812e8b95f8.gif)
 
-## Warning
-⚠️ This feature only works with Chrome that supports Event.path on MouseMove.
+## ⚠️ Warning ⚠️
+- This feature only works with Chrome that supports Event.path on MouseMove.
+- Make sure your browser zoom is at 100% otherwise coordinates will fail to be accurate
+
 
 **Example**
 ```yaml
