@@ -27,6 +27,7 @@ There are many things still missing, but I'll add below those that I know of
 | chevron_size | number | 50 | Size of chevrons for temperature adjutment
 | pending | number | 3 | Seconds to wait in control mode until state changes are sent back to the server
 | idle_zone | number | 2 | Degrees of minimum difference between set points when thermostat supports both heating and cooling
+| ambient_temperature | string | optional | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat
 
 **hvac** object 
 
@@ -68,8 +69,16 @@ views:
           states:
             'Off': 'off'
             'Cooling': 'cool'
-            'Heaing': 'heat'
+            'Heating': 'heat'
           attribute: operation_mode
+```
+
+Example with external ambient sensor
+```yaml
+- type: custom:thermostat-card
+  title: Bedroom
+  entity: climate.ecobee
+  ambient_temperature: sensor.bedroom_temperature
 ```
 
 ⚠️ Make sure you set type to `module` when including the resource file.
@@ -79,3 +88,4 @@ This card uses MIT License as it uses a CodePen gist.
 
 ## Credits
 [@silasb](https://github.com/silasb)
+[@ciotlosm](https://github.com/ciotlosm)
