@@ -1,3 +1,6 @@
+## 0.1.1
+Fix #155 for increments being only .5
+
 ## 0.1.0
 Add ability to specify external sensor for ambient temperature
 
