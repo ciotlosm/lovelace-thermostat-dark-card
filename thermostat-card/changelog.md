@@ -1,3 +1,6 @@
+## 0.1.0
+Add ability to specify external sensor for ambient temperature
+
 ## 0.0.2
 Fix alignment on Firefox
 
