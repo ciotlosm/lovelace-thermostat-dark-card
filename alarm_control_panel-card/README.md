@@ -17,7 +17,7 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
 | style | string | optional | Allows to override some default styles. Example `--alarm-color-disarmed: var(--label-badge-blue);`
 | auto_enter | object | optional | Options to auto arm and disarm. See `auto_enter` options.
 | labels | object | optional | Labels that augment/override defaults.
-| show_labels | boolean | optional | Show constant that a label is based on. Useful to know label constants when you want to create your own `labels`. Default `true`.
+| show_label_ids | boolean | optional | Allow displaying label constants (when setting to `true`) to be able to map your own translations under `labels`. Defaults to `false`.
 
 `auto_enter` options:
 
