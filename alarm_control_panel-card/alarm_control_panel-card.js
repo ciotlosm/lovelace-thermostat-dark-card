@@ -163,7 +163,8 @@ class AlarmControlPanelCard extends HTMLElement {
 
     const input = root.lastChild.querySelector('paper-input');
     root.querySelectorAll(".pad paper-button").forEach(element => {
-      if (element.getAttribute('value') === 'Clear') {
+      if (element.getAttribute('value') === 
+        this._label("ui.card.alarm_control_panel.clear_code")) {
         element.addEventListener('click', event => {
           input.value = '';
         })
@@ -329,9 +330,10 @@ class AlarmControlPanelCard extends HTMLElement {
   _label(label, default_label=undefined) {
     // Just show "raw" label; useful when want to see underlying const
     // so you can define your own label.
-    if (this._config.show_labels === false) return label;
+    if (this._config.show_label_ids) return label;
 
-    if (this._config.labels[label]) return this._config.labels[label];
+    if (this._config.labels && this._config.labels[label])
+      return this._config.labels[label];
 
     const lang = this.myhass.selectedLanguage || this.myhass.language;
     const translations = this.myhass.resources[lang];
