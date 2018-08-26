@@ -77,7 +77,12 @@ class ThermostatCard extends HTMLElement {
     if (!cardConfig.chevron_size) cardConfig.chevron_size = 50;
     if (!cardConfig.num_ticks) cardConfig.num_ticks = 150;
     if (!cardConfig.tick_degrees) cardConfig.tick_degrees = 300;
-    if (!cardConfig.hvac.states) cardConfig.hvac.states = { 'off': 'off', 'heat': 'heat', 'cool': 'cool', };
+    if (!cardConfig.hvac.states) cardConfig.hvac.states = {
+      'off': 'off',
+      'idle': 'idle',
+      'heat': 'heat',
+      'cool': 'cool'
+    };
 
     // Extra config values generated for simplicity of updates
     cardConfig.radius = cardConfig.diameter / 2;
