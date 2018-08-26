@@ -473,6 +473,7 @@ export default class ThermostatUI {
         user-select: none;
       
         --thermostat-off-fill: #222;
+        --thermostat-idle-fill: #555;
         --thermostat-path-color: rgba(255, 255, 255, 0.3);
         --thermostat-heat-fill: #E36304;
         --thermostat-cool-fill: #007AF1;
@@ -527,6 +528,9 @@ export default class ThermostatUI {
       }
       .dial--state--off .dial__shape {
         fill: var(--thermostat-off-fill);
+      }
+      .dial--state--idle .dial__shape {
+        fill: var(--thermostat-idle-fill);
       }
       .dial--state--heat .dial__shape {
         fill: var(--thermostat-heat-fill);
