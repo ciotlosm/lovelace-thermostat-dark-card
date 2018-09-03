@@ -33,7 +33,7 @@ class EntityAttributesCard extends HTMLElement {
           if (filters.every(filterFunc => filterFunc(`${key}.${attr_key}`))) {
             attributes.set(`${key}.${attr_key}`, {
               name: `${filter.name?filter.name:attr_key.replace(/_/g, ' ')}`,
-              value: hass.states[key].attributes[attr_key],
+              value: `${hass.states[key].attributes[attr_key]} ${filter.unit||''}`.trim(),
             });
           }  
         });
