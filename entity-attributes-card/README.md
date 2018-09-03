@@ -20,6 +20,7 @@ Entity attributes allows you to show basic attributes from multiple entities.
 | ---- | ---- | ------- | -----------
 | key | string | **Required** | A pattern for the attribute. Example: `media_player.bedroom.media_title`
 | name | string | optional | A string to replace the actual attribute name with
+| unit | string | optional | A string to append an arbitrary unit to the value
 
 **Example**
 
@@ -36,6 +37,8 @@ Entity attributes allows you to show basic attributes from multiple entities.
       - key: media_player.bedroom.media_title
         name: Media center
       - climate.heatpump.current_temperature
+      - vacuum.xiaomi_mi_robot.battery_level
+        unit: %
 ```
 
 How to embed this inside `entities` card:
