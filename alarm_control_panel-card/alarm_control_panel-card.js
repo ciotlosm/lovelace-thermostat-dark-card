@@ -299,6 +299,7 @@ class AlarmControlPanelCard extends HTMLElement {
       .actions {
         margin: 0 8px;
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
         font-size: calc(var(--base-unit) * 1);
       }
