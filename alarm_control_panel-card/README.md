@@ -16,6 +16,8 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
 | states | list | optional | A list of possible arm buttons. Supports `arm_home`, `arm_away`, `arm_night`, `arm_custom_bypass`.
 | style | string | optional | Allows to override some default styles. Example `--alarm-color-disarmed: var(--label-badge-blue);`
 | auto_enter | object | optional | Options to auto arm and disarm. See `auto_enter` options.
+| labels | object | optional | Labels that augment/override defaults.
+| show_label_ids | boolean | optional | Allow displaying label constants (when setting to `true`) to be able to map your own translations under `labels`. Defaults to `false`.
 
 `auto_enter` options:
 
@@ -23,6 +25,9 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
 | ---- | ---- | ------- | -----------
 | code_length | integer | Required | When number of digits entered system will arm/disarm
 | arm_action | string | Required | Action to invoke when after digits entered. Can be any of the same values as `states` above.
+
+`labels`:
+The labels to display. Label name and value. See example.
 
 **Example**
 
@@ -35,8 +40,12 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
   states:
     - arm_home
     - arm_away
+  labels:
+    ui.card.alarm_control_panel.code: Inserire un codice a 4 cifre
+    state.alarm_control_panel.arm_away: Away!!
 ```
 
 **Credits**
+- [@gwww](https://github.com/gwww) Added translations
 - [@gwww](https://github.com/gwww) Awesome refactoring
 - [@ciotlosm](https://github.com/ciotlosm)
