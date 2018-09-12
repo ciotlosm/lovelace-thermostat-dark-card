@@ -1,3 +1,8 @@
+## 0.4.0
+- Major refactoring from @gwww
+- Add translation support
+- Fixes some memory leaks
+
 ## 0.3.2
 - Fixed javascript error on code clear when no code was used 
 
