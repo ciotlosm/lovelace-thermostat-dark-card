@@ -15,15 +15,25 @@ class AlarmControlPanelCard extends HTMLElement {
 
   set hass(hass) {
     const entity = hass.states[this._config.entity];
+    const panel_display_sensor = hass.states[this._config.panel_display_sensor];
 
     if (entity) {
       this.myhass = hass;
       if(!this.shadowRoot.lastChild) {
         this._createCard(entity);
       }
+      var shouldUpdateContent = false;
       if (entity.state != this._state) {
         this._state = entity.state;
-        this._updateCardContent(entity);
+        shouldUpdateContent = true;
+      }
+      if (panel_display_sensor != null && panel_display_sensor.state != this._panel_display_state) {
+          this._panel_display_state = panel_display_sensor.state;
+          shouldUpdateContent = true;
+      }
+
+      if (shouldUpdateContent) {
+          this._updateCardContent(entity);
       }
     }
   }
@@ -37,6 +47,7 @@ class AlarmControlPanelCard extends HTMLElement {
     content.innerHTML = `
       ${config.title ? '<div id="state-text"></div>' : ''}
       <ha-icon id="state-icon"></ha-icon>
+      ${this._panelDisplay()}
       ${this._actionButtons()}
       ${entity.attributes.code_format ?
           `<paper-input label='${this._label("ui.card.alarm_control_panel.code")}'
@@ -91,6 +102,10 @@ class AlarmControlPanelCard extends HTMLElement {
     root.getElementById("state-icon").setAttribute("icon",
       this._icons[this._state] || 'mdi:shield-outline');
     root.getElementById("state-icon").className = this._state;
+
+    if (config.panel_display_sensor != null) {
+        root.getElementById("panelDisplay").innerHTML = this._panel_display_state;
+    }
 
     const armVisible = (this._state === 'disarmed');
     root.getElementById("arm-actions").style.display = armVisible ? "" : "none";
@@ -163,7 +178,7 @@ class AlarmControlPanelCard extends HTMLElement {
 
     const input = root.lastChild.querySelector('paper-input');
     root.querySelectorAll(".pad paper-button").forEach(element => {
-      if (element.getAttribute('value') === 
+      if (element.getAttribute('value') ===
         this._label("ui.card.alarm_control_panel.clear_code")) {
         element.addEventListener('click', event => {
           input.value = '';
@@ -189,6 +204,16 @@ class AlarmControlPanelCard extends HTMLElement {
       }
     }
   }
+
+  _panelDisplay() {
+    var rVal = '<div id="panelDisplay">';
+    if (this._config.panel_display_sensor != null) {
+        rVal += `${this.myhass.states[this._config.panel_display_sensor].state}`;
+    }
+    rVal += "</div>"
+
+    return rVal;
+}
 
   _keypad(entity) {
     if (this._config.hide_keypad || !entity.attributes.code_format) return '';
@@ -284,6 +309,11 @@ class AlarmControlPanelCard extends HTMLElement {
         bottom: 16px;
         color: var(--alarm-state-color);
         animation: none;
+      }
+      #panelDisplay {
+        padding-bottom: 16px;
+        display: flex;
+        justify-content: center;
       }
       .pad {
         display: flex;
