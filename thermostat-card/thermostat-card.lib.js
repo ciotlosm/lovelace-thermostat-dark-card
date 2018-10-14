@@ -64,6 +64,7 @@ export default class ThermostatUI {
     this._root = root;
     this._buildControls(config.radius);
     this._root.addEventListener('click', () => this._enableControls());
+    this._root.addEventListener('contextmenu', () => this._toggle());
   }
 
   updateState(options) {
@@ -253,6 +254,12 @@ export default class ThermostatUI {
       this._updateClass('in_control', this.in_control);
       config.control();
     }, config.pending * 1000);
+  }
+
+  _toggle() {
+    const config = this._config;
+    config.toggle();
+    return false;
   }
 
   _updateClass(class_name, flag) {

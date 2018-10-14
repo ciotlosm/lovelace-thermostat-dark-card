@@ -58,6 +58,12 @@ class ThermostatCard extends HTMLElement {
     }
   }
 
+  _controlToggle() {
+    this._hass.callService('climate', (this.thermostat.hvac_state == 'off') ? 'turn_on' : 'turn_off', {
+      entity_id: this._config.entity
+    });
+  }
+
   setConfig(config) {
     // Check config
     if (!config.entity && config.entity.split(".")[0] === 'climate') {
@@ -93,6 +99,7 @@ class ThermostatCard extends HTMLElement {
     cardConfig.ticks_inner_radius = cardConfig.diameter / 8;
     cardConfig.offset_degrees = 180 - (360 - cardConfig.tick_degrees) / 2;
     cardConfig.control = this._controlSetPoints.bind(this);
+    cardConfig.toggle = this._controlToggle.bind(this);
     this.thermostat = new ThermostatUI(cardConfig);
 
     if (cardConfig.no_card === true) {
