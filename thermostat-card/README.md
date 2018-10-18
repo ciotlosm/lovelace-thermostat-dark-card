@@ -38,6 +38,7 @@ There are many things still missing, but I'll add below those that I know of
 | sensor | string | optional | The sensor object which monitors the hvac state. This cannot be used in conjunction with attribute.
 
 **sensor** object
+
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | sensor | string | **Required** | A sensor which provides the hvac state. See examples.
