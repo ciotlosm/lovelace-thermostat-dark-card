@@ -21,7 +21,7 @@ There are many things still missing, but I'll add below those that I know of
 | entity | string | **Required** | The entity id of climate entity. Example: `climate.hvac`
 | title | string | optional | Card title
 | no_card | boolean | false | Set to true to avoid the card background and use the custom element in picture-elements.
-| hvac | object | optional | Allows mapping of custom states or using a custom attribute for state
+| hvac | object | optional | Allows mapping of custom states or using a custom sensor/attribute for state
 | step | number | 0.5 | The step to use when increasing or decreasing temperature
 | highlight_tap | boolean | false | Show the tap area highlight when changing temperature settings
 | chevron_size | number | 50 | Size of chevrons for temperature adjutment
@@ -34,7 +34,14 @@ There are many things still missing, but I'll add below those that I know of
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | states | optional | optional | A list of states. See examples.
-| attribute | string | optional | An attribute of the entity to use as state
+| attribute | string | optional | An attribute of the entity to use as state. This cannot be used in conjunction with sensor.
+| sensor | string | optional | The sensor object which monitors the hvac state. This cannot be used in conjunction with attribute.
+
+**sensor** object
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| sensor | string | **Required** | A sensor which provides the hvac state. See examples.
+| attribute | string | state | An attribute of the sensor to use as state.
 
 **Example**
 
@@ -71,6 +78,29 @@ views:
             'Cooling': 'cool'
             'Heating': 'heat'
           attribute: operation_mode
+```
+
+**Example with custom hvac_sensor**
+
+```yaml
+resources:
+  - url: /local/custom-lovelace/thermostat-card/thermostat-card.js?v=1
+    type: module
+name: My Awesome Home
+views:
+  - title: Home
+    cards:
+      - type: custom:thermostat-card
+        title: Bedroom
+        entity: climate.nest
+        chevron_size: 100
+        hvac:
+          states:
+            'off': 'off'
+            'cooling': 'cool'
+            'heating': 'heat'
+          sensor:
+            sensor: sensor.nest_thermostat_hvac_state
 ```
 
 Example with external ambient sensor
