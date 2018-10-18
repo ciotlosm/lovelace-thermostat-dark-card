@@ -13,7 +13,12 @@ class ThermostatCard extends HTMLElement {
     let hvac_state;
     if (config.hvac.attribute)
       hvac_state = entity.attributes[config.hvac.attribute];
-    else
+    else if (config.hvac.sensor && config.hvac.sensor.sensor) {
+      if (config.hvac.sensor.attribute)
+        hvac_state = hass.states[config.hvac.sensor.sensor][config.hvac.sensor.attribute];
+      else
+        hvac_state = hass.states[config.hvac.sensor.sensor].state;
+    } else
       hvac_state = entity.state;
     const new_state = {
       min_value: entity.attributes.min_temp,
