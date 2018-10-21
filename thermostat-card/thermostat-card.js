@@ -7,6 +7,12 @@ class ThermostatCard extends HTMLElement {
   set hass(hass) {
     const config = this._config;
     const entity = hass.states[config.entity];
+    if(entity === undefined) {
+      const new_state = { connected: false }
+      if (!this._saved_state || this._saved_state.connected != new_state.connected)
+        this.thermostat.updateState(new_state);
+      return;
+    }
     let ambient_temperature = entity.attributes.current_temperature;
     if (config.ambient_temperature && hass.states[config.ambient_temperature])
       ambient_temperature = hass.states[config.ambient_temperature].state;
@@ -24,6 +30,7 @@ class ThermostatCard extends HTMLElement {
       target_temperature_high: entity.attributes.target_temp_high,
       hvac_state: config.hvac.states[hvac_state] || 'off',
       away: (entity.attributes.away_mode == 'on' ? true : false),
+      connected: true
     }
     if (!this._saved_state ||
       (this._saved_state.min_value != new_state.min_value ||
@@ -33,7 +40,8 @@ class ThermostatCard extends HTMLElement {
         this._saved_state.target_temperature_low != new_state.target_temperature_low ||
         this._saved_state.target_temperature_high != new_state.target_temperature_high ||
         this._saved_state.hvac_state != new_state.hvac_state ||
-        this._saved_state.away != new_state.away)) {
+        this._saved_state.away != new_state.away ||
+        this._saved_state.connected != new_state.connected)) {
       this._saved_state = new_state;
       this.thermostat.updateState(new_state);
     }

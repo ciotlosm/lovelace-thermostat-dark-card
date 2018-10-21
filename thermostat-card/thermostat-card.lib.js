@@ -67,6 +67,10 @@ export default class ThermostatUI {
   }
 
   updateState(options) {
+    this._updateConnected(options.connected)
+    if(!options.connected)
+      return;
+
     const config = this._config;
     const away = options.away || false;
     this.min_value = options.min_value;
@@ -326,6 +330,14 @@ export default class ThermostatUI {
     });
   }
 
+  _updateConnected(connected) {
+    this._updateClass('disabled', !connected)
+    if(!connected) {
+      this._root.querySelector(`#ambient`).querySelectorAll('tspan')[0].textContent = 'Error';
+      this._root.querySelector(`#target`).querySelectorAll('tspan')[0].textContent = 'Error';
+    }
+  }
+
   _buildCore(diameter) {
     return SvgUtil.createSVGElement('svg', {
       width: '100%',
@@ -476,6 +488,7 @@ export default class ThermostatUI {
         --thermostat-path-color: rgba(255, 255, 255, 0.3);
         --thermostat-heat-fill: #E36304;
         --thermostat-cool-fill: #007AF1;
+        --thermostat-disabled-fill: #72787e;
         --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
         --thermostat-path-active-color-large: rgba(255, 255, 255, 1);
         --thermostat-text-color: white;
@@ -608,6 +621,13 @@ export default class ThermostatUI {
       .dial__lbl--ring {
         font-size: 22px;
         font-weight: bold;
+      }
+      .dial.disabled .dial__shape {
+        fill: var(--thermostat-disabled-fill);
+      }
+      .dial.disabled .dial__lbl--ambient, .dial.disabled .dial__lbl--target {
+        font-weight: normal;
+        font-size: 60px;
       }`
   }
 }
