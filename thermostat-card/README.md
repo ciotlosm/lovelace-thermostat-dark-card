@@ -24,7 +24,7 @@ There are many things still missing, but I'll add below those that I know of
 | hvac | object | optional | Allows mapping of custom states or using a custom sensor/attribute for state
 | step | number | 0.5 | The step to use when increasing or decreasing temperature
 | highlight_tap | boolean | false | Show the tap area highlight when changing temperature settings
-| chevron_size | number | 50 | Size of chevrons for temperature adjutment
+| chevron_size | number | 50 | Size of chevrons for temperature adjustment
 | pending | number | 3 | Seconds to wait in control mode until state changes are sent back to the server
 | idle_zone | number | 2 | Degrees of minimum difference between set points when thermostat supports both heating and cooling
 | ambient_temperature | string | optional | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat
