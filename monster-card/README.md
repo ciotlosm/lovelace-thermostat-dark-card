@@ -11,6 +11,7 @@ Supports both inclusion and exclusion filters with wildcard for entity_ids.
 | type | string | **Required** | `custom:monster-card`
 | card | object | **Required** | Card object 
 | filter | object | **Required** | `include` and `exclude` sections
+| sort | string | optional | `friendly_name`, `state` or `entity_id`
 | show_empty | boolean | true | Show/hide empty card
 | when | object | optional | Extra condition for show/hide
 
@@ -166,7 +167,7 @@ Provide additional configuration options to entities:
 
 ## Sorting entities explained
 
-Entities are displayed in the card in the order they are matched by the include filters. I.e. to get a specific order, detailed filters must precede more general ones.
+Entities are displayed in the card in the order they are matched by the include filters by default. I.e. to get a specific order, detailed filters must precede more general ones.
 
 The following example will display `sensor.my_sensor` followed by all other sensors in alphabetical order:
 ``` yaml
@@ -190,7 +191,21 @@ The following example will display all sensors in alphabetical order. `sensor.my
       - entity_id: sensor.my_sensor
 ```
 
+Using the sort option can change the order entities are displayed.  Entities can be sorted by state value, friendly name or entity id.  The following example will display all cert_expiry sensors sorted by expire time.
+
+``` yaml
+- type: custom:monster-card
+  card:
+    type: entities
+  filter:
+    include:
+      - entity_id: sensor.cert_expiry_*
+  sort: state
+```
+
+
 ## Credits
 - [c727](https://github.com/c727)
 - [thomasloven](https://github.com/thomasloven)
 - [minchik](https://github.com/minchik)
+- [hawk259](https://github.com/hawk259)

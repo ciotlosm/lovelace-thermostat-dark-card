@@ -73,6 +73,10 @@ class MonsterCard extends HTMLElement {
       throw new Error('Please define filters');
     }
 
+    if (config.sort && config.sort != 'entity_id' && config.sort != 'state' && config.sort != 'friendly_name') {
+      throw new Error('Invalid sort opiton');
+    }
+
     if (this.lastChild) this.removeChild(this.lastChild);
 
     const cardConfig = Object.assign({}, config);
@@ -94,7 +98,33 @@ class MonsterCard extends HTMLElement {
       entities = entities.filter(entity => !excludeEntities.includes(entity.entity));
     }
 
+	if (config.sort) {
+	    function sort_by_state(a, b) {
+		if (hass.states[a.entity].state > hass.states[b.entity].state) return 1;
+		if (hass.states[b.entity].state > hass.states[a.entity].state) return -1;
+		return 0;
+	    }
 
+	    function sort_by_entity_id(a, b) {
+		if (a.entity > b.entity) return 1;
+		if (b.entity > a.entity) return -1;
+		return 0;
+	    }
+
+	    function sort_by_friendly_name(a, b) {
+		if (hass.states[a.entity].attributes.friendly_name > hass.states[b.entity].attributes.friendly_name) return 1;
+		if (hass.states[b.entity].attributes.friendly_name > hass.states[a.entity].attributes.friendly_name) return -1;
+		return 0;
+	    }
+
+	    if (config.sort == 'state') {
+		entities.sort(sort_by_state);
+	    } else if (config.sort == 'entity_id') {
+		entities.sort(sort_by_entity_id);
+	    } else if (config.sort == 'friendly_name') {
+		entities.sort(sort_by_friendly_name);
+	    }
+	}
 
     if (entities.length === 0 && config.show_empty === false) {
       this.style.display = 'none';

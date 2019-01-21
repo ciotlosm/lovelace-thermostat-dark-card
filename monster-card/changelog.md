@@ -1,3 +1,7 @@
+## 0.3.0
+Added sort support
+Credits: [hawk25](https://github.com/hawk25)
+
 ## 0.2.3
 Fixed exclusion not applied when using entity options (#105). 
 Credits: [minchik](https://github.com/minchik)
