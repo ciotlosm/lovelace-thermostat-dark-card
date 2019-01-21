@@ -58,6 +58,21 @@ class ThermostatCard extends HTMLElement {
     }
   }
 
+  _dblclick() {
+        this._fire('hass-more-info', { entityId: this._config.entity });
+  }
+
+  _fire(type, detail) {
+        const event = new Event(type, {
+            bubbles: true,
+            cancelable: false,
+            composed: true
+        });
+        event.detail = detail || {};
+        this.shadowRoot.dispatchEvent(event);
+        return event;
+  }
+
   setConfig(config) {
     // Check config
     if (!config.entity && config.entity.split(".")[0] === 'climate') {
@@ -89,6 +104,8 @@ class ThermostatCard extends HTMLElement {
     cardConfig.offset_degrees = 180 - (360 - cardConfig.tick_degrees) / 2;
     cardConfig.control = this._controlSetPoints.bind(this);
     this.thermostat = new ThermostatUI(cardConfig);
+    
+    root.addEventListener('dblclick', () => this._dblclick()); 
 
     if (cardConfig.no_card === true) {
       root.appendChild(this.thermostat.container);
