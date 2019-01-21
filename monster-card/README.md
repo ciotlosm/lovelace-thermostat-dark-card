@@ -11,6 +11,7 @@ Supports both inclusion and exclusion filters with wildcard for entity_ids.
 | type | string | **Required** | `custom:monster-card`
 | card | object | **Required** | Card object 
 | filter | object | **Required** | `include` and `exclude` sections
+| sort | object | optional | how to sort entities
 | show_empty | boolean | true | Show/hide empty card
 | when | object | optional | Extra condition for show/hide
 
@@ -41,6 +42,14 @@ Attributes object
 
 ⚠️ Supports comparison only if sensor attribute is `Number` and you send a string like '< 300'. Must have exactly one space between operator and value.
 Supported operators: =, <, >, <=, >=
+
+Sort object
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| value | string | **Required** | Entity value to use for sorting: `state`, `friendly_name`, `entity_id`
+| method | string | string | Method used for sorting: `string` compare, `upper` case string, `lower` case string, `number`
+| order | string | up | Sorting ascending `up` or descending `down`.
 
 When object
 
@@ -166,7 +175,7 @@ Provide additional configuration options to entities:
 
 ## Sorting entities explained
 
-Entities are displayed in the card in the order they are matched by the include filters. I.e. to get a specific order, detailed filters must precede more general ones.
+By default, entities are displayed in the card in the order they are matched by the include filters. I.e. to get a specific order, detailed filters must precede more general ones.
 
 The following example will display `sensor.my_sensor` followed by all other sensors in alphabetical order:
 ``` yaml
@@ -190,7 +199,23 @@ The following example will display all sensors in alphabetical order. `sensor.my
       - entity_id: sensor.my_sensor
 ```
 
+Using the sort option can change the order entities are displayed.  Entities can be sorted by state value, friendly name or entity id.  The following example will display all cert_expiry sensors sorted by expire time.
+
+``` yaml
+- type: custom:monster-card
+  card:
+    type: entities
+  filter:
+    include:
+      - entity_id: sensor.cert_expiry_*
+  sort:
+    value: state
+    method: number
+    order: up
+```
+
 ## Credits
 - [c727](https://github.com/c727)
 - [thomasloven](https://github.com/thomasloven)
 - [minchik](https://github.com/minchik)
+- [hawk259](https://github.com/hawk259)

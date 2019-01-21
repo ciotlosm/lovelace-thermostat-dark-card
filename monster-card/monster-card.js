@@ -73,6 +73,20 @@ class MonsterCard extends HTMLElement {
       throw new Error('Please define filters');
     }
 
+    if (config.sort) {
+      if (!config.sort.value || (config.sort.value != 'state' && config.sort.value != 'friendly_name' && config.sort.value != 'entity_id')) {
+        throw new Error('Invalid sort value option');
+      }
+
+      if (config.sort.method && config.sort.method != 'string' && config.sort.method != 'upper' && config.sort.method != 'lower' && config.sort.method != 'number') {
+        throw new Error('Invalid sort method option');
+      }
+
+      if (config.sort.order && config.sort.order != 'up' && config.sort.order != 'down') {
+        throw new Error('Invalid sort method option');
+      }
+    }
+
     if (this.lastChild) this.removeChild(this.lastChild);
 
     const cardConfig = Object.assign({}, config);
@@ -94,7 +108,61 @@ class MonsterCard extends HTMLElement {
       entities = entities.filter(entity => !excludeEntities.includes(entity.entity));
     }
 
+    if (config.sort) {
 
+      function sort_entities(a, b) {
+        var aa;
+        var bb;
+
+        if (config.sort.value == 'state') {
+          aa = hass.states[a.entity].state;
+          bb = hass.states[b.entity].state;
+        }
+        else if (config.sort.value == 'entity_id') {
+          aa = a.entity;
+          bb = b.entity;
+        }
+        else if (config.sort.value == 'friendly_name') {
+          aa = hass.states[a.entity].attributes.friendly_name;
+          bb = hass.states[b.entity].attributes.friendly_name;
+        }
+
+        if (!config.sort.method || config.sort.method == 'string' || config.sort.method == 'upper' || config.sort.method == 'lower') {
+
+          if (config.sort.method && config.sort.method == 'upper') {
+              aa = aa.toUpperCase();
+              bb = bb.toUpperCase();
+	  }
+          else if (config.sort.method && config.sort.method == 'lower') {
+              aa = aa.toLowerCase();
+              bb = bb.toLowerCase();
+	  }
+	      
+          if (!config.sort.order || config.sort.order == 'up') {
+            if (aa > bb) return 1;
+            if (bb > aa) return -1;
+          }
+          else {
+            if (aa > bb) return -1;
+            if (bb > aa) return 1;
+          }
+        }
+        else {
+          if (!config.sort.order || config.sort.order == 'up') {
+            if (Number(aa) > Number(bb)) return 1;
+            if (Number(bb) > Number(aa)) return -1;
+          }
+          else {
+            if (Number(aa) > Number(bb)) return -1;
+            if (Number(bb) > Number(aa)) return 1;
+          }
+        }
+
+        return 0;
+      }
+
+      entities.sort(sort_entities);
+    }
 
     if (entities.length === 0 && config.show_empty === false) {
       this.style.display = 'none';

@@ -1,5 +1,21 @@
+## 0.3.0
+Added initial sort support
+Credits: [hawk259](https://github.com/hawk259)
+``` yaml
+- type: custom:monster-card
+  card:
+    type: entities
+  filter:
+    include:
+      - entity_id: sensor.cert_expiry_*
+  sort:
+    value: state
+    method: number
+    order: up
+```
+
 ## 0.2.3
-Fixed exclusion not applied when using entity options (#105). 
+Fixed exclusion not applied when using entity options (#105).
 Credits: [minchik](https://github.com/minchik)
 
 ## 0.2.2
