@@ -18,6 +18,7 @@ Alarm control panel card allows you to control [alarm_control_panel](https://www
 | auto_enter | object | optional | Options to auto arm and disarm. See `auto_enter` options.
 | labels | object | optional | Labels that augment/override defaults.
 | show_label_ids | boolean | optional | Allow displaying label constants (when setting to `true`) to be able to map your own translations under `labels`. Defaults to `false`.
+| auto_hide | boolean | false | Hides the keypad and states buttons. Visibility can be toggled by pressing the state icon.
 
 `auto_enter` options:
 
@@ -34,7 +35,7 @@ The labels to display. Label name and value. See example.
 ```yaml
 - type: custom:alarm_control_panel-card
   entity: alarm_control_panel.alarm
-  show_keypad: true
+  hide_keypad: true
   title: My Alarm
   style: '--alarm-color-disarmed: var(--label-badge-blue);'
   states:
