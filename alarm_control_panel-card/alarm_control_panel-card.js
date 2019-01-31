@@ -32,11 +32,12 @@ class AlarmControlPanelCard extends HTMLElement {
     const config = this._config;
 
     const card = document.createElement('ha-card');
+    card.innerHTML = `<ha-icon id="state-icon"></ha-icon>`;
     const content = document.createElement('div');
     content.id = "content";
+    content.style.display = config.auto_hide ? 'none' : '';
     content.innerHTML = `
       ${config.title ? '<div id="state-text"></div>' : ''}
-      <ha-icon id="state-icon"></ha-icon>
       ${this._actionButtons()}
       ${entity.attributes.code_format ?
           `<paper-input label='${this._label("ui.card.alarm_control_panel.code")}'
@@ -114,8 +115,20 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   _setupActions() {
+    const root = this.shadowRoot;
     const card = this.shadowRoot.lastChild;
     const config = this._config;
+
+    if (config.auto_hide) {
+      root.getElementById("state-icon").addEventListener('click', event => {
+        var content = root.getElementById("content");
+        if (content.style.display === 'none') {
+          content.style.display = '';
+        } else {
+          content.style.display = 'none';
+        }
+      })
+    }
 
     if (config.auto_enter) {
       card.querySelectorAll(".actions paper-button").forEach(element => {
