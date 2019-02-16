@@ -1,3 +1,11 @@
+## 0.3.1
+Added in_group to include and exclude filter rules, matching any entities in the named group.
+```yaml
+filter:
+  include:
+    - in_group: group.household_trackers
+```
+
 ## 0.2.3
 Fixed exclusion not applied when using entity options (#105). 
 Credits: [minchik](https://github.com/minchik)
