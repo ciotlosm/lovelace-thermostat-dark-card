@@ -3,12 +3,12 @@ class AlarmControlPanelCard extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this._icons = {
-      'armed_away': 'mdi:security-lock',
-      'armed_custom_bypass': 'mdi:security',
-      'armed_home': 'mdi:security-home',
-      'armed_night': 'mdi:security-home',
-      'disarmed': 'mdi:verified',
-      'pending': 'mdi:shield-outline',
+      'armed_away': 'hass:shield-lock',
+      'armed_custom_bypass': 'hass:security',
+      'armed_home': 'hass:shield-home',
+      'armed_night': 'hass:shield-home',
+      'disarmed': 'hass:shield-check',
+      'pending': 'hass:shield-outline',
       'triggered': 'hass:bell-ring',
     }
   }
