@@ -36,6 +36,9 @@ class MonsterCard extends HTMLElement {
       }
       return _compare[operator](x, y);
     }
+    function _filterInGroup(stateObj, group_entities) {
+      return group_entities.indexOf(stateObj.entity_id) >= 0;
+    }
     const entities = new Map();
     filters.forEach((filter) => {
       const filters = [];
@@ -55,6 +58,13 @@ class MonsterCard extends HTMLElement {
       }
       if (filter.state) {
         filters.push(stateObj => _complexCompare(stateObj.state, filter.state));
+      }
+      if (filter.in_group) {
+        if (filter.in_group in hass.states)
+          filters.push(stateObj => _filterInGroup(stateObj,
+		hass.states[filter.in_group].attributes.entity_id));
+        else
+          throw new Error('Undefined group');
       }
 
       const options = filter.options ? filter.options : {}
