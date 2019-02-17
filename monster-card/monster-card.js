@@ -8,6 +8,9 @@ class MonsterCard extends HTMLElement {
       const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`, 'i');
       return stateObj.entity_id.search(regEx) === 0;
     }
+    function _filterInGroup(stateObj, group_entities) {
+      return group_entities.indexOf(stateObj.entity_id) >= 0;
+    }
     function _filterName(stateObj, pattern) {
       let compareEntity = stateObj.attributes.title ? stateObj.attributes.title : stateObj.attributes.friendly_name;
       if (!compareEntity) compareEntity = stateObj.entity_id;
@@ -36,9 +39,6 @@ class MonsterCard extends HTMLElement {
       }
       return _compare[operator](x, y);
     }
-    function _filterInGroup(stateObj, group_entities) {
-      return group_entities.indexOf(stateObj.entity_id) >= 0;
-    }
     const entities = new Map();
     filters.forEach((filter) => {
       const filters = [];
@@ -63,8 +63,8 @@ class MonsterCard extends HTMLElement {
         if (filter.in_group in hass.states)
           filters.push(stateObj => _filterInGroup(stateObj,
 		hass.states[filter.in_group].attributes.entity_id));
-        else
-          throw new Error('Undefined group');
+	//else if (filters.debug)
+        //  throw new Error('Undefined group');
       }
 
       const options = filter.options ? filter.options : {}
