@@ -13,6 +13,7 @@ Supports both inclusion and exclusion filters with wildcard for entity_ids.
 | filter | object | **Required** | `include` and `exclude` sections
 | show_empty | boolean | true | Show/hide empty card
 | when | object | optional | Extra condition for show/hide
+| display_switch | string | optional | Switch entity set to indicate items shown
 
 Card object
 
@@ -163,6 +164,21 @@ Provide additional configuration options to entities:
       - domain: media_player
         options:
           type: "custom:state-card-custom"
+```
+
+Group expanding filter, and set a switch to indicate items are shown.
+```yaml
+- type: 'custom:monster-card'
+  card:
+    show_header_toggle: false
+    title: Unknown Device Trackers
+    type: entities
+  filter:
+    include:
+      - domain: device_tracker
+    exclude:
+      - in_group: group.known_device_trackers
+  display_switch: input_boolean.unknown_device_trackers_switch
 ```
 
 ## Sorting entities explained

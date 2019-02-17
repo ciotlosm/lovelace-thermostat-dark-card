@@ -1,3 +1,6 @@
+## 0.4.1
+* Added display_switch; nominates a switch-like entity which will be set on/off depending on whether this card is showing any items.
+
 ## 0.3.1
 Added in_group to include and exclude filter rules, matching any entities in the named group.
 ```yaml

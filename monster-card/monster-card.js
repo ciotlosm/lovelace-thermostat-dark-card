@@ -63,8 +63,6 @@ class MonsterCard extends HTMLElement {
         if (filter.in_group in hass.states)
           filters.push(stateObj => _filterInGroup(stateObj,
 		hass.states[filter.in_group].attributes.entity_id));
-	//else if (filters.debug)
-        //  throw new Error('Undefined group');
       }
 
       const options = filter.options ? filter.options : {}
@@ -106,14 +104,34 @@ class MonsterCard extends HTMLElement {
 
 
 
-    if (entities.length === 0 && config.show_empty === false) {
-      this.style.display = 'none';
-    } else {
-      if (config.when && (hass.states[config.when.entity].state == config.when.state) || !config.when) {
-        this.style.display = 'block';
+    function _styleDisplayWhen(widget, config_when) {
+      if (config_when && (hass.states[config_when.entity].state == config_when.state) || !config_when) {
+        widget.style.display = 'block';
+        return true;
       } else {
-        this.style.display = 'none';
+        widget.style.display = 'none';
+        return false;
       }
+    }
+    function _setDisplaySwitch(config_display_switch, state) {
+      if (config_display_switch) {
+        if ((hass.states[config_display_switch].state.toLowerCase() == "on")
+	        != state)
+          hass.callService(config_display_switch.split(".")[0],
+	      state ? "turn_on" : "turn_off",
+	      { entity_id: config_display_switch });
+      }
+    }
+    if (entities.length === 0) {
+      if (config.show_empty === false) {
+        this.style.display = 'none';
+      } else {
+        _styleDisplayWhen(this, config.when);
+      }
+      _setDisplaySwitch(config.display_switch, false);
+    } else {
+      _setDisplaySwitch(config.display_switch, 
+        _styleDisplayWhen(this, config.when));
     }
 
     if (!config.card.entities || config.card.entities.length !== entities.length ||
