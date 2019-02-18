@@ -1,7 +1,7 @@
 class MonsterCard extends HTMLElement {
 
   _getEntities(hass, filters) {
-    function _filterEntityId(stateObj, pattern) {
+	function _filterEntityId(stateObj, pattern) {
       if (pattern.indexOf('*') === -1) {
         return stateObj.entity_id === pattern;
       }
@@ -39,6 +39,10 @@ class MonsterCard extends HTMLElement {
     const entities = new Map();
     filters.forEach((filter) => {
       const filters = [];
+	  if (filter.group) {
+		const entities = hass.states[filter.group].attributes['entity_id'];
+		filters.push(stateObj => entities.includes(stateObj.entity_id));
+	  }
       if (filter.domain) {
         filters.push(stateObj => stateObj.entity_id.split('.', 1)[0] === filter.domain);
       }
