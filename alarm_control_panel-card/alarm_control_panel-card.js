@@ -3,11 +3,11 @@ class AlarmControlPanelCard extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this._icons = {
-      'armed_away': 'mdi:security-lock',
+      'armed_away': 'mdi:shield-lock',
       'armed_custom_bypass': 'mdi:security',
-      'armed_home': 'mdi:security-home',
-      'armed_night': 'mdi:security-home',
-      'disarmed': 'mdi:verified',
+      'armed_home': 'mdi:shield-home',
+      'armed_night': 'mdi:shield-home',
+      'disarmed': 'mdi:shield-check',
       'pending': 'mdi:shield-outline',
       'triggered': 'hass:bell-ring',
     }
@@ -110,8 +110,8 @@ class AlarmControlPanelCard extends HTMLElement {
   }
 
   _actionButton(state) {
-    return `<paper-button noink raised id="${state}">
-      ${this._label("ui.card.alarm_control_panel." + state)}</paper-button>`;
+    return `<mwc-button outlined id="${state}">
+      ${this._label("ui.card.alarm_control_panel." + state)}</mwc-button>`;
   }
 
   _setupActions() {
@@ -131,13 +131,13 @@ class AlarmControlPanelCard extends HTMLElement {
     }
 
     if (config.auto_enter) {
-      card.querySelectorAll(".actions paper-button").forEach(element => {
+      card.querySelectorAll(".actions mwc-button").forEach(element => {
         element.classList.remove('autoarm');
         if (element.id === this._arm_action || element.id === 'disarm') {
           element.classList.add('autoarm');
         }
         element.addEventListener('click', event => {
-          card.querySelectorAll(".actions paper-button").forEach(element => {
+          card.querySelectorAll(".actions mwc-button").forEach(element => {
             element.classList.remove('autoarm');
           })
           element.classList.add('autoarm');
@@ -145,7 +145,7 @@ class AlarmControlPanelCard extends HTMLElement {
         })
       })
     } else {
-      card.querySelectorAll(".actions paper-button").forEach(element => {
+      card.querySelectorAll(".actions mwc-button").forEach(element => {
         element.addEventListener('click', event => {
           const input = card.querySelector('paper-input');
           const value = input ? input.value : '';
@@ -175,7 +175,7 @@ class AlarmControlPanelCard extends HTMLElement {
     const root = this.shadowRoot;
 
     const input = root.lastChild.querySelector('paper-input');
-    root.querySelectorAll(".pad paper-button").forEach(element => {
+    root.querySelectorAll(".pad mwc-button").forEach(element => {
       if (element.getAttribute('value') === 
         this._label("ui.card.alarm_control_panel.clear_code")) {
         element.addEventListener('click', event => {
@@ -233,8 +233,8 @@ class AlarmControlPanelCard extends HTMLElement {
     if (this._config.display_letters) {
       letterHTML = `<div class='alpha'>${alpha}</div>`
     }
-    return `<paper-button noink raised value="${button}">${button}${letterHTML}
-      </paper-button>`;
+    return `<mwc-button dense value="${button}">${button}${letterHTML}
+      </mwc-button>`;
   }
 
   _style(icon_style) {
@@ -306,7 +306,7 @@ class AlarmControlPanelCard extends HTMLElement {
         display: flex;
         flex-direction: column;
       }
-      .pad paper-button {
+      .pad mwc-button {
         margin-bottom: 10%;
         position: relative;
         padding: calc(var(--base-unit));
@@ -319,14 +319,18 @@ class AlarmControlPanelCard extends HTMLElement {
         justify-content: center;
         font-size: calc(var(--base-unit) * 1);
       }
-      .actions paper-button {
+      .actions mwc-button {
         min-width: calc(var(--base-unit) * 9);
         color: var(--primary-color);
+		margin-top: 0px;
+		margin-right: 4px;
+		margin-bottom: 0px;
+		margin-left: 4px;
       }
       .actions .autoarm {
         background: var(--alarm-color-autoarm);
       }
-      paper-button#disarm {
+      mwc-button#disarm {
         color: var(--google-red-500);
       }
       .alpha {
