@@ -32,12 +32,14 @@ class AlarmControlPanelCard extends HTMLElement {
     const config = this._config;
 
     const card = document.createElement('ha-card');
-    card.innerHTML = `<ha-icon id="state-icon"></ha-icon>`;
+    card.innerHTML = `
+      ${this._iconLabel()}
+      ${config.title ? '<div id="state-text"></div>' : ''}
+    `;
     const content = document.createElement('div');
     content.id = "content";
     content.style.display = config.auto_hide ? 'none' : '';
     content.innerHTML = `
-      ${config.title ? '<div id="state-text"></div>' : ''}
       ${this._actionButtons()}
       ${entity.attributes.code_format ?
           `<paper-input label='${this._label("ui.card.alarm_control_panel.code")}'
@@ -91,7 +93,20 @@ class AlarmControlPanelCard extends HTMLElement {
 
     root.getElementById("state-icon").setAttribute("icon",
       this._icons[this._state] || 'mdi:shield-outline');
-    root.getElementById("state-icon").className = this._state;
+    root.getElementById("badge-icon").className = this._state;
+
+    var iconText = this._stateIconLabel(this._state);
+    if (iconText === "") {
+      root.getElementById("icon-label").style.display = "none";
+    } else {
+      root.getElementById("icon-label").style.display = "";
+      if (iconText.length > 5) {
+        root.getElementById("icon-label").className = "label big";
+      } else {
+	root.getElementById("icon-label").className = "label";
+      }
+      root.getElementById("icon-text").innerHTML = iconText;
+    }
 
     const armVisible = (this._state === 'disarmed');
     root.getElementById("arm-actions").style.display = armVisible ? "" : "none";
@@ -109,6 +124,31 @@ class AlarmControlPanelCard extends HTMLElement {
       </div>`;
   }
 
+  _stateIconLabel(state) {
+    const stateLabel = state.split("_").pop();
+    return stateLabel === "disarmed" ||
+      stateLabel === "triggered" ||
+      !stateLabel
+      ? ""
+      : stateLabel;
+  }
+
+  _iconLabel() {
+    return `
+      <ha-label-badge-icon id="badge-icon">
+        <div class="badge-container" id="badge-container">
+          <div class="label-badge" id="badge">
+            <div class="value">
+              <ha-icon id="state-icon"/>
+            </div>
+            <div class="label" id="icon-label">
+              <span id="icon-text"/>
+            </div>
+          </div>
+        </div>
+    </ha-label-badge-icon>`;	  
+  }
+
   _actionButton(state) {
     return `<mwc-button outlined id="${state}">
       ${this._label("ui.card.alarm_control_panel." + state)}</mwc-button>`;
@@ -120,7 +160,7 @@ class AlarmControlPanelCard extends HTMLElement {
     const config = this._config;
 
     if (config.auto_hide) {
-      root.getElementById("state-icon").addEventListener('click', event => {
+      root.getElementById("badge-icon").addEventListener('click', event => {
         var content = root.getElementById("content");
         if (content.style.display === 'none') {
           content.style.display = '';
@@ -241,7 +281,7 @@ class AlarmControlPanelCard extends HTMLElement {
     const style = document.createElement('style');
     style.textContent = `
       ha-card {
-        padding-bottom: 16px;
+      /*padding-bottom: 16px; */
         position: relative;
         --alarm-color-disarmed: var(--label-badge-green);
         --alarm-color-pending: var(--label-badge-yellow);
@@ -255,12 +295,84 @@ class AlarmControlPanelCard extends HTMLElement {
       }
       ha-icon {
         color: var(--alarm-state-color);
+	width: 24px;
+	height: 24px;
+      }
+      ha-label-badge-icon {
+        --ha-label-badge-color: var(--alarm-state-color);
+        --label-badge-text-color: var(--alarm-state-color);
+        --label-badge-background-color: var(--paper-card-background-color);
+        color: var(--alarm-state-color);
         position: absolute;
-        right: 20px;
-        top: 20px;
-        padding: 10px;
-        border: 2px solid var(--alarm-state-color);
+        right: 12px;
+        top: 12px;
+      }
+      .badge-container {
+        display: inline-block;
+        text-align: center;
+        vertical-align: top;
+      }
+      .label-badge {
+        position: relative;
+        display: block;
+        margin: 0 auto;
+        width: var(--ha-label-badge-size, 2.5em);
+        text-align: center;
+        height: var(--ha-label-badge-size, 2.5em);
+        line-height: var(--ha-label-badge-size, 2.5em);
+        font-size: var(--ha-label-badge-font-size, 1.5em);
         border-radius: 50%;
+        border: 0.1em solid var(--ha-label-badge-color, var(--primary-color));
+        color: var(--label-badge-text-color, rgb(76, 76, 76));
+        white-space: nowrap;
+        background-color: var(--label-badge-background-color, white);
+        background-size: cover;
+        transition: border 0.3s ease-in-out;
+      }
+      .label-badge .value {
+        font-size: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .label-badge .value.big {
+        font-size: 70%;
+      }
+      .label-badge .label {
+        position: absolute;
+        bottom: -1em;
+        /* Make the label as wide as container+border. (parent_borderwidth / font-size) */
+        left: -0.2em;
+        right: -0.2em;
+        line-height: 1em;
+        font-size: 0.5em;
+      }
+      .label-badge .label span {
+        box-sizing: border-box;
+        max-width: 100%;
+        display: inline-block;
+        background-color: var(--ha-label-badge-color, var(--primary-color));
+        color: var(--ha-label-badge-label-color, white);
+        border-radius: 1em;
+        padding: 9% 16% 8% 16%; /* mostly apitalized text, not much descenders => bit more top margin */
+        font-weight: 500;
+        overflow: hidden;
+        text-transform: uppercase;
+        text-overflow: ellipsis;
+        transition: background-color 0.3s ease-in-out;
+        text-transform: var(--ha-label-badge-label-text-transform, uppercase);
+      }
+      .label-badge .label.big span {
+        font-size: 90%;
+        padding: 10% 12% 7% 12%; /* push smaller text a bit down to center vertically */
+      }
+      .badge-container .title {
+        margin-top: 1em;
+        font-size: var(--ha-label-badge-title-font-size, 0.9em);
+        width: var(--ha-label-badge-title-width, 5em);
+        font-weight: var(--ha-label-badge-title-font-weight, 400);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: normal;
       }
       .disarmed {
         --alarm-state-color: var(--alarm-color-disarmed);
@@ -279,10 +391,10 @@ class AlarmControlPanelCard extends HTMLElement {
       }
       @keyframes pulse {
         0% {
-          border: 2px solid var(--alarm-state-color);
+          --ha-label-badge-color: var(--alarm-state-color);
         }
         100% {
-          border: 2px solid rgba(255, 153, 0, 0.3);
+          --ha-label-badge-color: rgba(255, 153, 0, 0.3);
         }
       }
       paper-input {
