@@ -281,7 +281,8 @@ class AlarmControlPanelCard extends HTMLElement {
     const style = document.createElement('style');
     style.textContent = `
       ha-card {
-        ${!entity.attributes.code_format ? 'padding-bottom: 16px;' : '' }
+        ${(this._config.hide_keypad ||
+	   !entity.attributes.code_format) ? 'padding-bottom: 16px;' : '' }
         position: relative;
         --alarm-color-disarmed: var(--label-badge-green);
         --alarm-color-pending: var(--label-badge-yellow);
