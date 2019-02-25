@@ -46,7 +46,7 @@ class AlarmControlPanelCard extends HTMLElement {
           type="password"></paper-input>` : ''}
       ${this._keypad(entity)}
     `;
-    card.appendChild(this._style(config.style));
+    card.appendChild(this._style(config.style, entity));
     card.appendChild(content);
     this.shadowRoot.appendChild(card);
 
@@ -277,11 +277,11 @@ class AlarmControlPanelCard extends HTMLElement {
       </mwc-button>`;
   }
 
-  _style(icon_style) {
+  _style(icon_style, entity) {
     const style = document.createElement('style');
     style.textContent = `
       ha-card {
-      /*padding-bottom: 16px; */
+        ${!entity.attributes.code_format ? 'padding-bottom: 16px;' : '' }
         position: relative;
         --alarm-color-disarmed: var(--label-badge-green);
         --alarm-color-pending: var(--label-badge-yellow);
