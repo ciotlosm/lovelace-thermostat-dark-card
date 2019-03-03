@@ -21,7 +21,7 @@ class GaugeCard extends HTMLElement {
     if (entityParts.attribute) cardConfig.attribute = entityParts.attribute;
 
     const card = document.createElement('ha-card');
-    const shadow = card.attachShadow({ mode: 'open' });
+//     const shadow = card.attachShadow({ mode: 'open' });
     const content = document.createElement('div');
     const style = document.createElement('style');
     style.textContent = `
