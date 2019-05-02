@@ -1,9 +1,9 @@
-{  
-   alarm_control_panel-card:{  
-      updated_at:"2019-05-02",
-      version:"0.5.0",
-      remote_location:"https://raw.githubusercontent.com/JumpMaster/custom-lovelace/master/alarm_control_panel-card/alarm_control_panel-card.js",
-      visit_repo:"https://github.com/JumpMaster/custom-lovelace/tree/master/alarm_control_panel-card",
-      changelog:"https://github.com/JumpMaster/custom-lovelace/tree/master/alarm_control_panel-card"
-   }
+{
+  "alarm_control_panel-card": {
+    "updated_at": "2019-05-02",
+    "version": "1.0.4",
+    "remote_location": "https://raw.githubusercontent.com/JumpMaster/custom-lovelace/master/alarm_control_panel-card/alarm_control_panel-card.js",
+    "visit_repo": "https://github.com/JumpMaster/custom-lovelace/tree/master/alarm_control_panel-card",
+    "changelog": "https://github.com/JumpMaster/custom-lovelace/tree/master/alarm_control_panel-card"
+  }
 }
