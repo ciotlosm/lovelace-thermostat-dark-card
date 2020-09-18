@@ -1,1 +1,3 @@
-# Monster card has moved to https://github.com/custom-cards/monster-card
+# Monster card
+
+Monster card has been decprecated in favor of it successor, [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
