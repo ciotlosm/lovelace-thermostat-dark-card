@@ -28,6 +28,8 @@ There are many things still missing, but I'll add below those that I know of
 | pending | number | 3 | Seconds to wait in control mode until state changes are sent back to the server
 | idle_zone | number | 2 | Degrees of minimum difference between set points when thermostat supports both heating and cooling
 | ambient_temperature | string | optional | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat
+| range_min | number | optional | Override thermostat's minimum value
+| range_max | number | optional | Override thermostat's maximum value
 
 **hvac** object 
 
