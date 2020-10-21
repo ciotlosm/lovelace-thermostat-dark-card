@@ -21,14 +21,12 @@ class ThermostatCard extends HTMLElement {
     } else
       hvac_state = entity.state;
 
-    let away_mode = entity.attributes.away_mode || undefined;
-
-    if (away_mode === undefined) {
-      if (config.away.attribute) {
-        away_mode = entity.attributes[config.away.attribute];
-      } else if (config.away.sensor && config.away.sensor.sensor) {
-        const away_sensor = hass.states[config.away.sensor.sensor];
-        away_mode = away_sensor[config.away.sensor.attribute];
+    let away_mode = entity.attributes[config.away.attribute];
+    if (config.away.sensor.sensor) {
+      const away_sensor = hass.states[config.away.sensor.sensor];
+      away_mode = away_sensor.state;
+      if (config.away.sensor.attribute) {
+        away_mode = away_sensor.attributes[config.away.sensor.attribute];
       }
     }
 
@@ -118,8 +116,9 @@ class ThermostatCard extends HTMLElement {
     cardConfig.control = this._controlSetPoints.bind(this);
     cardConfig.toggle = this._controlToggle.bind(this);
     cardConfig.away = Object.assign({
-      attribute: 'state',
-    }, config.away);
+      attribute: 'away_mode',
+      sensor: {}
+    }, config.away || {});
     this.thermostat = new ThermostatUI(cardConfig);
 
     if (cardConfig.no_card === true) {
