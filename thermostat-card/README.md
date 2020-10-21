@@ -126,6 +126,28 @@ views:
   ambient_temperature: sensor.bedroom_temperature
 ```
 
+### Example with custom away sensor
+#### Sensor only
+```yaml
+- type: custom:thermostat-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    sensor:
+      sensor: input_boolean.climate_bedroom_away
+```
+
+#### Sensor with attribute
+```yaml
+- type: custom:thermostat-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    sensor:
+      sensor: climate.bedroom
+      attribute: away
+```
+
 ⚠️ Make sure you set type to `module` when including the resource file.
 
 ## License
