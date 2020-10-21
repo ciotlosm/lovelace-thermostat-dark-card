@@ -52,8 +52,8 @@ There are many things still missing, but I'll add below those that I know of
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
-| [sensor](#sensor-object) | object | optional | A sensor which provides the away state. See [examples](#example-with-custom-away-sensor).
-| attribute | string | state | An attribute of the sensor to use as state.
+| [sensor](#sensor-object) | object | optional | A sensor which provides the away state. See [examples](#example-with-custom-away-sensor-attribute).
+| attribute | string | away_mode | An attribute of the sensor to use as state.
 
 
 ## Examples
@@ -126,7 +126,16 @@ views:
   ambient_temperature: sensor.bedroom_temperature
 ```
 
-### Example with custom away sensor
+### Example with custom away sensor/attribute
+### Custom attribute only
+```yaml
+- type: custom:thermostat-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    attribute: custom_away_mode
+```
+
 #### Sensor only
 ```yaml
 - type: custom:thermostat-card
