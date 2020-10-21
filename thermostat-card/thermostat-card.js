@@ -20,6 +20,18 @@ class ThermostatCard extends HTMLElement {
         hvac_state = hass.states[config.hvac.sensor.sensor].state;
     } else
       hvac_state = entity.state;
+
+    let away_mode = entity.attributes.away_mode || undefined;
+
+    if (away_mode === undefined) {
+      if (config.away.attribute) {
+        away_mode = entity.attributes[config.away.attribute];
+      } else if (config.away.sensor && config.away.sensor.sensor) {
+        const away_sensor = hass.states[config.away.sensor.sensor];
+        away_mode = away_sensor[config.away.sensor.attribute];
+      }
+    }
+
     const new_state = {
       min_value: config.range_min || entity.attributes.min_temp,
       max_value: config.range_max || entity.attributes.max_temp,
@@ -28,7 +40,7 @@ class ThermostatCard extends HTMLElement {
       target_temperature_low: entity.attributes.target_temp_low,
       target_temperature_high: entity.attributes.target_temp_high,
       hvac_state: config.hvac.states[hvac_state] || 'off',
-      away: (entity.attributes.away_mode == 'on' ? true : false),
+      away: away_mode === 'on',
     }
     if (!this._saved_state ||
       (this._saved_state.min_value != new_state.min_value ||
@@ -95,7 +107,7 @@ class ThermostatCard extends HTMLElement {
       'off': 'off',
       'idle': 'idle',
       'heat': 'heat',
-      'cool': 'cool'
+      'cool': 'cool',
     };
 
     // Extra config values generated for simplicity of updates
@@ -105,6 +117,9 @@ class ThermostatCard extends HTMLElement {
     cardConfig.offset_degrees = 180 - (360 - cardConfig.tick_degrees) / 2;
     cardConfig.control = this._controlSetPoints.bind(this);
     cardConfig.toggle = this._controlToggle.bind(this);
+    cardConfig.away = Object.assign({
+      attribute: 'state',
+    }, config.away);
     this.thermostat = new ThermostatUI(cardConfig);
 
     if (cardConfig.no_card === true) {
