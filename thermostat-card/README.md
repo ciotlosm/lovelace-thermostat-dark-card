@@ -8,8 +8,7 @@ A simple thermostat implemented in CSS based on <a href="https://codepen.io/dalh
 ## TODO
 There are many things still missing, but I'll add below those that I know of
 - [ ] Allow canceling of schedules for thermostats like Ecobee
-- [ ] Allow settings Away mode
-- [ ] Allow changing of Opration mode
+- [ ] Allow changing of Operation mode
 - [ ] Add support for multiple entities for different functions (zwave thermostats hot/cold, tado away mode, etc)
 - [ ] Title scaling
 
@@ -30,8 +29,9 @@ There are many things still missing, but I'll add below those that I know of
 | ambient_temperature | string | optional | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat
 | range_min | number | optional | Override thermostat's minimum value
 | range_max | number | optional | Override thermostat's maximum value
+| [away](#away-object) | object | optional | Allows usage of a custom sensor/attribute for the away detection.
 
-### hvac object 
+### hvac object
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
@@ -45,6 +45,15 @@ There are many things still missing, but I'll add below those that I know of
 | ---- | ---- | ------- | -----------
 | sensor | string | **Required** | A sensor which provides the hvac state. See examples.
 | attribute | string | state | An attribute of the sensor to use as state.
+
+### away object
+
+**NOTE:** If the climate entity already provides an attribute `away_mode`, this configuration is wont apply.
+
+| Name | Type | Default | Description
+| ---- | ---- | ------- | -----------
+| [sensor](#sensor-object) | object | optional | A sensor which provides the away state. See [examples](#example-with-custom-away-sensor-attribute).
+| attribute | string | away_mode | An attribute of the sensor to use as state.
 
 ## Examples
 
@@ -114,6 +123,37 @@ views:
   title: Bedroom
   entity: climate.ecobee
   ambient_temperature: sensor.bedroom_temperature
+```
+
+### Example with custom away sensor/attribute
+### Custom attribute only
+```yaml
+- type: custom:thermostat-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    attribute: custom_away_mode
+```
+
+#### Sensor only
+```yaml
+- type: custom:thermostat-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    sensor:
+      sensor: input_boolean.climate_bedroom_away
+```
+
+#### Sensor with attribute
+```yaml
+- type: custom:thermostat-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    sensor:
+      sensor: climate.bedroom
+      attribute: away
 ```
 
 ⚠️ Make sure you set type to `module` when including the resource file.
