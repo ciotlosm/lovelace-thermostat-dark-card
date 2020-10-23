@@ -5,7 +5,7 @@ A simple thermostat implemented in CSS based on <a href="https://codepen.io/dalh
 
 ![thermostat](https://user-images.githubusercontent.com/7738048/42817026-7972be8e-89d5-11e8-994f-e5f556fb46fc.png)
 
-### TODO
+## TODO
 There are many things still missing, but I'll add below those that I know of
 - [ ] Allow canceling of schedules for thermostats like Ecobee
 - [ ] Allow settings Away mode
@@ -13,7 +13,7 @@ There are many things still missing, but I'll add below those that I know of
 - [ ] Add support for multiple entities for different functions (zwave thermostats hot/cold, tado away mode, etc)
 - [ ] Title scaling
 
-**Options**
+## Options
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
@@ -21,7 +21,7 @@ There are many things still missing, but I'll add below those that I know of
 | entity | string | **Required** | The entity id of climate entity. Example: `climate.hvac`
 | title | string | optional | Card title
 | no_card | boolean | false | Set to true to avoid the card background and use the custom element in picture-elements.
-| hvac | object | optional | Allows mapping of custom states or using a custom sensor/attribute for state
+| [hvac](#hvac-object) | object | optional | Allows mapping of custom states or using a custom sensor/attribute for state
 | step | number | 0.5 | The step to use when increasing or decreasing temperature
 | highlight_tap | boolean | false | Show the tap area highlight when changing temperature settings
 | chevron_size | number | 50 | Size of chevrons for temperature adjustment
@@ -31,22 +31,24 @@ There are many things still missing, but I'll add below those that I know of
 | range_min | number | optional | Override thermostat's minimum value
 | range_max | number | optional | Override thermostat's maximum value
 
-**hvac** object 
+### hvac object 
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | states | optional | optional | A list of states. See examples.
 | attribute | string | optional | An attribute of the entity to use as state. This cannot be used in conjunction with sensor.
-| sensor | string | optional | The sensor object which monitors the hvac state. This cannot be used in conjunction with attribute.
+| [sensor](#sensor-object) | object | optional | The sensor object which monitors the hvac state. This cannot be used in conjunction with attribute.
 
-**sensor** object
+### sensor object
 
 | Name | Type | Default | Description
 | ---- | ---- | ------- | -----------
 | sensor | string | **Required** | A sensor which provides the hvac state. See examples.
 | attribute | string | state | An attribute of the sensor to use as state.
 
-**Example**
+## Examples
+
+### Simple example
 
 ```yaml
 resources:
@@ -61,7 +63,7 @@ views:
         entity: climate.ecobee
 ```
 
-**Example with custom hvac_states**
+### Example with custom hvac_states
 
 ```yaml
 resources:
@@ -83,7 +85,7 @@ views:
           attribute: operation_mode
 ```
 
-**Example with custom hvac_sensor**
+### Example with custom hvac_sensor
 
 ```yaml
 resources:
@@ -106,7 +108,7 @@ views:
             sensor: sensor.nest_thermostat_hvac_state
 ```
 
-Example with external ambient sensor
+### Example with external ambient sensor
 ```yaml
 - type: custom:thermostat-card
   title: Bedroom
