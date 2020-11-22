@@ -1,5 +1,6 @@
 /node_modules/
 node_modules/
+node_modules
 /.rpt2_cache/
 package-lock.json
 /dist
