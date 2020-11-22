@@ -54,6 +54,7 @@ There are many things still missing, but I'll add below those that I know of
 | ---- | ---- | ------- | -----------
 | [sensor](#sensor-object) | object | optional | A sensor which provides the away state. See [examples](#example-with-custom-away-sensor-attribute).
 | attribute | string | away_mode | An attribute of the sensor to use as state.
+| state     | sring  | on        | The state value for away ('on' or 'eco are common).
 
 ## Examples
 
