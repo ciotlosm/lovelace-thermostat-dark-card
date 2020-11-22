@@ -28,3 +28,7 @@ jobs:
           asset_name: thermostat-dark-card.js
           tag: ${{ github.ref }}
           overwrite: true
+      - name: HACS Action
+        uses: "hacs/action@main"
+        with:
+          category: "plugin"
