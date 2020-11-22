@@ -1,4 +1,5 @@
 {
     "name": "Dark Thermostat",
-    "render_readme": true
+    "render_readme": true,
+    "filename": "thermostat-dark-card.js"
 }
