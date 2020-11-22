@@ -1,104 +1,159 @@
-# Lovelace Custom Cards
-Custom cards for lovelace
+# Dark Thermostat by [@ciotlosm](https://www.github.com/ciotlosm)
 
-## How to use
+A simple thermostat implemented in CSS based on [Nest Thermostat Control](https://codepen.io/dalhundal/pen/KpabZB/) by Dal Hundal
+[@dalhundal](https://codepen.io/dalhundal) on [CodePen](https://codepen.io)
 
-### Simple version
+![alt text](https://github.com/ciotlosm/lovelace-thermostat-dark-card/blob/master/sample.png)
 
-- Copy the `js` file from inside the card folder you like (e.g. monster-card), inside your `config/www`
-- Add the `js` file as dependency inside your `ui-lovelace.yaml`
+[![GitHub Release][releases-shield]][releases]
+[![License][license-shield]](LICENSE.md)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
-Example:
+![Project Maintenance][maintenance-shield]
+[![GitHub Activity][commits-shield]][commits]
 
-```yaml
-resources:
-  - url: /local/monster-card.js?v=1
-    type: js
-```
+[![Discord][discord-shield]][discord]
+[![Community Forum][forum-shield]][forum]
 
-⚠️ Make sure you change v=1 to a higher number every time you update your card with new code!
+## Support
 
-- Configure the new card inside `ui-lovelace.yaml` according to the instructions provided
+Hey dude! Help me out for a couple of :beers: or a :coffee:!
 
-### Using tracker-card
+[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/gUEVWJc)
 
-If you ended up using more cards and want to get update notifications and easier to use workflow you can use [tracker-card](https://github.com/custom-cards/tracker-card).
+## Options
 
-- Clone this repository inside your `config/www`
+| Name                 | Type    | Default      | Description                                                                                            |
+| -------------------- | ------- | ------------ | ------------------------------------------------------------------------------------------------------ |
+| type                 | string  | **Required** | `custom:thermostat-dark-card`                                                                          |
+| entity               | string  | **Required** | The entity id of climate entity. Example: `climate.hvac`                                               |
+| name                 | string  | optional     | Card title                                                                                             |
+| [hvac](#hvac-object) | object  | optional     | Allows mapping of custom states or using a custom sensor/attribute for state                           |
+| step                 | number  | 0.5          | The step to use when increasing or decreasing temperature                                              |
+| highlight_tap        | boolean | false        | Show the tap area highlight when changing temperature settings                                         |
+| chevron_size         | number  | 50           | Size of chevrons for temperature adjustment                                                            |
+| pending              | number  | 3            | Seconds to wait in control mode until state changes are sent back to the server                        |
+| idle_zone            | number  | 2            | Degrees of minimum difference between set points when thermostat supports both heating and cooling     |
+| ambient_temperature  | string  | optional     | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat |
+| range_min            | number  | optional     | Override thermostat's minimum value                                                                    |
+| range_max            | number  | optional     | Override thermostat's maximum value                                                                    |
+| [away](#away-object) | object  | optional     | Allows usage of a custom sensor/attribute for the away detection.                                      |
 
-```bash
-git clone -b 'master' --single-branch --depth 1 https://github.com/ciotlosm/custom-lovelace.git
-```
+### hvac object
 
-- Add the cards as resources inside your `ui-lovelace.yaml`
+| Name                     | Type     | Default     | Description                                                                                         |
+| ------------------------ | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| states                   | optional | optional    | A list of states. See examples.                                                                     |
+| attribute                | string   | hvac_action | An attribute of the entity to use as state. This cannot be used in conjunction with sensor.         |
+| [sensor](#sensor-object) | object   | optional    | The sensor object which monitors the hvac state. This cannot be used in conjunction with attribute. |
 
-Example:
+### away object
 
-```yaml
-resources:
-  - url: /local/custom-lovelace/monster-card/monster-card.js?v=1
-    type: js
-```
+**NOTE:** If the climate entity already provides an attribute `away_mode`, this configuration is wont apply.
 
-- Configure the cards inside `ui-lovelace.yaml` according to the instructions provided
-- Configure [tracker-card](https://github.com/custom-cards/tracker-card) acording to the [instructions](https://github.com/custom-cards/tracker-card/blob/master/README.md)
+| Name                     | Type   | Default     | Description                                 |
+| ------------------------ | ------ | ----------- | ------------------------------------------- |
+| [sensor](#sensor-object) | object | optional    | A sensor which provides the away state.     |
+| attribute                | string | preset_mode | An attribute of the entity to use as state. |
 
+### sensor object
 
-⭐️ this repository if you found it useful ❤️
+| Name      | Type   | Default      | Description                                           |
+| --------- | ------ | ------------ | ----------------------------------------------------- |
+| sensor    | string | **Required** | A sensor which provides the hvac state. See examples. |
+| attribute | string | state        | An attribute of the sensor to use as state.           |
 
-## Contributions
+## Examples
 
-If you'd like to contribute functionality of fixes please make sure you follow a few guidelines:
-- Submit your PR against "dev" branch
-- Make sure you have configuration example in your PR
-- Make sure you include documentation in existing README.md
-- If it's a new component make sure it includes README.md
-- Any changes to files must include updates to VERSION file (syntax: major.minor.bufix)
-
-## FAQ
-
-### I have added the custom card javascript file in my `www` folder, but it doesn't load, why?
-If this was the first time you created the `www` folder in your `config` than you MUST restart Home Assistant.
-
-### I get a error with `n.setConfig' is undefied`, how do i fix this?
-This is usually caused by running an older frontend. If you're already running 0.73 or newer please make sure you  have cleared browser cache. On mobile app you can also force a few refreshes. If you're running IOS device check next question.
-
-### Custom components don't load on my IOS device?
-This is because for IOS devices by default javascript served is `es5`. You can allow custom components to load by forcing `javascript_version: latest` in your `configuration.yaml` under `frontend:`. 
-
-> Note: Enabling `latest` on IOS could cause automation and script editor to crash.
-
-### I am running Firefox but custom cards like gauge-card look bad or don't load at all. How do I fix this?
-
-This is probably because your version of Firefox doesn't have custom components supported or enabled. Please set to `true` in your `about:config` the following settings: `dom.webcomponents.customelements.enabled` and `dom.webcomponents.shadowdom.enabled`
-
-### I followed all steps to add custom component but I see javascript errors in my browser. What happend?
-
-It dependso on the errors. 
-
-1. For the following errors:
-  - `Cannot call a class constructor without |new|`
-  - `Class constructor BigNumberCard cannot be invoked without 'new'`
-
-Please make sure you have `javascript_version: latest` in your `configuration.yaml` under `frontend:`.
-
-2. For the following errors:
-  - `Uncaught SyntaxError: Unexpected token <`
-
-This is most likely because you downloaded the [html](https://github.com/ciotlosm/custom-lovelace/blob/master/gauge-card/gauge-card.js) from gitbut instead of [raw](https://raw.githubusercontent.com/ciotlosm/custom-lovelace/master/gauge-card/gauge-card.js). That is not valid javascript. Always make sure you download using `raw` button. After downloading the file again with the 'raw' button, remember to bump the version number for the custom component speficied in the 'resources' of your lovelace-ui.yaml file.
-
-3. For the following errors:
-  - `Uncaught SyntaxError: Unexpected identifier`
-
-You probably are using `thermostat-card` and didn't specify `module` for `type` in `resources`
+### Simple example
 
 ```yaml
-  - url: /local/custom-lovelace/thermostat-card/thermostat-card.js?v=0.1
-    type: module
+- type: custom:thermostat-dark-card
+  title: Bedroom
+  entity: climate.ecobee
 ```
 
-## License
-Majority of cards use Apache License, however there are some that have their own LICENSE file.
+### Example with custom hvac_states
 
-## Credits
-- [@ciotlosm](https://github.com/ciotlosm)
+```yaml
+- type: custom:thermostat-dark-card
+  title: Bedroom
+  entity: climate.hvac
+  chevron_size: 100
+  hvac:
+    states:
+      'Off': 'idle'
+      'Cooling': 'cooling'
+      'Heating': 'heating'
+    attribute: operation_mode
+```
+
+### Example with custom hvac_sensor
+
+```yaml
+- type: custom:thermostat-dark-card
+  title: Bedroom
+  entity: climate.nest
+  chevron_size: 100
+  hvac:
+    states:
+      'idle': 'idle'
+      'cooling': 'cooling'
+      'heating': 'heating'
+    sensor:
+      sensor: sensor.nest_thermostat_hvac_state
+```
+
+### Example with external ambient sensor
+
+```yaml
+- type: custom:thermostat-dark-card
+  title: Bedroom
+  entity: climate.ecobee
+  ambient_temperature: sensor.bedroom_temperature
+```
+
+### Custom attribute only
+
+```yaml
+- type: custom:thermostat-dark-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    attribute: custom_away_mode
+```
+
+#### Sensor only
+
+```yaml
+- type: custom:thermostat-dark-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    sensor:
+      sensor: input_boolean.climate_bedroom_away
+```
+
+#### Sensor with attribute
+
+```yaml
+- type: custom:thermostat-dark-card
+  title: Bedroom
+  entity: climate.bedroom
+  away:
+    sensor:
+      sensor: climate.bedroom
+      attribute: away
+```
+
+[commits-shield]: https://img.shields.io/github/commit-activity/y/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
+[commits]: https://github.com/ciotlosm/lovelace-thermostat-dark-card/commits/master
+[devcontainer]: https://code.visualstudio.com/docs/remote/containers
+[discord]: https://discord.gg/5e9yvq
+[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
+[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
+[forum]: https://community.home-assistant.io/c/projects/frontend
+[license-shield]: https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2020.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
+[releases]: https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases
