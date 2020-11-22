@@ -22,11 +22,15 @@ class ThermostatCard extends HTMLElement {
       hvac_state = entity.state;
 
     let away_mode = entity.attributes[config.away.attribute];
+    let away_state = 'on';
     if (config.away.sensor.sensor) {
       const away_sensor = hass.states[config.away.sensor.sensor];
       away_mode = away_sensor.state;
       if (config.away.sensor.attribute) {
         away_mode = away_sensor.attributes[config.away.sensor.attribute];
+      }
+      if (config.away.sensor.state) {
+        away_state = config.away.sensor.state;
       }
     }
 
@@ -38,7 +42,7 @@ class ThermostatCard extends HTMLElement {
       target_temperature_low: entity.attributes.target_temp_low,
       target_temperature_high: entity.attributes.target_temp_high,
       hvac_state: config.hvac.states[hvac_state] || 'off',
-      away: away_mode === 'on',
+      away: away_mode === away_state,
     }
     if (!this._saved_state ||
       (this._saved_state.min_value != new_state.min_value ||
