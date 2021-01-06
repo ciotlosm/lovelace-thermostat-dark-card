@@ -10,13 +10,18 @@ import {
   PropertyValues,
   internalProperty,
 } from 'lit-element';
-import { HomeAssistant, hasConfigOrEntityChanged, LovelaceCardEditor, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
+import {
+  HomeAssistant,
+  hasConfigOrEntityChanged,
+  LovelaceCardEditor,
+  getLovelace
+} from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
 
 import './editor';
 import { ThermostatUserInterface } from './user-interface';
 
 import type { ThermostatDarkCardConfig } from './types';
-import { HVAC_HEATING, HVAC_COOLING, HVAC_IDLE, GREEN_LEAF_MODES } from './const';
+import { HVAC_HEATING, HVAC_COOLING, HVAC_IDLE, HVAC_OFF, GREEN_LEAF_MODES,  } from './const';
 import { localize } from './localize/localize';
 
 // This puts your card into the UI card picker dialog
@@ -29,7 +34,7 @@ import { localize } from './localize/localize';
 
 @customElement('thermostat-dark-card')
 export class ThermostatDarkCard extends ThermostatUserInterface {
-  @property({ attribute: false }) private _hass!: HomeAssistant;
+  @property({ attribute: false }) public _hass!: HomeAssistant;
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
     return document.createElement('thermostat-dark-card-editor');
@@ -55,9 +60,8 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
     } else hvacState = entity.attributes['hvac_action'] || entity.state;
 
     if (![HVAC_IDLE, HVAC_HEATING, HVAC_COOLING].includes(hvacState)) {
-      hvacState = config.hvac.states[hvacState] || HVAC_IDLE
+      hvacState = config.hvac.states[hvacState] || HVAC_OFF
     }
-
 
     let awayState = entity.attributes[config.away.attribute];
     //let awayState = 'on';
@@ -159,6 +163,12 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
     ${this.container}`;
   }
 
+  private _handleHold(): void {
+    //const config = this._config;
+    //if (!config) return;
+    //handleClick(this, this._hass!, this._evalActions(config, 'hold_action'), true, false);
+  }
+
   private _controlSetPoints(): void {
     if (this.dual) {
       if (
@@ -201,12 +211,23 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
         --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
         --thermostat-path-active-color-large: rgba(255, 255, 255, 1);
         --thermostat-text-color: white;
+        --thermostat-toggle-color: grey;
+        --thermostat-toggle-off-color: darkgrey;
       }
       .dial.has-thermo .dial__ico__leaf {
         visibility: hidden;
       }
+      .dial.hide-toggle .dial__ico__power {
+        display: none;
+      }
       .dial .dial__shape {
         transition: fill 0.5s;
+      }
+      .dial__ico__power{
+        fill: var(--thermostat-toggle-color);
+      }
+      .dial.dial--state--off .dial__ico__power{
+        fill: var(--thermostat-toggle-off-color);
       }
       .dial__ico__leaf {
         fill: #13eb13;
@@ -237,6 +258,7 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
         transition: opacity 0.5s;
       }
       .dial__temperatureControl {
+        display: none;
         fill: white;
         opacity: 0;
         transition: opacity 0.2s;
@@ -246,6 +268,9 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
       }
       .dial--edit .dial__editableIndicator {
         opacity: 1;
+      }
+      .dial--edit .dial__temperatureControl {
+        display: block;
       }
       .dial--state--off .dial__shape {
         fill: var(--thermostat-off-fill);
