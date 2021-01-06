@@ -221,40 +221,38 @@ export class ThermostatUserInterface extends LitElement {
     }
 
     this._root.addEventListener('click', () => this._enableControls());
-    this._root.addEventListener('touchstart', (e) => this._handleTouchStart(e, this));
+    this._root.addEventListener('touchstart', e => this._handleTouchStart(e, this));
     this._root.addEventListener('touchend', () => this._handleTouchEnd());
-    this._root.addEventListener('touchcancel', (e) => this._handleTouchCancel(e));
-    this._root.addEventListener('contextmenu', (e) => this._handleMoreInfo(e, this));
-    this._toggle.addEventListener('click', (e) => this._handleToggle(e))
+    this._root.addEventListener('touchcancel', e => this._handleTouchCancel(e));
+    this._root.addEventListener('contextmenu', e => this._handleMoreInfo(e, this));
+    this._toggle.addEventListener('click', e => this._handleToggle(e));
   }
 
-  private _handleTouchCancel(e: TouchEvent): void  {
+  private _handleTouchCancel(e: TouchEvent): void {
     e.preventDefault();
     window.clearTimeout(this._touchTimeout);
   }
 
   private _handleTouchStart(e: TouchEvent, t: ThermostatUserInterface): void {
-    this._touchTimeout = setTimeout(
-      this._handleMoreInfo, 2*1000, e, t
-    )
+    this._touchTimeout = setTimeout(this._handleMoreInfo, 2 * 1000, e, t);
   }
 
-  private _handleTouchEnd(): void  {
+  private _handleTouchEnd(): void {
     window.clearTimeout(this._touchTimeout);
   }
 
   private _handleMoreInfo(e: MouseEvent, t: ThermostatUserInterface): void {
     if (e) e.preventDefault();
-    fireEvent(t, "hass-more-info", {
+    fireEvent(t, 'hass-more-info', {
       entityId: t._config!.entity,
     });
   }
 
   private _handleToggle(e: MouseEvent) {
     e.stopPropagation();
-    const serviceCall = this._hvacState !== HVAC_OFF ? "turn_off" : "turn_on";
-    this._hass!.callService("climate", serviceCall, {
-      entity_id: this._config!.entity
+    const serviceCall = this._hvacState !== HVAC_OFF ? 'turn_off' : 'turn_on';
+    this._hass!.callService('climate', serviceCall, {
+      entity_id: this._config!.entity,
     });
   }
 
@@ -715,17 +713,19 @@ export class ThermostatUserInterface extends LitElement {
     const width = 24;
     const scale = 2.3;
     const scaledWidth = width * scale;
-    const powerDef = 'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
-    const translate = [radius - (scaledWidth / 2), radius * 1.6];
-    const color = this._hvacState == HVAC_OFF ? 'grey' : 'white'
-    return this, this.createSVGElement(
-      'path', {
+    const powerDef =
+      'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
+    const translate = [radius - scaledWidth / 2, radius * 1.6];
+    const color = this._hvacState == HVAC_OFF ? 'grey' : 'white';
+    return (
+      this,
+      this.createSVGElement('path', {
         class: 'dial__ico__power',
         fill: color,
         d: powerDef,
-        transform: 'translate('+ translate[0] +',' + translate[1] +') scale('+ scale + ')',
-      }
-    )
+        transform: 'translate(' + translate[0] + ',' + translate[1] + ') scale(' + scale + ')',
+      })
+    );
   }
 
   private _buildDialSlot(index: number): SVGElement {
