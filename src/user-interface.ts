@@ -229,22 +229,22 @@ export class ThermostatUserInterface extends LitElement {
     this._toggle.addEventListener('click', (e) => this._handleToggle(e))
   }
 
-  private _handleTouchCancel(e: TouchEvent) {
+  private _handleTouchCancel(e: TouchEvent): void  {
     e.preventDefault();
     window.clearTimeout(this._touchTimeout);
   }
 
-  private _handleTouchStart(e: TouchEvent, t:ThermostatUserInterface) {
+  private _handleTouchStart(e: TouchEvent, t: ThermostatUserInterface): void {
     this._touchTimeout = setTimeout(
       this._handleMoreInfo, 2*1000, e, t
     )
   }
 
-  private _handleTouchEnd() {
+  private _handleTouchEnd(): void  {
     window.clearTimeout(this._touchTimeout);
   }
 
-  private _handleMoreInfo(e: MouseEvent, t:ThermostatUserInterface) {
+  private _handleMoreInfo(e: MouseEvent, t: ThermostatUserInterface): void {
     if (e) e.preventDefault();
     fireEvent(t, "hass-more-info", {
       entityId: t._config!.entity,
