@@ -225,6 +225,8 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
       }
       .dial__ico__power{
         fill: var(--thermostat-toggle-color);
+        cursor: pointer;
+        pointer-events: bounding-box;
       }
       .dial.dial--state--off .dial__ico__power{
         fill: var(--thermostat-toggle-off-color);

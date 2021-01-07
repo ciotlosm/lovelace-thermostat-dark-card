@@ -221,7 +221,6 @@ export class ThermostatUserInterface extends LitElement {
     }
 
     this._root.addEventListener('click', () => this._enableControls());
-    //this._root.addEventListener('click', (e) => this._handleActions(e));
     this._root.addEventListener('touchstart', (e) => this._handleTouchStart(e, this));
     this._root.addEventListener('touchend', () => this._handleTouchEnd());
     this._root.addEventListener('touchcancel', (e) => this._handleTouchCancel(e));
