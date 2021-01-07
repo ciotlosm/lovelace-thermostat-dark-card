@@ -213,6 +213,7 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
         --thermostat-text-color: white;
         --thermostat-toggle-color: grey;
         --thermostat-toggle-off-color: darkgrey;
+        --thermostat-toggle-on-color: lightgrey;
       }
       .dial.has-thermo .dial__ico__leaf {
         visibility: hidden;
@@ -230,6 +231,10 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
       }
       .dial.dial--state--off .dial__ico__power{
         fill: var(--thermostat-toggle-off-color);
+      }
+      .dial.dial--state--heating .dial__ico__power,
+      .dial.dial--state--cooling .dial__ico__power{
+        fill: var(--thermostat-toggle-on-color);
       }
       .dial__ico__leaf {
         fill: #13eb13;
