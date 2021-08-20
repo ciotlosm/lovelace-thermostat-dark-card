@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { LitElement, internalProperty } from 'lit-element';
-import { HVAC_HEATING, HVAC_COOLING, HVAC_IDLE } from './const';
+import { HomeAssistant, fireEvent } from 'custom-card-helpers';
+import { HVAC_HEATING, HVAC_COOLING, HVAC_IDLE, HVAC_OFF } from './const';
 class SvgUtil {
   // Rotate a cartesian point about given origin by X degrees
   static rotatePoint(point, angle, origin): Array<number> {
@@ -111,12 +112,17 @@ export class ThermostatUserInterface extends LitElement {
   @internalProperty() private _ticks!: Array<SVGElement>;
   @internalProperty() private _controls!: Array<SVGElement>;
   @internalProperty() private _root!: SVGElement;
+  @internalProperty() private _toggle!: SVGElement;
   @internalProperty() private minValue!: number;
   @internalProperty() private maxValue!: number;
   @internalProperty() private _timeoutHandler!: number;
   @internalProperty() private _hvacState!: string;
   @internalProperty() private _away!: boolean;
   @internalProperty() private _savedOptions: any;
+  @internalProperty()
+  public _hass!: HomeAssistant;
+
+  private _touchTimeout: any;
 
   public get hvacState(): string {
     return this._hvacState;
@@ -173,6 +179,7 @@ export class ThermostatUserInterface extends LitElement {
     config.chevron_size = Number(config.chevron_size);
     config.pending = Number(config.pending);
     config.idle_zone = Number(config.idle_zone);
+    this._touchTimeout = 0;
     this._config = config; // need certain options for updates
     this._ticks = []; // need for dynamic tick updates
     this._controls = []; // need for managing highlight and clicks
@@ -183,11 +190,13 @@ export class ThermostatUserInterface extends LitElement {
     if (config.name) this._container.appendChild(this._buildTitle(config.name));
     this._container.appendChild(style);
     const root = this._buildCore(config.diameter);
+    const toggle = this._buildPowerIcon(config.radius);
     root.appendChild(this._buildDial(config.radius));
     root.appendChild(this._buildTicks(config.numTicks));
     root.appendChild(this._buildRing(config.radius));
     root.appendChild(this._buildLeaf(config.radius));
     root.appendChild(this._buildThermoIcon(config.radius));
+    root.appendChild(toggle);
     root.appendChild(this._buildDialSlot(1));
     root.appendChild(this._buildDialSlot(2));
     root.appendChild(this._buildDialSlot(3));
@@ -205,11 +214,48 @@ export class ThermostatUserInterface extends LitElement {
 
     this._container.appendChild(root);
     this._root = root;
+    this._toggle = toggle;
     this._buildControls(config.radius);
     if (this._savedOptions) {
       this.updateState(this._savedOptions);
     }
+
     this._root.addEventListener('click', () => this._enableControls());
+    this._root.addEventListener('touchstart', (e) => this._handleTouchStart(e, this));
+    this._root.addEventListener('touchend', () => this._handleTouchEnd());
+    this._root.addEventListener('touchcancel', (e) => this._handleTouchCancel(e));
+    this._root.addEventListener('contextmenu', (e) => this._handleMoreInfo(e, this));
+    this._toggle.addEventListener('click', (e) => this._handleToggle(e))
+  }
+
+  private _handleTouchCancel(e: TouchEvent): void  {
+    e.preventDefault();
+    window.clearTimeout(this._touchTimeout);
+  }
+
+  private _handleTouchStart(e: TouchEvent, t: ThermostatUserInterface): void {
+    this._touchTimeout = setTimeout(
+      this._handleMoreInfo, 2*1000, e, t
+    )
+  }
+
+  private _handleTouchEnd(): void  {
+    window.clearTimeout(this._touchTimeout);
+  }
+
+  private _handleMoreInfo(e: MouseEvent, t: ThermostatUserInterface): void {
+    if (e) e.preventDefault();
+    fireEvent(t, "hass-more-info", {
+      entityId: t._config!.entity,
+    });
+  }
+
+  private _handleToggle(e: MouseEvent) {
+    e.stopPropagation();
+    const serviceCall = this._hvacState !== HVAC_OFF ? "turn_off" : "turn_on";
+    this._hass!.callService("climate", serviceCall, {
+      entity_id: this._config!.entity
+    });
   }
 
   _configDial(): void {
@@ -415,6 +461,7 @@ export class ThermostatUserInterface extends LitElement {
     if (this._timeoutHandler) clearTimeout(this._timeoutHandler);
     this._updateEdit(true);
     this._updateClass('has-thermo', true);
+    this._updateClass('hide-toggle', true);
     this._updateText('target', this.temperature.target);
     this._updateText('low', this.temperature.low);
     this._updateText('high', this.temperature.high);
@@ -422,17 +469,18 @@ export class ThermostatUserInterface extends LitElement {
       this._updateText('ambient', this._ambient);
       this._updateEdit(false);
       this._updateClass('has-thermo', false);
+      this._updateClass('hide-toggle', false);
       this._inControl = false;
       this._updateClass('in_control', this._inControl);
       config.control();
     }, config.pending * 1000);
   }
 
-  _toggle(): boolean {
-    const config = this._config;
-    config.toggle();
-    return false;
-  }
+  // _toggle(): boolean {
+  //   const config = this._config;
+  //   config.toggle();
+  //   return false;
+  // }
 
   _updateClass(className, flag): void {
     this.setSvgClass(this._root, className, flag);
@@ -661,6 +709,23 @@ export class ThermostatUserInterface extends LitElement {
       d: thermoDef,
       transform: 'translate(' + translate[0] + ',' + translate[1] + ')',
     });
+  }
+
+  private _buildPowerIcon(radius: number): SVGElement {
+    const width = 24;
+    const scale = 2.3;
+    const scaledWidth = width * scale;
+    const powerDef = 'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
+    const translate = [radius - (scaledWidth / 2), radius * 1.6];
+    const color = this._hvacState == HVAC_OFF ? 'grey' : 'white'
+    return this, this.createSVGElement(
+      'path', {
+        class: 'dial__ico__power',
+        fill: color,
+        d: powerDef,
+        transform: 'translate('+ translate[0] +',' + translate[1] +') scale('+ scale + ')',
+      }
+    )
   }
 
   private _buildDialSlot(index: number): SVGElement {
