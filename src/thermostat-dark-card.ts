@@ -6,9 +6,8 @@ import {
   property,
   CSSResult,
   TemplateResult,
-  css,
   PropertyValues,
-  internalProperty,
+  state,
 } from 'lit-element';
 import {
   HomeAssistant,
@@ -21,14 +20,19 @@ import './editor';
 import { ThermostatUserInterface } from './user-interface';
 
 import type { ThermostatDarkCardConfig } from './types';
+
 import { HVAC_HEATING, HVAC_COOLING, HVAC_IDLE, HVAC_OFF, GREEN_LEAF_MODES,  } from './const';
+
 import { localize } from './localize/localize';
+import { cardStyles } from './styles';
+import { toggleButtonStyles } from './features/toggle-button/toggle-button.style';
 
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
   type: 'thermostat-dark-card',
   name: 'Dark Thermostat',
+  preview: true,
   description: 'Thermostat with a round dial',
 });
 
@@ -59,9 +63,11 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
       else hvacState = hass.states[config.hvac.sensor.sensor].state;
     } else hvacState = entity.attributes['hvac_action'] || entity.state;
 
-    if (![HVAC_IDLE, HVAC_HEATING, HVAC_COOLING].includes(hvacState)) {
-      hvacState = config.hvac.states[hvacState] || HVAC_OFF
+    if (![HVAC_OFF, HVAC_IDLE, HVAC_HEATING, HVAC_COOLING].includes(hvacState)) {
+      hvacState = config.hvac.states[hvacState] || HVAC_IDLE
     }
+
+    const offModeSupport = entity.attributes['hvac_modes'].includes(HVAC_OFF);
 
     let awayState = entity.attributes[config.away.attribute];
     //let awayState = 'on';
@@ -82,7 +88,9 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
       target_temperature_high: entity.attributes.target_temp_high,
       hvacState: hvacState,
       away: GREEN_LEAF_MODES.includes(awayState),
+      offModeSupport: offModeSupport
     };
+
     if (
       !this._savedState ||
       this._savedState.minValue != newState.minValue ||
@@ -99,8 +107,8 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
     }
     this._hass = hass;
   }
-  @internalProperty() private config!: ThermostatDarkCardConfig;
-  @internalProperty() private _savedState: any;
+  @state() private config!: ThermostatDarkCardConfig;
+  @state() private _savedState: any;
 
   // https://lit-element.polymer-project.org/guide/properties#accessors-custom
   public setConfig(config: ThermostatDarkCardConfig): void {
@@ -125,6 +133,7 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
     if (!cardConfig.tickDegrees) cardConfig.tickDegrees = 300;
     if (!cardConfig.hvac.states)
       cardConfig.hvac.states = {
+        off: HVAC_OFF,
         idle: HVAC_IDLE,
         heating: HVAC_HEATING,
         cooling: HVAC_COOLING
@@ -143,6 +152,7 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
       },
       config.away || {},
     );
+
     this.renderSVG(cardConfig);
     this.config = cardConfig;
     if (this._hass) this.hass = this._hass;
@@ -163,12 +173,6 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
     ${this.container}`;
   }
 
-  private _handleHold(): void {
-    //const config = this._config;
-    //if (!config) return;
-    //handleClick(this, this._hass!, this._evalActions(config, 'hold_action'), true, false);
-  }
-
   private _controlSetPoints(): void {
     if (this.dual) {
       if (
@@ -179,7 +183,7 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
           entity_id: this.config.entity,
           target_temp_high: this.temperature.high,
           target_temp_low: this.temperature.low,
-        });
+        })
     } else {
       if (this.temperature.target != this._savedState.target_temperature)
         this._hass.callService('climate', 'set_temperature', {
@@ -190,186 +194,7 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
   }
 
   // https://lit-element.polymer-project.org/guide/styles
-  static get styles(): CSSResult {
-    return css`
-      .dial_container {
-        padding: 8px;
-      }
-      .dial_title {
-        font-size: 20px;
-        padding: 8px;
-        text-align: center;
-        color: var(--secondary-text-color);
-      }
-      .dial {
-        user-select: none;
-        --thermostat-off-fill: #555;
-        --thermostat-idle-fill: #222;
-        --thermostat-path-color: rgba(255, 255, 255, 0.3);
-        --thermostat-heating-fill: #e36304;
-        --thermostat-cooling-fill: #007af1;
-        --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
-        --thermostat-path-active-color-large: rgba(255, 255, 255, 1);
-        --thermostat-text-color: white;
-        --thermostat-toggle-color: grey;
-        --thermostat-toggle-off-color: darkgrey;
-        --thermostat-toggle-on-color: lightgrey;
-      }
-      .dial.has-thermo .dial__ico__leaf {
-        visibility: hidden;
-      }
-      .dial.hide-toggle .dial__ico__power {
-        display: none;
-      }
-      .dial .dial__shape {
-        transition: fill 0.5s;
-      }
-      .dial__ico__power{
-        fill: var(--thermostat-toggle-color);
-        cursor: pointer;
-        pointer-events: bounding-box;
-      }
-      .dial.dial--state--off .dial__ico__power{
-        fill: var(--thermostat-toggle-off-color);
-      }
-      .dial.dial--state--heating .dial__ico__power,
-      .dial.dial--state--cooling .dial__ico__power{
-        fill: var(--thermostat-toggle-on-color);
-      }
-      .dial__ico__leaf {
-        fill: #13eb13;
-        opacity: 0;
-        transition: opacity 0.5s;
-        pointer-events: none;
-      }
-      .dial.has-leaf .dial__ico__leaf {
-        display: block;
-        opacity: 1;
-        pointer-events: initial;
-      }
-      .dial__ico__thermo {
-        fill: var(--thermostat-path-active-color);
-        opacity: 0;
-        transition: opacity 0.5s;
-        pointer-events: none;
-      }
-      .dial.has-thermo .dial__ico__thermo {
-        display: block;
-        opacity: 1;
-        pointer-events: initial;
-      }
-      .dial__editableIndicator {
-        fill: white;
-        fill-rule: evenodd;
-        opacity: 0;
-        transition: opacity 0.5s;
-      }
-      .dial__temperatureControl {
-        display: none;
-        fill: white;
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-      .dial__temperatureControl.control-visible {
-        opacity: 0.2;
-      }
-      .dial--edit .dial__editableIndicator {
-        opacity: 1;
-      }
-      .dial--edit .dial__temperatureControl {
-        display: block;
-      }
-      .dial--state--off .dial__shape {
-        fill: var(--thermostat-off-fill);
-      }
-      .dial--state--idle .dial__shape {
-        fill: var(--thermostat-idle-fill);
-      }
-      .dial--state--heating .dial__shape {
-        fill: var(--thermostat-heating-fill);
-      }
-      .dial--state--cooling .dial__shape {
-        fill: var(--thermostat-cooling-fill);
-      }
-      .dial__ticks path {
-        fill: var(--thermostat-path-color);
-      }
-      .dial__ticks path.active {
-        fill: var(--thermostat-path-active-color);
-      }
-      .dial__ticks path.active.large {
-        fill: var(--thermostat-path-active-color-large);
-      }
-      .dial text,
-      .dial text tspan {
-        fill: var(--thermostat-text-color);
-        text-anchor: middle;
-        font-family: Helvetica, sans-serif;
-        alignment-baseline: central;
-        dominant-baseline: central;
-      }
-      .dial__lbl--target {
-        font-size: 120px;
-        font-weight: bold;
-        visibility: hidden;
-      }
-      .dial__lbl--low,
-      .dial__lbl--high {
-        font-size: 90px;
-        font-weight: bold;
-        visibility: hidden;
-      }
-      .dial.in_control .dial__lbl--target {
-        visibility: visible;
-      }
-      .dial.in_control .dial__lbl--low {
-        visibility: visible;
-      }
-      .dial.in_control .dial__lbl--high {
-        visibility: visible;
-      }
-      .dial__lbl--ambient {
-        font-size: 120px;
-        font-weight: bold;
-        visibility: visible;
-      }
-      .dial.in_control.has_dual .dial__chevron--low,
-      .dial.in_control.has_dual .dial__chevron--high {
-        visibility: visible;
-      }
-      .dial.in_control .dial__chevron--target {
-        visibility: visible;
-      }
-      .dial.in_control.has_dual .dial__chevron--target {
-        visibility: hidden;
-      }
-      .dial .dial__chevron {
-        visibility: hidden;
-        fill: none;
-        stroke: var(--thermostat-text-color);
-        stroke-width: 4px;
-        opacity: 0.3;
-      }
-      .dial .dial__chevron.pressed {
-        opacity: 1;
-      }
-      .dial.in_control .dial__lbl--ambient {
-        visibility: hidden;
-      }
-      .dial__lbl--super--ambient,
-      .dial__lbl--super--target {
-        font-size: 40px;
-        font-weight: bold;
-      }
-      .dial__lbl--super--high,
-      .dial__lbl--super--low {
-        font-size: 30px;
-        font-weight: bold;
-      }
-      .dial__lbl--ring {
-        font-size: 22px;
-        font-weight: bold;
-      }
-    `;
+  static get styles(): CSSResult[] {
+    return [cardStyles, toggleButtonStyles];
   }
 }

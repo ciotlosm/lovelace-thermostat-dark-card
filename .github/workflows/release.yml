@@ -15,7 +15,7 @@ jobs:
       - name: Build the file
         run: |
           cd /home/runner/work/lovelace-thermostat-dark-card/lovelace-thermostat-dark-card
-          npm install
+          npm ci
           npm run build
 
       # Upload build file to the releas as an asset.

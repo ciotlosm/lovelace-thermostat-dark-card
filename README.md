@@ -37,6 +37,7 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 | ambient_temperature  | string  | optional     | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat |
 | range_min            | number  | optional     | Override thermostat's minimum value                                                                    |
 | range_max            | number  | optional     | Override thermostat's maximum value                                                                    |
+| show_toggle          | boolean | optional     | Enables/disables the toggle button                                                                     |
 | [away](#away-object) | object  | optional     | Allows usage of a custom sensor/attribute for the away detection.                                      |
 
 ### hvac object
