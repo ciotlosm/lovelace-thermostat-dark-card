@@ -20,4 +20,5 @@ export interface ThermostatDarkCardConfig extends LovelaceCardConfig {
   idle_zone?: number;
   range_min?: number;
   range_max?: number;
+  show_toggle?: boolean;
 }
