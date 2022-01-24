@@ -10,6 +10,7 @@ climate:
     name: test
     heater: input_boolean.office_heater
     target_sensor: sensor.office_feels_temp
+    away_temp: 21
 
 sensor:
   - platform: template

@@ -1,131 +1,42 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { LitElement, internalProperty } from 'lit-element';
+import { LitElement, state } from 'lit-element';
 import { HomeAssistant, fireEvent } from 'custom-card-helpers';
 import { HVAC_HEATING, HVAC_COOLING, HVAC_IDLE, HVAC_OFF } from './const';
-class SvgUtil {
-  // Rotate a cartesian point about given origin by X degrees
-  static rotatePoint(point, angle, origin): Array<number> {
-    const radians = (angle * Math.PI) / 180;
-    const x = point[0] - origin[0];
-    const y = point[1] - origin[1];
-    const x1 = x * Math.cos(radians) - y * Math.sin(radians) + origin[0];
-    const y1 = x * Math.sin(radians) + y * Math.cos(radians) + origin[1];
-    return [x1, y1];
-  }
-  // Rotate an array of cartesian points about a given origin by X degrees
-  static rotatePoints(points, angle, origin): Function {
-    return points.map(point => this.rotatePoint(point, angle, origin));
-  }
-  // Given an array of points, return an SVG path string representing the shape they define
-  static pointsToPath(points): string {
-    return points.map((point, iPoint) => (iPoint > 0 ? 'L' : 'M') + point[0] + ' ' + point[1]).join(' ') + 'Z';
-  }
-  static circleToPath(cx, cy, r): string {
-    return [
-      'M',
-      cx,
-      ',',
-      cy,
-      'm',
-      0 - r,
-      ',',
-      0,
-      'a',
-      r,
-      ',',
-      r,
-      0,
-      1,
-      ',',
-      0,
-      r * 2,
-      ',',
-      0,
-      'a',
-      r,
-      ',',
-      r,
-      0,
-      1,
-      ',',
-      0,
-      0 - r * 2,
-      ',',
-      0,
-      'z',
-    ]
-      .join(' ')
-      .replace(/\s,\s/g, ',');
-  }
-  static donutPath(cx, cy, rOuter, rInner): string {
-    return this.circleToPath(cx, cy, rOuter) + ' ' + this.circleToPath(cx, cy, rInner);
-  }
+import { ThermostatDarkCardConfig } from './types';
+import { SvgUtil } from './utils';
+import { ToggleButton } from './features/toggle-button/toggle-button';
 
-  static superscript(number): string {
-    return `${Math.floor(number)}${number % 1 != 0 ? '⁵' : ''}`;
-  }
-
-  // Restrict a number to a min + max range
-  static restrictToRange(val, min, max): number {
-    if (val < min) return min;
-    if (val > max) return max;
-    return val;
-  }
-
-  static anglesToSectors(radius, startAngle, angle): { L: number; X: number; Y: number; R: number } {
-    let aRad = 0; // Angle in Rad
-    let z = 0; // Size z
-    let x = 0; // Side x
-    let X = 0; // SVG X coordinate
-    let Y = 0; // SVG Y coordinate
-    const aCalc = angle > 180 ? 360 - angle : angle;
-    aRad = (aCalc * Math.PI) / 180;
-    z = Math.sqrt(2 * radius * radius - 2 * radius * radius * Math.cos(aRad));
-    if (aCalc <= 90) {
-      x = radius * Math.sin(aRad);
-    } else {
-      x = radius * Math.sin(((180 - aCalc) * Math.PI) / 180);
-    }
-    Y = Math.sqrt(z * z - x * x);
-    if (angle <= 180) {
-      X = radius + x;
-    } else {
-      X = radius - x;
-    }
-    return {
-      L: radius,
-      X: X,
-      Y: Y,
-      R: startAngle,
-    };
-  }
-}
 export class ThermostatUserInterface extends LitElement {
-  @internalProperty() private _container!: HTMLElement;
-  @internalProperty() private _dual!: boolean;
-  @internalProperty() private _inControl!: boolean;
-  @internalProperty() private _low!: number;
-  @internalProperty() private _high!: number;
-  @internalProperty() private _target!: number;
-  @internalProperty() private _ambient!: number;
-  @internalProperty() private _config!: any;
-  @internalProperty() private _ticks!: Array<SVGElement>;
-  @internalProperty() private _controls!: Array<SVGElement>;
-  @internalProperty() private _root!: SVGElement;
-  @internalProperty() private _toggle!: SVGElement;
-  @internalProperty() private minValue!: number;
-  @internalProperty() private maxValue!: number;
-  @internalProperty() private _timeoutHandler!: number;
-  @internalProperty() private _hvacState!: string;
-  @internalProperty() private _away!: boolean;
-  @internalProperty() private _savedOptions: any;
-  @internalProperty()
+  @state() private _container!: HTMLElement;
+  @state() private _dual!: boolean;
+  @state() private _inControl!: boolean;
+  @state() private _low!: number;
+  @state() private _high!: number;
+  @state() private _target!: number;
+  @state() private _ambient!: number;
+  @state() private _config!: any;
+  @state() private _ticks!: Array<SVGElement>;
+  @state() private _controls!: Array<SVGElement>;
+  @state() private _root!: SVGElement;
+  @state() private minValue!: number;
+  @state() private maxValue!: number;
+  @state() private _timeoutHandler!: number;
+  @state() private _hvacState!: string;
+  @state() private _away!: boolean;
+  @state() private _savedOptions: any;
+  @state() private _toggleButton!: ToggleButton;
+
+  @state()
   public _hass!: HomeAssistant;
 
   private _touchTimeout: any;
 
   public get hvacState(): string {
     return this._hvacState;
+  }
+
+  public get cardConfig(): any {
+    return this._config;
   }
 
   public get container(): HTMLElement {
@@ -162,18 +73,7 @@ export class ThermostatUserInterface extends LitElement {
     this._dual = typeof this._low == 'number' && typeof this._high == 'number';
   }
 
-  createSVGElement(tag, attributes): SVGElement {
-    const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
-    this.svgAttributes(element, attributes);
-    return element;
-  }
-  svgAttributes(element, attrs): void {
-    for (const i in attrs) {
-      element.setAttribute(i, attrs[i]);
-    }
-  }
-
-  renderSVG(config): void {
+  renderSVG(config: ThermostatDarkCardConfig): void {
     // @TODO: Fix numbers in editor to avoid casting
     config.step = Number(config.step);
     config.chevron_size = Number(config.chevron_size);
@@ -186,6 +86,8 @@ export class ThermostatUserInterface extends LitElement {
     if (this._container && this._container.removeChild) this._container.removeChild(this._container.childNodes[0]);
     this._container = document.createElement('ha-card');
     this._container.className = 'dial_container';
+    this._toggleButton = new ToggleButton(this);
+
     const style = document.createElement('style');
     if (config.name) this._container.appendChild(this._buildTitle(config.name));
     this._container.appendChild(style);
@@ -196,7 +98,7 @@ export class ThermostatUserInterface extends LitElement {
     root.appendChild(this._buildRing(config.radius));
     root.appendChild(this._buildLeaf(config.radius));
     root.appendChild(this._buildThermoIcon(config.radius));
-    root.appendChild(toggle);
+
     root.appendChild(this._buildDialSlot(1));
     root.appendChild(this._buildDialSlot(2));
     root.appendChild(this._buildDialSlot(3));
@@ -214,47 +116,44 @@ export class ThermostatUserInterface extends LitElement {
 
     this._container.appendChild(root);
     this._root = root;
-    this._toggle = toggle;
     this._buildControls(config.radius);
     if (this._savedOptions) {
       this.updateState(this._savedOptions);
     }
 
     this._root.addEventListener('click', () => this._enableControls());
-    this._root.addEventListener('touchstart', (e) => this._handleTouchStart(e, this));
+    this._root.addEventListener('touchstart', e => this._handleTouchStart(e, this));
     this._root.addEventListener('touchend', () => this._handleTouchEnd());
-    this._root.addEventListener('touchcancel', (e) => this._handleTouchCancel(e));
-    this._root.addEventListener('contextmenu', (e) => this._handleMoreInfo(e, this));
-    this._toggle.addEventListener('click', (e) => this._handleToggle(e))
+    this._root.addEventListener('touchcancel', e => this._handleTouchCancel(e));
+    this._root.addEventListener('contextmenu', e => this._handleMoreInfo(e, this));
+    toggle.addEventListener('click', e => this._handleToggle(e));
   }
 
-  private _handleTouchCancel(e: TouchEvent): void  {
+  private _handleTouchCancel(e: TouchEvent): void {
     e.preventDefault();
     window.clearTimeout(this._touchTimeout);
   }
 
   private _handleTouchStart(e: TouchEvent, t: ThermostatUserInterface): void {
-    this._touchTimeout = setTimeout(
-      this._handleMoreInfo, 2*1000, e, t
-    )
+    this._touchTimeout = setTimeout(this._handleMoreInfo, 2 * 1000, e, t);
   }
 
-  private _handleTouchEnd(): void  {
+  private _handleTouchEnd(): void {
     window.clearTimeout(this._touchTimeout);
   }
 
   private _handleMoreInfo(e: MouseEvent, t: ThermostatUserInterface): void {
     if (e) e.preventDefault();
-    fireEvent(t, "hass-more-info", {
+    fireEvent(t, 'hass-more-info', {
       entityId: t._config!.entity,
     });
   }
 
   private _handleToggle(e: MouseEvent) {
     e.stopPropagation();
-    const serviceCall = this._hvacState !== HVAC_OFF ? "turn_off" : "turn_on";
-    this._hass!.callService("climate", serviceCall, {
-      entity_id: this._config!.entity
+    const serviceCall = this._hvacState !== HVAC_OFF ? 'turn_off' : 'turn_on';
+    this._hass!.callService('climate', serviceCall, {
+      entity_id: this._config!.entity,
     });
   }
 
@@ -377,6 +276,7 @@ export class ThermostatUserInterface extends LitElement {
     };
     this._savedOptions = options;
     this._configDial();
+    this._toggleButton.appendToContainer(this._root, this._savedOptions, this._config);
   }
 
   _temperatureControlClicked(index): void {
@@ -476,12 +376,6 @@ export class ThermostatUserInterface extends LitElement {
     }, config.pending * 1000);
   }
 
-  // _toggle(): boolean {
-  //   const config = this._config;
-  //   config.toggle();
-  //   return false;
-  // }
-
   _updateClass(className, flag): void {
     this.setSvgClass(this._root, className, flag);
   }
@@ -517,7 +411,7 @@ export class ThermostatUserInterface extends LitElement {
       config.offsetDegrees +
       offset;
     const pos = SvgUtil.rotatePoint(position, degs, [config.radius, config.radius]);
-    this.svgAttributes(lblSlot1, {
+    SvgUtil.svgAttributes(lblSlot1, {
       x: pos[0],
       y: pos[1],
     });
@@ -552,7 +446,7 @@ export class ThermostatUserInterface extends LitElement {
       largeTicks.forEach(i => (isLarge = isLarge || index == i));
       if (isLarge) isActive += ' large';
       const theta = config.tickDegrees / config.numTicks;
-      this.svgAttributes(tick, {
+      SvgUtil.svgAttributes(tick, {
         d: SvgUtil.pointsToPath(
           SvgUtil.rotatePoints(isLarge ? tickPointsLarge : tickPoints, index * theta - config.offsetDegrees, [
             config.radius,
@@ -565,7 +459,7 @@ export class ThermostatUserInterface extends LitElement {
   }
 
   private _buildCore(diameter: number): SVGElement {
-    return this.createSVGElement('svg', {
+    return SvgUtil.createSVGElement('svg', {
       width: '100%',
       height: '100%',
       viewBox: '0 0 ' + diameter + ' ' + diameter,
@@ -582,7 +476,7 @@ export class ThermostatUserInterface extends LitElement {
 
   // build black dial
   private _buildDial(radius: number): SVGElement {
-    return this.createSVGElement('circle', {
+    return SvgUtil.createSVGElement('circle', {
       cx: radius,
       cy: radius,
       r: radius,
@@ -591,18 +485,18 @@ export class ThermostatUserInterface extends LitElement {
   }
   // build circle around
   _buildRing(radius: number): SVGElement {
-    return this.createSVGElement('path', {
+    return SvgUtil.createSVGElement('path', {
       d: SvgUtil.donutPath(radius, radius, radius - 4, radius - 8),
       class: 'dial__editableIndicator',
     });
   }
 
   private _buildTicks(numTicks: number): SVGElement {
-    const tickElement = this.createSVGElement('g', {
+    const tickElement = SvgUtil.createSVGElement('g', {
       class: 'dial__ticks',
     });
     for (let i = 0; i < numTicks; i++) {
-      const tick = this.createSVGElement('path', {});
+      const tick = SvgUtil.createSVGElement('path', {});
       this._ticks.push(tick);
       tickElement.appendChild(tick);
     }
@@ -674,7 +568,7 @@ export class ThermostatUserInterface extends LitElement {
       .map((x: any): string => (isNaN(x) ? x : x * leafScale))
       .join(' ');
     const translate = [radius - leafScale * 100 * 0.5, radius * 1.5];
-    return this.createSVGElement('path', {
+    return SvgUtil.createSVGElement('path', {
       class: 'dial__ico__leaf',
       d: leafDef,
       transform: 'translate(' + translate[0] + ',' + translate[1] + ')',
@@ -689,7 +583,7 @@ export class ThermostatUserInterface extends LitElement {
       .map((x: any): string => (isNaN(x) ? x : x * scale))
       .join(' ');
     const translate = [radius - (width / 2) * scale * translation + offset, radius + 70 * scale * 1.1 * translation];
-    const chevron = this.createSVGElement('path', {
+    const chevron = SvgUtil.createSVGElement('path', {
       class: `dial__chevron dial__chevron--${id}`,
       d: chevronDef,
       transform: `translate(${translate[0]},${translate[1]}) rotate(${rotation})`,
@@ -704,7 +598,7 @@ export class ThermostatUserInterface extends LitElement {
       .map((x: any): string => (isNaN(x) ? x : x * thermoScale))
       .join(' ');
     const translate = [radius - thermoScale * 100 * 0.3, radius * 1.65];
-    return this.createSVGElement('path', {
+    return SvgUtil.createSVGElement('path', {
       class: 'dial__ico__thermo',
       d: thermoDef,
       transform: 'translate(' + translate[0] + ',' + translate[1] + ')',
@@ -715,37 +609,39 @@ export class ThermostatUserInterface extends LitElement {
     const width = 24;
     const scale = 2.3;
     const scaledWidth = width * scale;
-    const powerDef = 'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
-    const translate = [radius - (scaledWidth / 2), radius * 1.6];
-    const color = this._hvacState == HVAC_OFF ? 'grey' : 'white'
-    return this, this.createSVGElement(
-      'path', {
+    const powerDef =
+      'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
+    const translate = [radius - scaledWidth / 2, radius * 1.6];
+    const color = this._hvacState == HVAC_OFF ? 'grey' : 'white';
+    return (
+      this,
+      SvgUtil.createSVGElement('path', {
         class: 'dial__ico__power',
         fill: color,
         d: powerDef,
-        transform: 'translate('+ translate[0] +',' + translate[1] +') scale('+ scale + ')',
-      }
-    )
+        transform: 'translate(' + translate[0] + ',' + translate[1] + ') scale(' + scale + ')',
+      })
+    );
   }
 
   private _buildDialSlot(index: number): SVGElement {
-    return this.createSVGElement('text', {
+    return SvgUtil.createSVGElement('text', {
       class: 'dial__lbl dial__lbl--ring',
       id: `temperature_slot_${index}`,
     });
   }
 
   _buildText(radius, name, offset): SVGElement {
-    const target = this.createSVGElement('text', {
+    const target = SvgUtil.createSVGElement('text', {
       x: radius + offset,
       y: radius,
       class: `dial__lbl dial__lbl--${name}`,
       id: name,
     });
-    const text = this.createSVGElement('tspan', {});
+    const text = SvgUtil.createSVGElement('tspan', {});
     // hack
     if (name == 'target' || name == 'ambient') offset += 20;
-    const superscript = this.createSVGElement('tspan', {
+    const superscript = SvgUtil.createSVGElement('tspan', {
       x: radius + radius / 3.1 + offset,
       y: radius - radius / 6,
       class: `dial__lbl--super--${name}`,
@@ -777,7 +673,7 @@ export class ThermostatUserInterface extends LitElement {
         ', ' +
         sector.Y +
         ' z';
-      const path = this.createSVGElement('path', {
+      const path = SvgUtil.createSVGElement('path', {
         class: 'dial__temperatureControl',
         fill: 'blue',
         d: controlsDef,

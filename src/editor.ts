@@ -1,23 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/camelcase */
-import {
-  LitElement,
-  html,
-  customElement,
-  property,
-  TemplateResult,
-  CSSResult,
-  css,
-  internalProperty,
-} from 'lit-element';
+import { LitElement, html, customElement, property, TemplateResult, CSSResult, css, state } from 'lit-element';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
 import { ThermostatDarkCardConfig } from './types';
 @customElement('thermostat-dark-card-editor')
 export class ThermostatDarkCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
-  @internalProperty() private _config?: ThermostatDarkCardConfig;
-  @internalProperty() private _helpers?: any;
+  @state() private _config?: ThermostatDarkCardConfig;
+  @state() private _helpers?: any;
   private _initialized = false;
 
   public setConfig(config: ThermostatDarkCardConfig): void {
@@ -60,6 +51,10 @@ export class ThermostatDarkCardEditor extends LitElement implements LovelaceCard
 
   get _highlight_tap(): boolean {
     return this._config?.highlight_tap || false;
+  }
+
+  get _show_toggle(): boolean {
+    return this._config?.show_toggle || false;
   }
 
   protected render(): TemplateResult | void {
@@ -119,6 +114,13 @@ export class ThermostatDarkCardEditor extends LitElement implements LovelaceCard
               <ha-switch
                 .checked=${this._highlight_tap !== false}
                 .configValue=${'highlight_tap'}
+                @change=${this._valueChanged}
+              ></ha-switch>
+            </ha-formfield>
+            <ha-formfield .label=${`Toggle Button is ${this._show_toggle ? 'on' : 'off'}`}>
+              <ha-switch
+                .checked=${this._show_toggle !== false}
+                .configValue=${'show_toggle'}
                 @change=${this._valueChanged}
               ></ha-switch>
             </ha-formfield>
