@@ -1,25 +1,16 @@
 # Dark Thermostat by [@ciotlosm](https://www.github.com/ciotlosm)
 
-A simple thermostat implemented in CSS based on [Nest Thermostat Control](https://codepen.io/dalhundal/pen/KpabZB/) by Dal Hundal
+A manintaned fork of [Lovelace Thermostat Dark Card](https://github.com/ciotlosm/lovelace-thermostat-dark-card) A simple thermostat implemented in CSS based on [Nest Thermostat Control](https://codepen.io/dalhundal/pen/KpabZB/) by Dal Hundal
 [@dalhundal](https://codepen.io/dalhundal) on [CodePen](https://codepen.io)
 
-![alt text](https://github.com/ciotlosm/lovelace-thermostat-dark-card/blob/master/sample.png)
+![card example](https://github.com/swingerman/lovelace-thermostat-dark-card/blob/master/sample.png)
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
-
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
-
-## Support
-
-Hey dude! Help me out for a couple of :beers: or a :coffee:!
-
-[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/gUEVWJc)
 
 ## Options
 
@@ -155,6 +146,6 @@ Hey dude! Help me out for a couple of :beers: or a :coffee:!
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/c/projects/frontend
 [license-shield]: https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2020.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2022.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
 [releases]: https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases

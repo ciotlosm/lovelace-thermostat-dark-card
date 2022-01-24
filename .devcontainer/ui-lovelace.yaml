@@ -4,3 +4,4 @@ views:
         name: Living
         entity: climate.test
         test_gui: true
+        show_toggle: on
