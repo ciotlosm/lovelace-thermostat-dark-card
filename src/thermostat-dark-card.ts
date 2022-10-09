@@ -132,9 +132,9 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
 
     // Extra config values generated for simplicity of updates
     cardConfig.radius = cardConfig.diameter / 2;
-    cardConfig.ticksOuterRadius = cardConfig.diameter / 30;
-    cardConfig.ticksInnerRadius = cardConfig.diameter / 8;
-    cardConfig.offsetDegrees = 180 - (360 - cardConfig.tickDegrees) / 2;
+    if (!cardConfig.ticksOuterRadius) cardConfig.ticksOuterRadius = cardConfig.diameter / 30;
+    if (!cardConfig.ticksInnerRadius) cardConfig.ticksInnerRadius = cardConfig.diameter / 8;
+    if (!cardConfig.offsetDegrees) cardConfig.offsetDegrees = 180 - (360 - cardConfig.tickDegrees) / 2;
     cardConfig.control = this._controlSetPoints.bind(this);
     cardConfig.away = Object.assign(
       {
