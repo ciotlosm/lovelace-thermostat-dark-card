@@ -1,5 +1,20 @@
 import { css } from 'lit-element';
 
+export const cardColors = css`
+  :host {
+    --thermostat-off-fill: #555;
+    --thermostat-heating-fill: #e36304;
+    --thermostat-cooling-fill: #007af1;
+    --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
+    --thermostat-path-active-color-large: rgba(255, 255, 255, 1);
+    --thermostat-toggle-color: grey;
+    --thermostat-toggle-off-color: darkgrey;
+    --thermostat-toggle-on-color: lightgrey;
+    --thermostat-active-text-color: white;
+    --thermostat-active-path-color: rgba(255, 255, 255, 0.3);
+  }
+`;
+
 export const cardStyles = css`
   .dial_container {
     padding: 8px;
@@ -12,17 +27,6 @@ export const cardStyles = css`
   }
   .dial {
     user-select: none;
-    --thermostat-off-fill: #555;
-    --thermostat-idle-fill: #222;
-    --thermostat-path-color: rgba(255, 255, 255, 0.3);
-    --thermostat-heating-fill: #e36304;
-    --thermostat-cooling-fill: #007af1;
-    --thermostat-path-active-color: rgba(255, 255, 255, 0.8);
-    --thermostat-path-active-color-large: rgba(255, 255, 255, 1);
-    --thermostat-text-color: white;
-    --thermostat-toggle-color: grey;
-    --thermostat-toggle-off-color: darkgrey;
-    --thermostat-toggle-on-color: lightgrey;
   }
   .dial.has-thermo .dial__ico__leaf {
     visibility: hidden;
@@ -101,6 +105,20 @@ export const cardStyles = css`
     font-family: Helvetica, sans-serif;
     alignment-baseline: central;
     dominant-baseline: central;
+  }
+  .dial.dial--state--heating text,
+  .dial.dial--state--heating text tspan,
+  .dial.dial--state--cooling text,
+  .dial.dial--state--cooling text tspan {
+    fill: var(--thermostat-active-text-color);
+  }
+  .dial.dial--state--heating .dial__ticks path,
+  .dial.dial--state--cooling .dial__ticks path {
+    fill: var(--thermostat-active-path-color);
+  }
+  .dial.dial--state--heating .dial__chevron,
+  .dial.dial--state--cooling .dial__chevron {
+    stroke: var(--thermostat-active-path-color);
   }
   .dial__lbl--target {
     font-size: 120px;

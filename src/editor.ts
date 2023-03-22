@@ -57,6 +57,10 @@ export class ThermostatDarkCardEditor extends LitElement implements LovelaceCard
     return this._config?.show_toggle || false;
   }
 
+  get _use_theme_color(): boolean {
+    return this._config?.use_theme_color || false;
+  }
+
   protected render(): TemplateResult | void {
     if (!this.hass || !this._config) {
       return html``;
@@ -121,6 +125,13 @@ export class ThermostatDarkCardEditor extends LitElement implements LovelaceCard
               <ha-switch
                 .checked=${this._show_toggle !== false}
                 .configValue=${'show_toggle'}
+                @change=${this._valueChanged}
+              ></ha-switch>
+            </ha-formfield>
+            <ha-formfield .label=${`Use Theme Colors ${this._use_theme_color ? 'on' : 'off'}`}>
+              <ha-switch
+                .checked=${this._use_theme_color !== false}
+                .configValue=${'use_theme_color'}
                 @change=${this._valueChanged}
               ></ha-switch>
             </ha-formfield>

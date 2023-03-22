@@ -1,4 +1,4 @@
-# Dark Thermostat by [@ciotlosm](https://www.github.com/ciotlosm)
+# Dark Thermostat by [@ciotlosm](https://www.github.com/ciotlosm) maintained by [@swingerman](https://github.com/swingerman)
 
 A manintaned fork of [Lovelace Thermostat Dark Card](https://github.com/ciotlosm/lovelace-thermostat-dark-card) A simple thermostat implemented in CSS based on [Nest Thermostat Control](https://codepen.io/dalhundal/pen/KpabZB/) by Dal Hundal
 [@dalhundal](https://codepen.io/dalhundal) on [CodePen](https://codepen.io)
@@ -29,6 +29,7 @@ A manintaned fork of [Lovelace Thermostat Dark Card](https://github.com/ciotlosm
 | range_min            | number  | optional     | Override thermostat's minimum value                                                                    |
 | range_max            | number  | optional     | Override thermostat's maximum value                                                                    |
 | show_toggle          | boolean | optional     | Enables/disables the toggle button                                                                     |
+| use_theme_color      | boolean | true     | Adapts thermostat to the current themes color                                                                     |
 | [away](#away-object) | object  | optional     | Allows usage of a custom sensor/attribute for the away detection.                                      |
 
 ### hvac object

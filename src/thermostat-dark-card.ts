@@ -8,6 +8,7 @@ import {
   TemplateResult,
   PropertyValues,
   state,
+  css,
 } from 'lit-element';
 import {
   HomeAssistant,
@@ -24,7 +25,7 @@ import type { ThermostatDarkCardConfig } from './types';
 import { HVAC_HEATING, HVAC_COOLING, HVAC_IDLE, HVAC_OFF, GREEN_LEAF_MODES,  } from './const';
 
 import { localize } from './localize/localize';
-import { cardStyles } from './styles';
+import { cardColors, cardStyles } from './styles';
 import { toggleButtonStyles } from './features/toggle-button/toggle-button.style';
 
 // This puts your card into the UI card picker dialog
@@ -138,6 +139,7 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
         heating: HVAC_HEATING,
         cooling: HVAC_COOLING
       };
+    if (!cardConfig.use_theme_color) cardConfig.use_theme_color = false;
 
     // Extra config values generated for simplicity of updates
     cardConfig.radius = cardConfig.diameter / 2;
@@ -169,8 +171,25 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
 
   // https://lit-element.polymer-project.org/guide/templates
   protected render(): TemplateResult | void {
+    const appliedThemeColors = this.config.use_theme_color ? html`
+    <style>
+       :host{
+        --thermostat-idle-fill: var(--secondary-background-color);
+        --thermostat-path-color: var(--secondary-text-color);
+        --thermostat-text-color: var(--primary-text-color);
+      }
+    </style>` : html`
+      <style>
+        :host{
+          --thermostat-idle-fill: #222;
+          --thermostat-path-color: rgba(255, 255, 255, 0.3);
+          --thermostat-text-color: white;
+        }
+      </style>
+    `;
     return html`
-    ${this.container}`;
+    ${this.container}
+    ${appliedThemeColors}`;
   }
 
   private _controlSetPoints(): void {
@@ -195,6 +214,6 @@ export class ThermostatDarkCard extends ThermostatUserInterface {
 
   // https://lit-element.polymer-project.org/guide/styles
   static get styles(): CSSResult[] {
-    return [cardStyles, toggleButtonStyles];
+    return [cardColors, cardStyles, toggleButtonStyles];
   }
 }

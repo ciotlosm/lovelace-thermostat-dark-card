@@ -21,4 +21,5 @@ export interface ThermostatDarkCardConfig extends LovelaceCardConfig {
   range_min?: number;
   range_max?: number;
   show_toggle?: boolean;
+  use_theme_color?: boolean;
 }
