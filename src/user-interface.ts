@@ -62,7 +62,7 @@ class SvgUtil {
   }
 
   static superscript(number): string {
-    return `${Math.floor(number)}${number % 1 != 0 ? '⁵' : ''}`;
+    return `${Math.sign(number)*Math.floor(Math.abs(number))}${number % 1 != 0 ? '⁵' : ''}`;
   }
 
   // Restrict a number to a min + max range
