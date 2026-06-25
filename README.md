@@ -1,5 +1,11 @@
 # Thermostat Dark Card
 
+[![HACS Default](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![GitHub Release](https://img.shields.io/github/v/release/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
+[![Build](https://img.shields.io/github/actions/workflow/status/ciotlosm/lovelace-thermostat-dark-card/release.yml?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/actions)
+[![License](https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/ciotlosm/lovelace-thermostat-dark-card/total?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
+
 A Nest-style thermostat card for Home Assistant with a round dial interface. Supports single and dual (heat/cool) setpoints, preset modes, and multiple themes.
 
 <!-- Add screenshot: place your preview image at docs/preview.png -->
@@ -158,3 +164,10 @@ ambient_temperature: sensor.living_room_external_temp
 ## License
 
 MIT
+---
+
+## Support
+
+If you find this card useful, consider buying me a coffee:
+
+<a href="https://www.buymeacoffee.com/gUEVWJc" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40"></a>

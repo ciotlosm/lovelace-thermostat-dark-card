@@ -17,19 +17,19 @@ The `master` branch is protected. All changes must go through pull requests.
 
 ## Release Process
 
-Merging to master does NOT create a release. Releases are manual:
+Releases are automatic. When a PR is merged to master:
 
 ```
-1. Merge your PR to master
-2. Go to GitHub → Releases → Create a new release
-3. Create a new tag (e.g. v2.0.0) targeting master
-4. Publish the release
-5. release.yml triggers automatically:
-   - Builds the card
-   - Uploads thermostat-dark-card.js as a release asset
-   - Runs HACS validation
-6. HACS users see the new version and can update
+1. release.yml triggers automatically
+2. It builds the card and runs HACS validation
+3. It reads the version from package.json
+4. If that version tag doesn't exist yet, it creates a GitHub Release
+5. The built JS file is uploaded as a release asset
+6. HACS users see the new version
 ```
+
+To trigger a new release, bump the version in `package.json` as part of your PR.
+If the version in `package.json` already has a corresponding tag, no release is created.
 
 ## How HACS Installs
 
@@ -44,8 +44,8 @@ HACS uses the following to discover and install the card:
 
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
-| `build.yml` | Push to master/redesign, PRs to master | Build + HACS validation |
-| `release.yml` | Published GitHub Release | Build + upload JS to release assets |
+| `build.yml` | PRs to master | Type check + Build + HACS validation |
+| `release.yml` | Push to master (merged PR) | Build + HACS validation + auto-release if version bumped |
 
 ## For AI Agents
 
