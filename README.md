@@ -41,6 +41,7 @@ entity: climate.living_room
 | `show_ticks` | boolean | `true` | Show tick marks |
 | `show_power_toggle` | boolean | `true` | Show power on/off button |
 | `show_preset_indicator` | boolean | `true` | Show preset mode icon |
+| `readonly` | boolean | `false` | Disable all interaction (display only) |
 | `range_min` | number | from entity | Override minimum temperature |
 | `range_max` | number | from entity | Override maximum temperature |
 | `ambient_temperature` | string | — | External temperature sensor entity ID |

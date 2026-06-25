@@ -13,6 +13,7 @@ export interface ThermostatCardConfig {
   show_ticks?: boolean;
   show_power_toggle?: boolean;
   show_preset_indicator?: boolean;
+  readonly?: boolean;
   num_ticks?: number;
   tick_degrees?: number;
   // Color overrides (YAML only, not in visual editor)

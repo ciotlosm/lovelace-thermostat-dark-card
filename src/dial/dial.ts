@@ -29,6 +29,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Boolean }) show_ticks = true;
   @property({ type: Boolean }) show_power_toggle = true;
   @property({ type: Boolean }) show_preset_indicator = true;
+  @property({ type: Boolean }) readonly = false;
   @property({ type: String, reflect: true }) theme: 'dark' | 'light' | 'transparent' = 'dark';
   @property({ type: Object }) colors?: { heating?: string; cooling?: string; idle?: string; off?: string };
   @property({ type: Object }) _presetIcons?: Record<string, string>;
@@ -516,6 +517,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   // --- Event handlers ---
   private _handleDialClick(e: MouseEvent): void {
+    if (this.readonly) return;
     // Don't fire if we already handled via pointer events
     if (this._didPointerInteract) {
       this._didPointerInteract = false;
@@ -557,6 +559,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   }
 
   private _handlePowerClick(e: MouseEvent): void {
+    if (this.readonly) return;
     e.stopPropagation();
     this.dispatchEvent(
       new CustomEvent('toggle', { bubbles: true, composed: true }),
@@ -565,6 +568,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   // --- Ring drag/tap interaction ---
   private _handlePointerDown(e: PointerEvent): void {
+    if (this.readonly) return;
     if (!this.editing) return;
     const temp = this._pointerToTemperature(e);
     if (temp === null) return;

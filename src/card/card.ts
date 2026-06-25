@@ -93,6 +93,7 @@ export class ThermostatDarkCard extends LitElement {
           .show_ticks=${this._config.show_ticks}
           .show_power_toggle=${this._config.show_power_toggle}
           .show_preset_indicator=${this._config.show_preset_indicator}
+          .readonly=${this._config.readonly ?? false}
           .theme=${this._config.theme}
           .colors=${this._config.colors}
           ._presetIcons=${this._config.preset_icons}
