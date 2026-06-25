@@ -17,19 +17,34 @@ The `main` branch is protected. All changes must go through pull requests.
 
 ## Release Process
 
-Releases are automatic. When a PR is merged to main:
+Releases are managed by [Release Please](https://github.com/googleapis/release-please). The flow:
 
 ```
-1. release.yml triggers automatically
-2. It builds the card and runs HACS validation
-3. It reads the version from package.json
-4. If that version tag doesn't exist yet, it creates a GitHub Release
-5. The built JS file is uploaded as a release asset
-6. HACS users see the new version
+1. Write commits with conventional prefixes:
+   - fix: ... → patch bump
+   - feat: ... → minor bump
+   - feat!: ... or BREAKING CHANGE: → major bump
+   - chore: ... → no version bump
+2. Merge PR to main
+3. Release Please creates/updates a "Release PR" with version bump + changelog
+4. When ready to ship: merge the Release PR
+5. GitHub Release is created → build workflow uploads JS asset
+6. HACS sees the new release
 ```
 
-To trigger a new release, bump the version in `package.json` as part of your PR.
-If the version in `package.json` already has a corresponding tag, no release is created.
+You do NOT need to manually bump versions. Release Please handles `package.json` and `CHANGELOG.md`.
+
+## Conventional Commits
+
+All PR titles and commits should follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+| Prefix | Version bump | Example |
+|--------|-------------|---------|
+| `fix:` | patch | `fix: rounding error in temperature display` |
+| `feat:` | minor | `feat: add status entity display` |
+| `feat!:` | major | `feat!: remove legacy config options` |
+| `chore:` | none | `chore: update dependencies` |
+| `docs:` | none | `docs: update README` |
 
 ## How HACS Installs
 
@@ -44,9 +59,8 @@ HACS uses the following to discover and install the card:
 
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
-| `build.yml` | PRs to main | Type check + Build + HACS validation |
-| `label.yml` | PR opened/updated | Auto-suggests version label (patch/minor/major) |
-| `release.yml` | PR merged to main | Bumps version, builds, creates GitHub Release |
+| `build.yml` | PRs to main | Type check + Lint + Build + HACS validation |
+| `release.yml` | Push to main | Release Please manages Release PR; uploads JS on release |
 
 ## Versioning
 
@@ -69,14 +83,15 @@ If you are an AI agent contributing to this repo:
 1. **Never push to main directly** — always create a branch and PR
 2. **Use `git push -u origin <branch-name>`** for new branches
 3. **Use `gh pr create`** to open PRs (use `--body-file` for complex descriptions)
-4. **Apply version labels** to your PRs:
-   - `patch` — bug fixes, small tweaks (default if no label)
-   - `minor` — new features, new options
-   - `major` — breaking changes to config or behavior
-5. **Do not bump version manually** — the release workflow handles it
-6. **Do not create releases** — they're automatic on PR merge
+4. **Use conventional commit prefixes** in PR titles:
+   - `fix:` for bug fixes (patch)
+   - `feat:` for new features (minor)
+   - `feat!:` for breaking changes (major)
+   - `chore:` for maintenance (no release)
+5. **Do not bump version manually** — Release Please handles it
+6. **Do not create releases** — they're automatic via Release PR
 7. **Run `npx tsc --noEmit` and `npm run build`** before committing to verify no errors
-8. **Commit messages**: Use conventional style — short title, detailed body if needed
+8. **Commit messages**: Use conventional commits style
 
 ## Development Setup
 

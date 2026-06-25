@@ -17,7 +17,7 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        inlineDynamicImports: true,
+        codeSplitting: false,
       },
       onwarn(warning, warn) {
         if (warning.code === 'THIS_IS_UNDEFINED') return;
