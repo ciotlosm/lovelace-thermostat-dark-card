@@ -30,7 +30,7 @@
     "eslint-config-prettier": "^10.0.0",
     "prettier": "^3.4.0",
     "terser": "^5.37.0",
-    "typescript": "^5.7.0",
+    "typescript": "^6.0.3",
     "vite": "^6.0.0"
   },
   "scripts": {
