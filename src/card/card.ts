@@ -4,7 +4,8 @@ import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import type { ThermostatCardConfig, HvacAction } from '../types';
 import { DEFAULT_CONFIG } from '../const';
-import { localize } from '../localize/translations';
+import { localize } from '../localize/index';
+import { getAvailableThemes } from '../themes/index';
 import '../dial/dial';
 
 @customElement('thermostat-dark-card')
@@ -27,7 +28,7 @@ export class ThermostatDarkCard extends LitElement {
           name: '',
           flatten: true,
           schema: [
-            { name: 'theme', selector: { select: { options: ['dark', 'light', 'transparent'], mode: 'dropdown' } } },
+            { name: 'theme', selector: { select: { options: getAvailableThemes(), mode: 'dropdown' } } },
             { name: 'step', selector: { number: { min: 0.5, max: 5, step: 0.5, mode: 'box' } } },
             { name: 'pending', selector: { number: { min: 1, max: 30, step: 1, mode: 'box' } } },
           ],

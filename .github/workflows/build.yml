@@ -9,6 +9,9 @@ jobs:
   build:
     name: Build & Validate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v7
 
@@ -26,8 +29,25 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Check translations
+        id: i18n
+        run: node scripts/check-translations.js
+
       - name: Build
         run: npm run build
+
+      - name: Comment on PR if translations are missing
+        if: steps.i18n.outputs.i18n_warnings
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const warnings = `${{ steps.i18n.outputs.i18n_warnings }}`.replace(/\\n/g, '\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `### 🌐 Translation check\n\n${warnings}\n\nThese keys will fall back to English. Consider adding translations if you speak the language.`
+            });
 
       - name: HACS Validation
         uses: hacs/action@main

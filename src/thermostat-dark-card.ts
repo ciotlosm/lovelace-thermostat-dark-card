@@ -1,5 +1,5 @@
 import { CARD_VERSION } from './const';
-import { localize } from './localize/translations';
+import { localize } from './localize/index';
 import './card/card';
 
 /* eslint-disable no-console */
