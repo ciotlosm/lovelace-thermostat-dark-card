@@ -45,7 +45,22 @@ HACS uses the following to discover and install the card:
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
 | `build.yml` | PRs to master | Type check + Build + HACS validation |
-| `release.yml` | Push to master (merged PR) | Build + HACS validation + auto-release if version bumped |
+| `label.yml` | PR opened/updated | Auto-suggests version label (patch/minor/major) |
+| `release.yml` | PR merged to master | Bumps version, builds, creates GitHub Release |
+
+## Versioning
+
+Version is managed **only** in `package.json`. It's injected at build time via Vite — no need to update `src/const.ts`.
+
+Version bumps happen automatically on PR merge based on labels:
+
+| Label | When to use | Example |
+|-------|------------|---------|
+| `patch` (default) | Bug fixes, tweaks, docs | Fix rounding, adjust position |
+| `minor` | New features, new config options | Add readonly mode, new theme |
+| `major` | Breaking changes | Config format change, removed options |
+
+The `label.yml` workflow auto-suggests a label based on file changes, but you can override it manually.
 
 ## For AI Agents
 
@@ -54,9 +69,14 @@ If you are an AI agent contributing to this repo:
 1. **Never push to master directly** — always create a branch and PR
 2. **Use `git push -u origin <branch-name>`** for new branches
 3. **Use `gh pr create`** to open PRs (use `--body-file` for complex descriptions)
-4. **Do not create releases** — that's a manual step by the maintainer
-5. **Run `npx tsc --noEmit` and `npm run build`** before committing to verify no errors
-6. **Commit messages**: Use conventional style — short title, detailed body if needed
+4. **Apply version labels** to your PRs:
+   - `patch` — bug fixes, small tweaks (default if no label)
+   - `minor` — new features, new options
+   - `major` — breaking changes to config or behavior
+5. **Do not bump version manually** — the release workflow handles it
+6. **Do not create releases** — they're automatic on PR merge
+7. **Run `npx tsc --noEmit` and `npm run build`** before committing to verify no errors
+8. **Commit messages**: Use conventional style — short title, detailed body if needed
 
 ## Development Setup
 

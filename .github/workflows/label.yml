@@ -1,0 +1,56 @@
+name: Auto Label PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Suggest version label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+
+            const filePaths = files.map(f => f.filename);
+
+            // Major: breaking changes (types.ts interface changes, major refactors)
+            const isMajor = filePaths.some(f => f === 'src/types.ts') &&
+              files.some(f => f.filename === 'src/types.ts' && f.patch && f.patch.includes('-'));
+
+            // Minor: new features (new files, new config options)
+            const isMinor = files.some(f => f.status === 'added' && f.filename.startsWith('src/'));
+
+            // Default: patch
+            let label = 'patch';
+            if (isMajor) label = 'major';
+            else if (isMinor) label = 'minor';
+
+            // Only add if no version label exists
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            const hasVersionLabel = labels.some(l => ['major', 'minor', 'patch'].includes(l.name));
+            if (!hasVersionLabel) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: [label],
+              });
+            }
