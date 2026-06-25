@@ -1,100 +1,128 @@
 # Thermostat Dark Card
 
-A thermostat card with a round dial for Home Assistant — supports both dark and light themes.
-
-> **Status:** Active redesign in progress. This branch contains the new project scaffolding. Card implementation will follow.
-
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
-
-## Tech Stack
-
-- **Lit 3** — Web component framework
-- **TypeScript 5** — Strict mode
-- **Vite 6** — Build tool
-- **ESLint 9** — Flat config with TypeScript support
-- **Prettier 3** — Code formatting
+A Nest-style thermostat card for Home Assistant with a round dial interface. Supports single and dual (heat/cool) setpoints, preset modes, and multiple themes.
 
 ## Installation
 
 ### HACS (Recommended)
 
-1. Install [HACS](https://hacs.xyz/docs/use/) if you haven't already
-2. Open HACS → Frontend → Explore & Download Repositories
-3. Search for "Thermostat Dark Card"
-4. Click Download
+1. Open HACS in Home Assistant
+2. Search for "Thermostat Dark Card"
+3. Install and restart Home Assistant
 
 ### Manual
 
 1. Download `thermostat-dark-card.js` from the [latest release](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
 2. Place it in `config/www/`
 3. Add the resource in Settings → Dashboards → Resources:
-   ```yaml
-   url: /local/thermostat-dark-card.js
-   type: module
-   ```
+   - URL: `/local/thermostat-dark-card.js`
+   - Type: JavaScript Module
 
-## Development
+## Usage
 
-Requires Node.js 24+ and Podman (or any OCI-compatible container runtime).
-
-```bash
-npm install
-npm run build       # production build → dist/thermostat-dark-card.js
-npm run dev         # build with watch mode (rebuilds on save)
-npm run preview     # serve dist/ on port 4000
-npm run lint        # run eslint
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.living_room
 ```
 
-### Local testing with HA sandbox
+## Configuration
 
-The dev workflow uses a real Home Assistant instance running in a container. No plugins or IDE dependencies needed.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `entity` | string | **required** | Climate entity ID |
+| `name` | string / false | entity name | Card title. Set to `false` to hide |
+| `theme` | string | `dark` | `dark`, `light`, or `transparent` |
+| `step` | number | from entity | Temperature step override (celsius only) |
+| `pending` | number | `3` | Seconds before committing temperature change |
+| `idle_zone` | number | `0` | Minimum gap between low/high targets in dual mode |
+| `diameter` | number | `400` | SVG viewBox diameter |
+| `num_ticks` | number | `150` | Number of tick marks on the ring |
+| `tick_degrees` | number | `300` | Arc span of tick marks (degrees) |
+| `show_ticks` | boolean | `true` | Show tick marks |
+| `show_power_toggle` | boolean | `true` | Show power on/off button |
+| `show_preset_indicator` | boolean | `true` | Show preset mode icon |
+| `range_min` | number | from entity | Override minimum temperature |
+| `range_max` | number | from entity | Override maximum temperature |
+| `ambient_temperature` | string | — | External temperature sensor entity ID |
+| `colors` | object | — | Custom color overrides (see below) |
+| `preset_icons` | object | — | Map preset names to icons (see below) |
 
-```bash
-# Terminal 1: build + serve the card
-npm run dev &
-npm run preview
+### Themes
 
-# Terminal 2: run Home Assistant
-npm run start:hass
+- **dark** — Black/dark grey background (default)
+- **light** — Light grey background with dark text
+- **transparent** — No disc background, use with card-mod for custom backgrounds
+
+Transparent theme example with a room photo:
+
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.bedroom
+theme: transparent
+card_mod:
+  style: |
+    ha-card {
+      background: url("/local/bedroom.jpg") center/cover no-repeat;
+    }
 ```
 
-Open http://localhost:8123.
+### Color Overrides
 
-**First time only:** You'll see the HA onboarding screen. Create any user account (~30 seconds). This is persisted in `.hass_dev/` so you won't see it again on subsequent runs.
+Override disc colors via YAML (not available in visual editor):
 
-After onboarding, the card JS is automatically loaded via `extra_module_url` in `.hass_dev/configuration.yaml`. Add the card to any dashboard to test it.
-
-The sandbox includes pre-configured climate entities for testing (Living Room, Bedroom).
-
-### How it works
-
-```
-┌─────────────────┐       ┌──────────────────────────┐
-│  Vite preview   │◄──────│  HA frontend (browser)   │
-│  :4000          │       │  loads thermostat-dark-   │
-│  serves dist/   │       │  card.js from :4000      │
-└─────────────────┘       └──────────────────────────┘
-                                      ▲
-                                      │
-                          ┌───────────┴──────────────┐
-                          │  HA container :8123      │
-                          │  .hass_dev/config mounted│
-                          │  climate entities ready  │
-                          └──────────────────────────┘
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.living_room
+colors:
+  heating: "#ff5500"
+  cooling: "#0088ff"
+  idle: "#1a1a1a"
+  off: "#444444"
 ```
 
-### Notes
+### Preset Icons
 
-- `npm run dev` watches for file changes and rebuilds automatically. Reload the browser to pick up changes.
-- The `.hass_dev/` directory is gitignored except for `configuration.yaml`. HA runtime data (database, auth, etc.) stays local.
-- Port 4000 is used because macOS AirPlay Receiver occupies port 5000.
+Map custom preset mode names to built-in icons:
 
-## Distribution
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.ecobee
+preset_icons:
+  vacation: eco
+  night: sleep
+  party: boost
+```
 
-Built for [HACS](https://hacs.xyz/):
-- `hacs.json` defines the card metadata
-- GitHub Actions build and attach `thermostat-dark-card.js` to releases
-- HACS picks up the file from the release assets
+Available icon names: `eco`, `away`, `home`, `sleep`, `boost`, `comfort`, `activity`
+
+Built-in mappings (no config needed):
+- `eco`, `away` → leaf
+- `home` → house
+- `sleep` → moon
+- `boost` → flame
+- `comfort` → sun
+- `activity` → person
+
+Unknown presets show no icon unless mapped via `preset_icons`.
+
+### External Temperature Sensor
+
+Use a separate sensor for the ambient temperature display instead of the climate entity's built-in sensor:
+
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.living_room
+ambient_temperature: sensor.living_room_external_temp
+```
+
+## Features
+
+- **Single and dual mode** — Automatically adapts based on entity attributes
+- **Ring interaction** — Drag on the tick ring to set temperature
+- **Chevron controls** — Tap up/down arrows for precise adjustments
+- **Predictive feedback** — Disc color fades to show predicted heating/cooling state while editing
+- **Preset indicators** — Shows eco leaf, home, sleep, and other icons
+- **Responsive** — Scales to fit any card size
 
 ## License
 

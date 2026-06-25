@@ -22,6 +22,8 @@ export interface ThermostatCardConfig {
     idle?: string;
     off?: string;
   };
+  // Preset icon mapping (YAML only) — map preset name to icon: eco, away, home, sleep, boost, comfort, activity
+  preset_icons?: Record<string, string>;
   // Overrides
   range_min?: number;
   range_max?: number;

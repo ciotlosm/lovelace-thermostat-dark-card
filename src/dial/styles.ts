@@ -34,7 +34,7 @@ export const dialStyles = css`
 
   /* Disc background — colored by hvac_action */
   .dial-disc {
-    transition: fill 0.5s ease;
+    transition: fill 0.5s ease, opacity 0.5s ease;
   }
   .dial-disc--off {
     fill: var(--dial-off-fill);
@@ -95,7 +95,7 @@ export const dialStyles = css`
   }
   .dial-text--low,
   .dial-text--high {
-    font-size: 90px;
+    font-size: 60px;
     font-weight: bold;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -155,12 +155,12 @@ export const dialStyles = css`
   }
 
   /* Indicators */
-  .dial-leaf {
+  .dial-preset {
     fill: var(--dial-leaf-color);
     opacity: 0;
     transition: opacity 0.5s ease;
   }
-  .dial-leaf--visible {
+  .dial-preset--visible {
     opacity: 1;
   }
 

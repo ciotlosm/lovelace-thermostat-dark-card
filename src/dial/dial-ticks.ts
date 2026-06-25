@@ -14,6 +14,7 @@ export interface TickRange {
   from: number | undefined;
   to: number | undefined;
   largeIndices: number[];
+  predicted?: boolean;
 }
 
 /** Render all tick marks as SVG paths. */

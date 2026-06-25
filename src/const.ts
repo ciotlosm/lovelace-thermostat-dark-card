@@ -2,7 +2,7 @@ export const CARD_VERSION = '1.0.0';
 
 export const DEFAULT_CONFIG = {
   pending: 3,
-  idle_zone: 2,
+  idle_zone: 0,
   diameter: 400,
   show_ticks: true,
   show_power_toggle: true,
