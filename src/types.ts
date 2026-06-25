@@ -3,6 +3,7 @@ export interface ThermostatCardConfig {
   type: string;
   entity: string;
   name?: string | false;
+  hide_name?: boolean;
   theme?: 'dark' | 'light' | 'transparent';
   // Dial behavior
   step?: number;

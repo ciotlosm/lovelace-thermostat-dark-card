@@ -4,17 +4,14 @@ import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import type { ThermostatCardConfig, HvacAction } from '../types';
 import { DEFAULT_CONFIG } from '../const';
+import { localize } from '../localize/index';
+import { getAvailableThemes } from '../themes/index';
 import '../dial/dial';
 
 @customElement('thermostat-dark-card')
 export class ThermostatDarkCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config!: ThermostatCardConfig;
-
-  public static async getConfigElement(): Promise<HTMLElement> {
-    await import('../editor/editor');
-    return document.createElement('thermostat-dark-card-editor');
-  }
 
   public static getConfigForm() {
     return {
@@ -26,7 +23,7 @@ export class ThermostatDarkCard extends LitElement {
           name: '',
           flatten: true,
           schema: [
-            { name: 'theme', selector: { select: { options: ['dark', 'light', 'transparent'], mode: 'dropdown' } } },
+            { name: 'theme', selector: { select: { options: getAvailableThemes(), mode: 'dropdown' } } },
             { name: 'step', selector: { number: { min: 0.5, max: 5, step: 0.5, mode: 'box' } } },
             { name: 'pending', selector: { number: { min: 1, max: 30, step: 1, mode: 'box' } } },
           ],
@@ -38,6 +35,7 @@ export class ThermostatDarkCard extends LitElement {
           name: '',
           flatten: true,
           schema: [
+            { name: 'hide_name', selector: { boolean: {} } },
             { name: 'readonly', selector: { boolean: {} } },
             { name: 'show_power_toggle', selector: { boolean: {} } },
             { name: 'show_preset_indicator', selector: { boolean: {} } },
@@ -45,19 +43,8 @@ export class ThermostatDarkCard extends LitElement {
         },
       ],
       computeLabel: (schema: { name: string }) => {
-        const labels: Record<string, string> = {
-          entity: 'Entity',
-          name: 'Name',
-          theme: 'Theme',
-          step: 'Step override',
-          pending: 'Pending (seconds)',
-          ambient_temperature: 'Ambient temperature sensor',
-          status_entity: 'Status text entity',
-          readonly: 'Read-only mode',
-          show_power_toggle: 'Show power toggle',
-          show_preset_indicator: 'Show preset indicator',
-        };
-        return labels[schema.name] ?? schema.name;
+        const lang = document.documentElement.lang || 'en';
+        return localize(`editor_${schema.name}`, lang) ?? schema.name;
       },
     };
   }
@@ -127,7 +114,7 @@ export class ThermostatDarkCard extends LitElement {
     const maxTemp = this._config.range_max ?? (attrs.max_temp as number) ?? 35;
     const step = this._config.step ?? (attrs.target_temp_step as number) ?? 0.5;
 
-    const name = this._config.name === false ? '' : (this._config.name ?? (attrs.friendly_name as string) ?? '');
+    const name = (this._config.hide_name || this._config.name === false) ? '' : (this._config.name ?? (attrs.friendly_name as string) ?? '');
 
     return html`
       <ha-card>

@@ -1,0 +1,15 @@
+{
+  "editor_entity": "Entity",
+  "editor_name": "Name",
+  "editor_hide_name": "Hide name",
+  "editor_theme": "Theme",
+  "editor_step": "Step override",
+  "editor_pending": "Pending (seconds)",
+  "editor_ambient_temperature": "Ambient temperature sensor",
+  "editor_status_entity": "Status text entity",
+  "editor_readonly": "Read-only mode",
+  "editor_show_power_toggle": "Power button",
+  "editor_show_preset_indicator": "Preset icon",
+  "card_name": "Thermostat Dark Card",
+  "card_description": "A thermostat card with a round dial — supports dark and light themes"
+}

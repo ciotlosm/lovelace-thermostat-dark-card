@@ -3,6 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { HvacAction } from '../types';
 import { temperatureToTick, offsetDegrees, clamp, rotatePoint, rotatePoints, pointsToPath } from './svg-utils';
 import { renderTicks, TickConfig, TickRange } from './dial-ticks';
+import { themeToStyle } from '../themes/index';
 import { renderRing } from './dial-arc';
 import { DialInteractionController, InteractionHost } from './dial-interaction';
 import { dialStyles } from './styles';
@@ -112,14 +113,24 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     `;
   }
 
-  // --- Color overrides as inline CSS variables ---
+  // --- Color/theme as inline CSS variables ---
   private _getColorStyle(): string {
-    if (!this.colors) return '';
     const vars: string[] = [];
-    if (this.colors.heating) vars.push(`--dial-heating-fill: ${this.colors.heating}`);
-    if (this.colors.cooling) vars.push(`--dial-cooling-fill: ${this.colors.cooling}`);
-    if (this.colors.idle) vars.push(`--dial-idle-fill: ${this.colors.idle}`);
-    if (this.colors.off) vars.push(`--dial-off-fill: ${this.colors.off}`);
+
+    // Apply theme tokens (if not 'dark' which is the CSS default)
+    if (this.theme && this.theme !== 'dark') {
+      const themeStyle = themeToStyle(this.theme);
+      if (themeStyle) vars.push(themeStyle);
+    }
+
+    // Manual color overrides take precedence over theme
+    if (this.colors) {
+      if (this.colors.heating) vars.push(`--dial-heating-fill: ${this.colors.heating}`);
+      if (this.colors.cooling) vars.push(`--dial-cooling-fill: ${this.colors.cooling}`);
+      if (this.colors.idle) vars.push(`--dial-idle-fill: ${this.colors.idle}`);
+      if (this.colors.off) vars.push(`--dial-off-fill: ${this.colors.off}`);
+    }
+
     return vars.join('; ');
   }
 

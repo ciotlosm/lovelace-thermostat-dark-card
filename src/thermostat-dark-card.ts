@@ -1,4 +1,5 @@
 import { CARD_VERSION } from './const';
+import { localize } from './localize/index';
 import './card/card';
 
 /* eslint-disable no-console */
@@ -14,7 +15,7 @@ const customCards = (window as unknown as { customCards: unknown[] }).customCard
 (window as unknown as { customCards: unknown[] }).customCards = customCards;
 customCards.push({
   type: 'thermostat-dark-card',
-  name: 'Thermostat Dark Card',
-  description: 'A thermostat card with a round dial — supports dark and light themes',
+  name: localize('card_name'),
+  description: localize('card_description'),
   preview: true,
 });
