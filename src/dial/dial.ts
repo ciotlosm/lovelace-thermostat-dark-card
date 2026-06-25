@@ -41,6 +41,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @state() editing = false;
   private _dragging = false;
   private _didPointerInteract = false;
+  private _longPressTimer?: number;
 
   private _interaction = new DialInteractionController(this);
 
@@ -96,6 +97,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
           class="dial"
           style=${colorStyle}
           @click=${this._handleDialClick}
+          @contextmenu=${this._handleLongPress}
           @pointerdown=${this._handlePointerDown}
           @pointermove=${this._handlePointerMove}
           @pointerup=${this._handlePointerUp}
@@ -586,6 +588,13 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     if (!this.editing) {
       this._interaction.enterEditMode();
     }
+  }
+
+  private _handleLongPress(e: Event): void {
+    e.preventDefault();
+    this.dispatchEvent(
+      new CustomEvent('more-info', { bubbles: true, composed: true }),
+    );
   }
 
   private _handleChevronClick(e: MouseEvent): void {

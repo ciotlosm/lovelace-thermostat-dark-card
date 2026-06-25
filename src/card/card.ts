@@ -145,6 +145,7 @@ export class ThermostatDarkCard extends LitElement {
           .status_text=${this._resolveStatusText()}
           @temperature-changed=${this._handleTemperatureChanged}
           @toggle=${this._handleToggle}
+          @more-info=${this._handleMoreInfo}
         ></thermostat-dial>
       </ha-card>
     `;
@@ -173,6 +174,15 @@ export class ThermostatDarkCard extends LitElement {
     this.hass.callService('climate', service, {
       entity_id: this._config.entity,
     });
+  }
+
+  private _handleMoreInfo(): void {
+    const event = new CustomEvent('hass-more-info', {
+      bubbles: true,
+      composed: true,
+      detail: { entityId: this._config.entity },
+    });
+    this.dispatchEvent(event);
   }
 
   private _resolveStatusText(): string | null {
