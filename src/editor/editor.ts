@@ -37,13 +37,16 @@ export class ThermostatDarkCardEditor extends LitElement {
         ></ha-entity-picker>
 
         <div class="name-row">
-          <ha-textfield
-            .label=${'Name'}
-            .value=${nameValue}
-            .disabled=${nameDisabled}
-            .placeholder=${nameDisabled ? 'Disabled' : 'Use entity name'}
-            @input=${this._nameChanged}
-          ></ha-textfield>
+          <div class="select-row" style="flex:1">
+            <label>Name</label>
+            <input
+              type="text"
+              .value=${nameValue}
+              ?disabled=${nameDisabled}
+              placeholder=${nameDisabled ? 'Disabled' : 'Use entity name'}
+              @input=${this._nameChanged}
+            />
+          </div>
           <ha-formfield .label=${'Hide name'}>
             <ha-switch
               .checked=${nameDisabled}
@@ -58,6 +61,15 @@ export class ThermostatDarkCardEditor extends LitElement {
           .value=${this._config.ambient_temperature || ''}
           .includeDomains=${['sensor']}
           @value-changed=${this._ambientChanged}
+          allow-custom-entity
+        ></ha-entity-picker>
+
+        <ha-entity-picker
+          .label=${'Status Text Entity (Optional)'}
+          .hass=${this.hass}
+          .value=${this._config.status_entity || ''}
+          .includeDomains=${['sensor', 'input_text']}
+          @value-changed=${this._statusEntityChanged}
           allow-custom-entity
         ></ha-entity-picker>
 
@@ -81,12 +93,10 @@ export class ThermostatDarkCardEditor extends LitElement {
           </div>
         ` : ''}
 
-        <ha-textfield
-          .label=${'Pending seconds (delay before saving)'}
-          type="number"
-          .value=${String(this._config.pending ?? 3)}
-          @input=${this._pendingChanged}
-        ></ha-textfield>
+        <div class="select-row">
+          <label>Pending seconds (delay before saving)</label>
+          <input type="number" min="1" max="30" .value=${String(this._config.pending ?? 3)} @input=${this._pendingChanged} />
+        </div>
 
         <div class="toggle-row">
           <ha-formfield .label=${'Read-only mode'}>
@@ -171,6 +181,19 @@ export class ThermostatDarkCardEditor extends LitElement {
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
+  private _statusEntityChanged(ev: CustomEvent): void {
+    if (!this._config) return;
+    const value = ev.detail.value;
+    const newConfig = { ...this._config };
+    if (value) {
+      newConfig.status_entity = value;
+    } else {
+      delete newConfig.status_entity;
+    }
+    this._config = newConfig;
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
   private _pendingChanged(ev: Event): void {
     if (!this._config) return;
     const value = parseFloat((ev.target as HTMLInputElement).value);
@@ -225,7 +248,8 @@ export class ThermostatDarkCardEditor extends LitElement {
         font-size: 12px;
         color: var(--secondary-text-color);
       }
-      .select-row select {
+      .select-row select,
+      .select-row input {
         padding: 8px 12px;
         border: 1px solid var(--divider-color, #e0e0e0);
         border-radius: 4px;

@@ -16,6 +16,52 @@ export class ThermostatDarkCard extends LitElement {
     return document.createElement('thermostat-dark-card-editor');
   }
 
+  public static getConfigForm() {
+    return {
+      schema: [
+        { name: 'entity', required: true, selector: { entity: { domain: 'climate' } } },
+        { name: 'name', selector: { text: {} } },
+        {
+          type: 'grid',
+          name: '',
+          flatten: true,
+          schema: [
+            { name: 'theme', selector: { select: { options: ['dark', 'light', 'transparent'], mode: 'dropdown' } } },
+            { name: 'step', selector: { number: { min: 0.5, max: 5, step: 0.5, mode: 'box' } } },
+            { name: 'pending', selector: { number: { min: 1, max: 30, step: 1, mode: 'box' } } },
+          ],
+        },
+        { name: 'ambient_temperature', selector: { entity: { domain: 'sensor' } } },
+        { name: 'status_entity', selector: { entity: { domain: ['sensor', 'input_text'] } } },
+        {
+          type: 'grid',
+          name: '',
+          flatten: true,
+          schema: [
+            { name: 'readonly', selector: { boolean: {} } },
+            { name: 'show_power_toggle', selector: { boolean: {} } },
+            { name: 'show_preset_indicator', selector: { boolean: {} } },
+          ],
+        },
+      ],
+      computeLabel: (schema: { name: string }) => {
+        const labels: Record<string, string> = {
+          entity: 'Entity',
+          name: 'Name',
+          theme: 'Theme',
+          step: 'Step override',
+          pending: 'Pending (seconds)',
+          ambient_temperature: 'Ambient temperature sensor',
+          status_entity: 'Status text entity',
+          readonly: 'Read-only mode',
+          show_power_toggle: 'Show power toggle',
+          show_preset_indicator: 'Show preset indicator',
+        };
+        return labels[schema.name] ?? schema.name;
+      },
+    };
+  }
+
   public static getStubConfig(hass?: { states: Record<string, unknown> }): Record<string, unknown> {
     const entities = hass ? Object.keys(hass.states).filter((e) => e.startsWith('climate.')) : [];
     return { entity: entities[0] || 'climate.thermostat' };
