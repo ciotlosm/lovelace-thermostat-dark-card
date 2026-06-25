@@ -24,6 +24,9 @@ A Nest-style thermostat card for Home Assistant with a round dial interface. Sup
 
 ### HACS (Recommended)
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ciotlosm&repository=lovelace-thermostat-dark-card&category=plugin)
+
+Or manually:
 1. Open HACS in Home Assistant
 2. Search for "Thermostat Dark Card"
 3. Install and restart Home Assistant
