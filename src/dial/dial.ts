@@ -339,7 +339,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     return svg`
       <g class="dial-center">
         ${this.status_text && !this.editing ? svg`
-          <text x=${r} y=${r - r * 0.25} class="dial-text dial-text--status">${this.status_text}</text>
+          <text x=${r} y=${r - r * 0.35} class="dial-text dial-text--status">${this.status_text.length > 16 ? this.status_text.substring(0, 14) + '…' : this.status_text}</text>
         ` : ''}
         <text x=${r} y=${r} class="dial-text dial-text--ambient">
           ${this._renderTempText(this.current_temperature)}
