@@ -1,4 +1,5 @@
-export const CARD_VERSION = '2.0.0';
+declare const __CARD_VERSION__: string;
+export const CARD_VERSION = __CARD_VERSION__;
 
 export const DEFAULT_CONFIG = {
   pending: 3,
