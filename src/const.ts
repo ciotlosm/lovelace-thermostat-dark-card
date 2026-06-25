@@ -1,0 +1,16 @@
+export const CARD_VERSION = '1.0.0';
+
+export const DEFAULT_CONFIG = {
+  step: 0.5,
+  pending: 3,
+  idle_zone: 2,
+  diameter: 400,
+  show_ticks: true,
+  show_power_toggle: true,
+  show_preset_indicator: true,
+  num_ticks: 150,
+  tick_degrees: 300,
+} as const;
+
+// Presets that show the eco/leaf indicator
+export const ECO_PRESETS = ['eco', 'away'];

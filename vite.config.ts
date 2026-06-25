@@ -10,6 +10,9 @@ export default defineConfig({
       fileName: () => 'thermostat-dark-card.js',
     },
     rollupOptions: {
+      output: {
+        inlineDynamicImports: true,
+      },
       onwarn(warning, warn) {
         if (warning.code === 'THIS_IS_UNDEFINED') return;
         warn(warning);
