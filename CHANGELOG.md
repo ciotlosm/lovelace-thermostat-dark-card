@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.4.0...v2.5.0) (2026-06-25)
+
+
+### Features
+
+* demo page, glassy theme, Slovak locale, colored ticks ([#341](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/341)) ([2f17b61](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/2f17b61204a6a2fc530f5f591ec1d3268c722ac3))
+
 ## [2.4.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.3.0...v2.4.0) (2026-06-25)
 
 
