@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thermostat Dark Card — Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a1a; color: #fff; font-family: system-ui, sans-serif; padding: 24px; }
+    h1 { margin-bottom: 16px; font-weight: 300; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .card { background: var(--ha-card-background, #1c1c1c); border-radius: 12px; padding: 16px; }
+    .card h3 { font-size: 14px; color: #888; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Thermostat Dark Card — Demo</h1>
+  <p style="color:#888; margin-bottom:24px;">Standalone preview outside Home Assistant. Cards are non-interactive (no hass object).</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Dark theme (heating)</h3>
+      <thermostat-dial
+        current_temperature="18.5"
+        temperature="21"
+        min_temp="15"
+        max_temp="30"
+        target_temp_step="0.5"
+        hvac_action="heating"
+        hvac_mode="heat"
+        theme="dark"
+      ></thermostat-dial>
+    </div>
+    <div class="card">
+      <h3>Light theme (idle)</h3>
+      <thermostat-dial
+        current_temperature="22"
+        temperature="22"
+        min_temp="15"
+        max_temp="30"
+        target_temp_step="0.5"
+        hvac_action="idle"
+        hvac_mode="heat"
+        theme="light"
+      ></thermostat-dial>
+    </div>
+    <div class="card">
+      <h3>Glassy theme (cooling)</h3>
+      <thermostat-dial
+        current_temperature="26"
+        temperature="22"
+        min_temp="15"
+        max_temp="30"
+        target_temp_step="0.5"
+        hvac_action="cooling"
+        hvac_mode="cool"
+        theme="glassy"
+      ></thermostat-dial>
+    </div>
+    <div class="card">
+      <h3>Transparent theme</h3>
+      <thermostat-dial
+        current_temperature="20.5"
+        temperature="19"
+        min_temp="15"
+        max_temp="30"
+        target_temp_step="0.5"
+        hvac_action="idle"
+        hvac_mode="heat"
+        theme="transparent"
+      ></thermostat-dial>
+    </div>
+  </div>
+  <script type="module" src="../dist/thermostat-dark-card.js"></script>
+</body>
+</html>

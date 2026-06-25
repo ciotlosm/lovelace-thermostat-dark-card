@@ -1,6 +1,6 @@
 # Thermostat Dark Card
 
-[English](README.md) | 🌐 Supports: English, 中文 (Chinese Simplified)
+[English](README.md) | 🌐 Supports: English, 中文 (Chinese Simplified), Slovenčina (Slovak)
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
