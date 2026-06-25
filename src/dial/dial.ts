@@ -17,7 +17,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Number }) target_temp_high: number | null = null;
   @property({ type: Number }) min_temp = 7;
   @property({ type: Number }) max_temp = 35;
-  @property({ type: Number }) target_temp_step = 0.5;
+  @property({ type: Number }) target_temp_step = 1;
   @property({ type: String }) hvac_action: HvacAction | null = null;
   @property({ type: String }) hvac_mode: string | null = null;
   @property({ type: String }) preset_mode: string | null = null;
@@ -27,7 +27,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Number }) num_ticks = 150;
   @property({ type: Number }) tick_degrees = 300;
   @property({ type: Number }) pending = 3;
-  @property({ type: Number }) idle_zone = 2;
+  @property({ type: Number }) idle_zone = 0;
   @property({ type: Boolean }) show_ticks = true;
   @property({ type: Boolean }) show_power_toggle = true;
   @property({ type: Boolean }) show_preset_indicator = true;
@@ -96,6 +96,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
           class="dial"
           style=${colorStyle}
           @click=${this._handleDialClick}
+          @contextmenu=${this._handleLongPress}
           @pointerdown=${this._handlePointerDown}
           @pointermove=${this._handlePointerMove}
           @pointerup=${this._handlePointerUp}
@@ -586,6 +587,13 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     if (!this.editing) {
       this._interaction.enterEditMode();
     }
+  }
+
+  private _handleLongPress(e: Event): void {
+    e.preventDefault();
+    this.dispatchEvent(
+      new CustomEvent('more-info', { bubbles: true, composed: true }),
+    );
   }
 
   private _handleChevronClick(e: MouseEvent): void {

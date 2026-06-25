@@ -22,9 +22,9 @@ for (const [path, module] of Object.entries(languageModules)) {
 }
 
 // Alias common variants
-if (languages['zh-CN']) {
-  languages['zh'] = languages['zh-CN'];
-  languages['zh-Hans'] = languages['zh-CN'];
+if (languages['zh-Hans']) {
+  languages['zh'] = languages['zh-Hans'];
+  languages['zh-CN'] = languages['zh-Hans'];
 }
 
 /**
@@ -35,9 +35,4 @@ export function localize(key: string, language?: string): string {
   const translations =
     languages[lang] ?? languages[lang.split('-')[0]] ?? languages['en'];
   return translations?.[key] ?? languages['en']?.[key] ?? key;
-}
-
-/** Get list of available languages */
-export function getAvailableLanguages(): string[] {
-  return Object.keys(languages);
 }

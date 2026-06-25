@@ -49,13 +49,6 @@ export function clamp(val: number, min: number, max: number): number {
   return Math.min(Math.max(val, min), max);
 }
 
-/** Format temperature with superscript decimal like the Nest thermostat. Always shows superscript (0 when whole number) to prevent layout shift. */
-export function formatTemp(value: number): { whole: string; frac: string } {
-  const whole = Math.floor(value);
-  const frac = Math.round((value % 1) * 10);
-  return { whole: String(whole), frac: String(frac) };
-}
-
 /** Calculate the offset degrees for tick positioning. */
 export function offsetDegrees(tickDegrees: number): number {
   return 180 - (360 - tickDegrees) / 2;
