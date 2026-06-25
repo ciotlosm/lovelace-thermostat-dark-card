@@ -1,24 +1,33 @@
-name: 'Build'
+name: Build
 
 on:
   push:
     branches:
       - master
+      - redesign
   pull_request:
     branches:
       - master
 
 jobs:
   build:
-    name: Test build
+    name: Build & Validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Build
-        run: |
-          npm install
-          npm run build
-      - name: HACS Action
-        uses: "hacs/action@main"
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          category: "plugin"
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: HACS Validation
+        uses: hacs/action@main
+        with:
+          category: plugin

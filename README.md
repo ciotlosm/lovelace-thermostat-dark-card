@@ -1,159 +1,55 @@
-# Dark Thermostat by [@ciotlosm](https://www.github.com/ciotlosm)
+# Thermostat Dark Card
 
-A simple thermostat implemented in CSS based on [Nest Thermostat Control](https://codepen.io/dalhundal/pen/KpabZB/) by Dal Hundal
-[@dalhundal](https://codepen.io/dalhundal) on [CodePen](https://codepen.io)
+A thermostat card with a round dial for Home Assistant — supports both dark and light themes.
 
-![alt text](https://github.com/ciotlosm/lovelace-thermostat-dark-card/blob/master/sample.png)
+> **Status:** Active redesign in progress. This branch contains the new project scaffolding. Card implementation will follow.
 
-[![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE.md)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
-![Project Maintenance][maintenance-shield]
-[![GitHub Activity][commits-shield]][commits]
+## Tech Stack
 
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
+- **Lit 3** — Web component framework (same as HA core frontend)
+- **TypeScript 5** — Strict mode
+- **Vite 6** — Build tool (same approach as Mushroom cards)
+- **ESLint 9** — Flat config with TypeScript support
+- **Prettier 3** — Code formatting
 
-## Support
+## Development
 
-Hey dude! Help me out for a couple of :beers: or a :coffee:!
+Requires Node.js 24+.
 
-[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/gUEVWJc)
-
-## Options
-
-| Name                 | Type    | Default      | Description                                                                                            |
-| -------------------- | ------- | ------------ | ------------------------------------------------------------------------------------------------------ |
-| type                 | string  | **Required** | `custom:thermostat-dark-card`                                                                          |
-| entity               | string  | **Required** | The entity id of climate entity. Example: `climate.hvac`                                               |
-| name                 | string  | optional     | Card title                                                                                             |
-| [hvac](#hvac-object) | object  | optional     | Allows mapping of custom states or using a custom sensor/attribute for state                           |
-| step                 | number  | 0.5          | The step to use when increasing or decreasing temperature                                              |
-| highlight_tap        | boolean | false        | Show the tap area highlight when changing temperature settings                                         |
-| chevron_size         | number  | 50           | Size of chevrons for temperature adjustment                                                            |
-| pending              | number  | 3            | Seconds to wait in control mode until state changes are sent back to the server                        |
-| idle_zone            | number  | 2            | Degrees of minimum difference between set points when thermostat supports both heating and cooling     |
-| ambient_temperature  | string  | optional     | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat |
-| range_min            | number  | optional     | Override thermostat's minimum value                                                                    |
-| range_max            | number  | optional     | Override thermostat's maximum value                                                                    |
-| [away](#away-object) | object  | optional     | Allows usage of a custom sensor/attribute for the away detection.                                      |
-
-### hvac object
-
-| Name                     | Type     | Default     | Description                                                                                         |
-| ------------------------ | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
-| states                   | optional | optional    | A list of states. See examples.                                                                     |
-| attribute                | string   | hvac_action | An attribute of the entity to use as state. This cannot be used in conjunction with sensor.         |
-| [sensor](#sensor-object) | object   | optional    | The sensor object which monitors the hvac state. This cannot be used in conjunction with attribute. |
-
-### away object
-
-**NOTE:** If the climate entity already provides an attribute `away_mode`, this configuration is wont apply.
-
-| Name                     | Type   | Default     | Description                                 |
-| ------------------------ | ------ | ----------- | ------------------------------------------- |
-| [sensor](#sensor-object) | object | optional    | A sensor which provides the away state.     |
-| attribute                | string | preset_mode | An attribute of the entity to use as state. |
-
-### sensor object
-
-| Name      | Type   | Default      | Description                                           |
-| --------- | ------ | ------------ | ----------------------------------------------------- |
-| sensor    | string | **Required** | A sensor which provides the hvac state. See examples. |
-| attribute | string | state        | An attribute of the sensor to use as state.           |
-
-## Examples
-
-### Simple example
-
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.ecobee
+```bash
+npm install
+npm run build       # production build → dist/thermostat-dark-card.js
+npm run dev         # build with watch mode (rebuilds on save)
+npm run preview     # serve dist/ on port 5000
+npm run lint        # run eslint
 ```
 
-### Example with custom hvac_states
+### Local HA sandbox
 
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.hvac
-  chevron_size: 100
-  hvac:
-    states:
-      'Off': 'idle'
-      'Cooling': 'cooling'
-      'Heating': 'heating'
-    attribute: operation_mode
+Run a Home Assistant instance with Docker that loads the card from the Vite preview server:
+
+```bash
+# Terminal 1: build + serve
+npm run dev &
+npm run preview
+
+# Terminal 2: Home Assistant
+npm run start:hass
 ```
 
-### Example with custom hvac_sensor
+Then open http://localhost:8123. The HA sandbox config is in `.hass_dev/configuration.yaml`.
 
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.nest
-  chevron_size: 100
-  hvac:
-    states:
-      'idle': 'idle'
-      'cooling': 'cooling'
-      'heating': 'heating'
-    sensor:
-      sensor: sensor.nest_thermostat_hvac_state
-```
+No devcontainer, no VS Code dependency — works with any editor and terminal.
 
-### Example with external ambient sensor
+## Distribution
 
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.ecobee
-  ambient_temperature: sensor.bedroom_temperature
-```
+Built for [HACS](https://hacs.xyz/) (Home Assistant Community Store):
+- `hacs.json` defines the card metadata
+- GitHub Actions build and attach `thermostat-dark-card.js` to releases
+- HACS picks up the file from the release assets
 
-### Custom attribute only
+## License
 
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.bedroom
-  away:
-    attribute: custom_away_mode
-```
-
-#### Sensor only
-
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.bedroom
-  away:
-    sensor:
-      sensor: input_boolean.climate_bedroom_away
-```
-
-#### Sensor with attribute
-
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.bedroom
-  away:
-    sensor:
-      sensor: climate.bedroom
-      attribute: away
-```
-
-[commits-shield]: https://img.shields.io/github/commit-activity/y/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
-[commits]: https://github.com/ciotlosm/lovelace-thermostat-dark-card/commits/master
-[devcontainer]: https://code.visualstudio.com/docs/remote/containers
-[discord]: https://discord.gg/5e9yvq
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
-[forum]: https://community.home-assistant.io/c/projects/frontend
-[license-shield]: https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2020.svg?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
-[releases]: https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases
+MIT

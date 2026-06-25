@@ -1,6 +1,0 @@
-views:
-  - cards:
-      - type: custom:thermostat-dark-card
-        name: Living
-        entity: climate.test
-        test_gui: true

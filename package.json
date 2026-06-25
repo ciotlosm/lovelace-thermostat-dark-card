@@ -1,7 +1,8 @@
 {
   "name": "thermostat-dark-card",
-  "version": "0.0.4",
-  "description": "Thermostat with a round dial",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "A thermostat card with a round dial for Home Assistant — supports dark and light themes",
   "keywords": [
     "home-assistant",
     "homeassistant",
@@ -15,39 +16,29 @@
   "repository": "git@github.com:ciotlosm/lovelace-thermostat-dark-card.git",
   "author": "Marius Ciotlos <ciotlos@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
-    "custom-card-helpers": "^1.6.6",
-    "home-assistant-js-websocket": "^4.5.0",
-    "lit-element": "^2.4.0",
-    "lit-html": "^1.3.0"
+    "home-assistant-js-websocket": "^9.6.0",
+    "lit": "^3.3.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.3",
-    "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@babel/plugin-proposal-decorators": "^7.12.1",
-    "@rollup/plugin-json": "^4.1.0",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^1.19.1",
-    "rollup": "^2.79.2",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-serve": "^1.1.0",
-    "rollup-plugin-terser": "^5.3.1",
-    "rollup-plugin-typescript2": "^0.24.3",
-    "rollup-plugin-uglify": "^6.0.4",
-    "typescript": "^3.9.7"
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "prettier": "^3.4.0",
+    "terser": "^5.37.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
   },
   "scripts": {
-    "start": "rollup -c rollup.config.dev.js --watch",
-    "build": "npm run lint && npm run rollup",
-    "lint": "eslint src/*.ts",
-    "rollup": "rollup -c"
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "preview": "vite preview --port 5000 --host 0.0.0.0",
+    "lint": "eslint src/**/*.ts",
+    "clean": "rm -rf dist",
+    "start:hass": "docker run --rm -p 8123:8123 -v ./.hass_dev:/config homeassistant/home-assistant:stable"
   }
 }
