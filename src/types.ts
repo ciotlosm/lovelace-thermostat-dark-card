@@ -23,6 +23,8 @@ export interface ThermostatCardConfig {
     idle?: string;
     off?: string;
   };
+  // Status text entity — displayed above temperature in the dial
+  status_entity?: string;
   // Preset icon mapping (YAML only) — map preset name to icon: eco, away, home, sleep, boost, comfort, activity
   preset_icons?: Record<string, string>;
   // Overrides

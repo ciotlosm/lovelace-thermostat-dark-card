@@ -2,22 +2,22 @@
 
 ## Branch & PR Workflow
 
-The `master` branch is protected. All changes must go through pull requests.
+The `main` branch is protected. All changes must go through pull requests.
 
 ```
-1. Create a feature branch from master
+1. Create a feature branch from main
 2. Push the branch to origin
-3. Create a PR targeting master
+3. Create a PR targeting main
 4. CI (build.yml) runs automatically on the PR
 5. Review and merge the PR
-6. CI runs again on the merge commit to master
+6. CI runs again on the merge commit to main
 ```
 
-**Never push directly to master.**
+**Never push directly to main.**
 
 ## Release Process
 
-Releases are automatic. When a PR is merged to master:
+Releases are automatic. When a PR is merged to main:
 
 ```
 1. release.yml triggers automatically
@@ -44,9 +44,9 @@ HACS uses the following to discover and install the card:
 
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
-| `build.yml` | PRs to master | Type check + Build + HACS validation |
+| `build.yml` | PRs to main | Type check + Build + HACS validation |
 | `label.yml` | PR opened/updated | Auto-suggests version label (patch/minor/major) |
-| `release.yml` | PR merged to master | Bumps version, builds, creates GitHub Release |
+| `release.yml` | PR merged to main | Bumps version, builds, creates GitHub Release |
 
 ## Versioning
 
@@ -66,7 +66,7 @@ The `label.yml` workflow auto-suggests a label based on file changes, but you ca
 
 If you are an AI agent contributing to this repo:
 
-1. **Never push to master directly** — always create a branch and PR
+1. **Never push to main directly** — always create a branch and PR
 2. **Use `git push -u origin <branch-name>`** for new branches
 3. **Use `gh pr create`** to open PRs (use `--body-file` for complex descriptions)
 4. **Apply version labels** to your PRs:
