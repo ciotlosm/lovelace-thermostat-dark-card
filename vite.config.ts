@@ -17,8 +17,9 @@ export default defineConfig({
     },
   },
   preview: {
-    port: 5000,
+    port: 4000,
     host: '0.0.0.0',
     cors: true,
+    allowedHosts: true,
   },
 });

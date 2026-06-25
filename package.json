@@ -36,9 +36,9 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
-    "preview": "vite preview --port 5000 --host 0.0.0.0",
+    "preview": "vite preview --port 4000 --host 0.0.0.0",
     "lint": "eslint src/**/*.ts",
     "clean": "rm -rf dist",
-    "start:hass": "docker run --rm -p 8123:8123 -v ./.hass_dev:/config homeassistant/home-assistant:stable"
+    "start:hass": "podman run --rm -p 8123:8123 -v ./.hass_dev:/config homeassistant/home-assistant:stable"
   }
 }

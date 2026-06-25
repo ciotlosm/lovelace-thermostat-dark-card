@@ -2,13 +2,22 @@ default_config:
 
 frontend:
   extra_module_url:
-    - http://localhost:5000/thermostat-dark-card.js
+    - http://localhost:4000/thermostat-dark-card.js
+
+template:
+  - sensor:
+      - name: "Living Room Temperature"
+        unit_of_measurement: "°C"
+        state: "21.5"
+      - name: "Bedroom Temperature"
+        unit_of_measurement: "°C"
+        state: "18.3"
 
 climate:
   - platform: generic_thermostat
     name: Living Room
     heater: input_boolean.heater
-    target_sensor: sensor.temperature
+    target_sensor: sensor.living_room_temperature
     min_temp: 15
     max_temp: 30
     target_temp: 21
@@ -20,18 +29,6 @@ climate:
     min_temp: 15
     max_temp: 30
     target_temp: 19
-
-sensor:
-  - platform: template
-    sensors:
-      temperature:
-        friendly_name: "Living Room Temperature"
-        unit_of_measurement: "°C"
-        value_template: "21.5"
-      bedroom_temperature:
-        friendly_name: "Bedroom Temperature"
-        unit_of_measurement: "°C"
-        value_template: "18.3"
 
 input_boolean:
   heater:
