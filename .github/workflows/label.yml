@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
 
       - name: Suggest version label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { data: files } = await github.rest.pulls.listFiles({
