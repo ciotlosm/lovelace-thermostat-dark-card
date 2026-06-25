@@ -13,11 +13,6 @@ export class ThermostatDarkCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config!: ThermostatCardConfig;
 
-  public static async getConfigElement(): Promise<HTMLElement> {
-    await import('../editor/editor');
-    return document.createElement('thermostat-dark-card-editor');
-  }
-
   public static getConfigForm() {
     return {
       schema: [
@@ -47,19 +42,8 @@ export class ThermostatDarkCard extends LitElement {
         },
       ],
       computeLabel: (schema: { name: string }) => {
-        const labels: Record<string, string> = {
-          entity: localize('editor_entity'),
-          name: localize('editor_name'),
-          theme: localize('editor_theme'),
-          step: localize('editor_step'),
-          pending: localize('editor_pending'),
-          ambient_temperature: localize('editor_ambient_temperature'),
-          status_entity: localize('editor_status_entity'),
-          readonly: localize('editor_readonly'),
-          show_power_toggle: localize('editor_show_power_toggle'),
-          show_preset_indicator: localize('editor_show_preset_indicator'),
-        };
-        return labels[schema.name] ?? schema.name;
+        const lang = document.documentElement.lang || 'en';
+        return localize(`editor_${schema.name}`, lang) ?? schema.name;
       },
     };
   }
