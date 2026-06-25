@@ -1,5 +1,7 @@
 # Thermostat Dark Card
 
+[English](README.md) | [中文](docs/zh-CN/README.md)
+
 [![HACS Default](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
 [![Build](https://img.shields.io/github/actions/workflow/status/ciotlosm/lovelace-thermostat-dark-card/release.yml?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/actions)

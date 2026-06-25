@@ -4,6 +4,7 @@ import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import type { ThermostatCardConfig, HvacAction } from '../types';
 import { DEFAULT_CONFIG } from '../const';
+import { localize } from '../localize/translations';
 import '../dial/dial';
 
 @customElement('thermostat-dark-card')
@@ -46,16 +47,16 @@ export class ThermostatDarkCard extends LitElement {
       ],
       computeLabel: (schema: { name: string }) => {
         const labels: Record<string, string> = {
-          entity: 'Entity',
-          name: 'Name',
-          theme: 'Theme',
-          step: 'Step override',
-          pending: 'Pending (seconds)',
-          ambient_temperature: 'Ambient temperature sensor',
-          status_entity: 'Status text entity',
-          readonly: 'Read-only mode',
-          show_power_toggle: 'Show power toggle',
-          show_preset_indicator: 'Show preset indicator',
+          entity: localize('editor_entity'),
+          name: localize('editor_name'),
+          theme: localize('editor_theme'),
+          step: localize('editor_step'),
+          pending: localize('editor_pending'),
+          ambient_temperature: localize('editor_ambient_temperature'),
+          status_entity: localize('editor_status_entity'),
+          readonly: localize('editor_readonly'),
+          show_power_toggle: localize('editor_show_power_toggle'),
+          show_preset_indicator: localize('editor_show_preset_indicator'),
         };
         return labels[schema.name] ?? schema.name;
       },
