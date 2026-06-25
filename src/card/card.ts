@@ -68,9 +68,7 @@ export class ThermostatDarkCard extends LitElement {
   public getGridOptions() {
     return {
       columns: 6,
-      rows: 6,
       min_columns: 3,
-      min_rows: 3,
     };
   }
 
@@ -135,9 +133,9 @@ export class ThermostatDarkCard extends LitElement {
           .tick_degrees=${this._config.tick_degrees}
           .pending=${this._config.pending}
           .idle_zone=${this._config.idle_zone}
-          .show_ticks=${this._config.show_ticks}
-          .show_power_toggle=${this._config.show_power_toggle}
-          .show_preset_indicator=${this._config.show_preset_indicator}
+          .show_ticks=${this._config.show_ticks ?? true}
+          .show_power_toggle=${this._config.show_power_toggle ?? true}
+          .show_preset_indicator=${this._config.show_preset_indicator ?? true}
           .readonly=${this._config.readonly ?? false}
           .theme=${this._config.theme}
           .colors=${this._config.colors}

@@ -5,7 +5,7 @@
 [![HACS Default](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
 [![Build](https://img.shields.io/github/actions/workflow/status/ciotlosm/lovelace-thermostat-dark-card/release.yml?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/actions)
-[![License](https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/blob/main/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/ciotlosm/lovelace-thermostat-dark-card/total?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
 
 A Nest-style thermostat card for Home Assistant with a round dial interface. Supports single and dual (heat/cool) setpoints, preset modes, and multiple themes.
@@ -166,6 +166,7 @@ ambient_temperature: sensor.living_room_external_temp
 - **Chevron controls** — Tap up/down arrows for precise adjustments
 - **Predictive feedback** — Disc color fades to show predicted heating/cooling state while editing
 - **Preset indicators** — Shows eco leaf, home, sleep, and other icons
+- **More-info dialog** — Long-press (mobile) or right-click (desktop) opens the HA entity dialog
 - **Responsive** — Scales to fit any card size
 
 ## License
