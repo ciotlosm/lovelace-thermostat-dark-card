@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thermostat Dark Card — Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a1a; color: #fff; font-family: system-ui, sans-serif; padding: 24px; }
+    h1 { margin-bottom: 8px; font-weight: 300; }
+    p.subtitle { color: #888; margin-bottom: 24px; font-size: 14px; }
+    .layout { display: flex; gap: 24px; flex-wrap: wrap; }
+    .preview { flex: 1; min-width: 300px; max-width: 400px; }
+    .controls { flex: 0 0 280px; display: flex; flex-direction: column; gap: 12px; }
+    .control { display: flex; flex-direction: column; gap: 4px; }
+    .control label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .control select, .control input { 
+      padding: 8px 12px; border: 1px solid #444; border-radius: 6px;
+      background: #2a2a2a; color: #fff; font-size: 14px;
+    }
+    .control input[type="range"] { padding: 4px 0; }
+    .control .value { font-size: 12px; color: #aaa; text-align: right; }
+    .toggle { display: flex; align-items: center; gap: 8px; }
+    .toggle input { width: 18px; height: 18px; }
+    .toggle label { font-size: 13px; color: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Thermostat Dark Card — Demo</h1>
+  <p class="subtitle">Interactive preview. Adjust controls to see changes in real-time.</p>
+
+  <div class="layout">
+    <div class="preview">
+      <thermostat-dial id="dial"
+        current_temperature="21.5"
+        temperature="22"
+        min_temp="15"
+        max_temp="30"
+        target_temp_step="0.5"
+        hvac_action="heating"
+        hvac_mode="heat"
+        theme="dark"
+      ></thermostat-dial>
+    </div>
+
+    <div class="controls">
+      <div class="control">
+        <label>Theme</label>
+        <select id="theme">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+          <option value="transparent">Transparent</option>
+          <option value="glassy">Glassy</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label>HVAC Action</label>
+        <select id="hvac_action">
+          <option value="heating">Heating</option>
+          <option value="cooling">Cooling</option>
+          <option value="idle">Idle</option>
+          <option value="off">Off</option>
+          <option value="drying">Drying</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label>HVAC Mode</label>
+        <select id="hvac_mode">
+          <option value="heat">Heat</option>
+          <option value="cool">Cool</option>
+          <option value="heat_cool">Heat/Cool</option>
+          <option value="auto">Auto</option>
+          <option value="off">Off</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label>Current Temperature: <span class="value" id="current_val">21.5</span></label>
+        <input type="range" id="current_temperature" min="15" max="30" step="0.5" value="21.5">
+      </div>
+
+      <div class="control">
+        <label>Target Temperature: <span class="value" id="target_val">22</span></label>
+        <input type="range" id="temperature" min="15" max="30" step="0.5" value="22">
+      </div>
+
+      <div class="control">
+        <label>Target Low (dual): <span class="value" id="low_val">—</span></label>
+        <input type="range" id="target_temp_low" min="15" max="30" step="0.5" value="19" disabled>
+      </div>
+
+      <div class="control">
+        <label>Target High (dual): <span class="value" id="high_val">—</span></label>
+        <input type="range" id="target_temp_high" min="15" max="30" step="0.5" value="24" disabled>
+      </div>
+
+      <div class="toggle">
+        <input type="checkbox" id="dual_mode">
+        <label for="dual_mode">Dual mode (heat/cool)</label>
+      </div>
+
+      <div class="toggle">
+        <input type="checkbox" id="show_ticks" checked>
+        <label for="show_ticks">Show ticks</label>
+      </div>
+
+      <div class="toggle">
+        <input type="checkbox" id="readonly_mode">
+        <label for="readonly_mode">Read-only</label>
+      </div>
+
+      <div class="control">
+        <label>Preset Mode</label>
+        <select id="preset_mode">
+          <option value="">None</option>
+          <option value="eco">Eco (leaf)</option>
+          <option value="away">Away (leaf)</option>
+          <option value="home">Home</option>
+          <option value="sleep">Sleep</option>
+          <option value="boost">Boost</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import '/thermostat-dark-card.js';
+
+    const dial = document.getElementById('dial');
+
+    function update(attr, value) {
+      if (value === '' || value === null) {
+        dial.removeAttribute(attr);
+      } else {
+        dial.setAttribute(attr, value);
+      }
+    }
+
+    // Selects
+    document.getElementById('theme').addEventListener('change', e => update('theme', e.target.value));
+    document.getElementById('hvac_action').addEventListener('change', e => update('hvac_action', e.target.value));
+    document.getElementById('hvac_mode').addEventListener('change', e => update('hvac_mode', e.target.value));
+    document.getElementById('preset_mode').addEventListener('change', e => {
+      update('preset_mode', e.target.value || null);
+    });
+
+    // Ranges
+    document.getElementById('current_temperature').addEventListener('input', e => {
+      update('current_temperature', e.target.value);
+      document.getElementById('current_val').textContent = e.target.value;
+    });
+    document.getElementById('temperature').addEventListener('input', e => {
+      update('temperature', e.target.value);
+      document.getElementById('target_val').textContent = e.target.value;
+    });
+    document.getElementById('target_temp_low').addEventListener('input', e => {
+      update('target_temp_low', e.target.value);
+      document.getElementById('low_val').textContent = e.target.value;
+    });
+    document.getElementById('target_temp_high').addEventListener('input', e => {
+      update('target_temp_high', e.target.value);
+      document.getElementById('high_val').textContent = e.target.value;
+    });
+
+    // Toggles
+    document.getElementById('dual_mode').addEventListener('change', e => {
+      const low = document.getElementById('target_temp_low');
+      const high = document.getElementById('target_temp_high');
+      const single = document.getElementById('temperature');
+      if (e.target.checked) {
+        low.disabled = false;
+        high.disabled = false;
+        single.disabled = true;
+        update('target_temp_low', low.value);
+        update('target_temp_high', high.value);
+        dial.removeAttribute('temperature');
+        document.getElementById('low_val').textContent = low.value;
+        document.getElementById('high_val').textContent = high.value;
+        document.getElementById('target_val').textContent = '—';
+      } else {
+        low.disabled = true;
+        high.disabled = true;
+        single.disabled = false;
+        dial.removeAttribute('target_temp_low');
+        dial.removeAttribute('target_temp_high');
+        update('temperature', single.value);
+        document.getElementById('low_val').textContent = '—';
+        document.getElementById('high_val').textContent = '—';
+        document.getElementById('target_val').textContent = single.value;
+      }
+    });
+
+    document.getElementById('show_ticks').addEventListener('change', e => {
+      dial.show_ticks = e.target.checked;
+    });
+
+    document.getElementById('readonly_mode').addEventListener('change', e => {
+      if (e.target.checked) {
+        dial.setAttribute('readonly', '');
+      } else {
+        dial.removeAttribute('readonly');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { HvacAction } from '../types';
 import { temperatureToTick, offsetDegrees, clamp, rotatePoint, rotatePoints, pointsToPath } from './svg-utils';
 import { renderTicks, TickConfig, TickRange } from './dial-ticks';
-import { themeToStyle } from '../themes/index';
+import { themeToStyle, themeHasColoredTicks } from '../themes/index';
 import { renderRing } from './dial-arc';
 import { DialInteractionController, InteractionHost } from './dial-interaction';
 import { dialStyles } from './styles';
@@ -32,7 +32,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Boolean }) show_power_toggle = true;
   @property({ type: Boolean }) show_preset_indicator = true;
   @property({ type: Boolean }) readonly = false;
-  @property({ type: String, reflect: true }) theme: 'dark' | 'light' | 'transparent' = 'dark';
+  @property({ type: String, reflect: true }) theme: string = 'dark';
   @property({ type: Object }) colors?: { heating?: string; cooling?: string; idle?: string; off?: string };
   @property({ type: Object }) _presetIcons?: Record<string, string>;
   @property({ type: String }) status_text: string | null = null;
@@ -129,6 +129,38 @@ export class ThermostatDial extends LitElement implements InteractionHost {
       if (this.colors.cooling) vars.push(`--dial-cooling-fill: ${this.colors.cooling}`);
       if (this.colors.idle) vars.push(`--dial-idle-fill: ${this.colors.idle}`);
       if (this.colors.off) vars.push(`--dial-off-fill: ${this.colors.off}`);
+    }
+
+    // Colored ticks: active tick color matches HVAC action
+    // Enabled by theme setting (colored-ticks: "true" in theme JSON)
+    if (themeHasColoredTicks(this.theme)) {
+      const action = this.editing ? this._predictAction() : (this.hvac_action ?? 'off');
+      const isLight = this.theme === 'light';
+      const isTransparent = this.theme === 'transparent' || this.theme === 'glassy';
+
+      // Base colors per action
+      const baseColors: Record<string, string> = {
+        heating: '#e36304',
+        cooling: '#007af1',
+        drying: '#a68b00',
+      };
+
+      const baseColor = baseColors[action];
+      if (baseColor) {
+        if (isTransparent) {
+          // Raw color on transparent backgrounds
+          vars.push(`--dial-path-active-color: ${baseColor}`);
+          vars.push(`--dial-path-active-large-color: ${baseColor}`);
+        } else if (isLight) {
+          // Much darker variant for light disc
+          vars.push(`--dial-path-active-color: color-mix(in srgb, ${baseColor} 60%, black)`);
+          vars.push(`--dial-path-active-large-color: color-mix(in srgb, ${baseColor} 50%, black)`);
+        } else {
+          // Much lighter variant for dark disc
+          vars.push(`--dial-path-active-color: color-mix(in srgb, ${baseColor} 55%, white)`);
+          vars.push(`--dial-path-active-large-color: color-mix(in srgb, ${baseColor} 40%, white)`);
+        }
+      }
     }
 
     return vars.join('; ');

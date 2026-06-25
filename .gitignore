@@ -13,6 +13,7 @@ dist/
 *.swp
 *.swo
 .idea/
+.vscode/
 *.iml
 
 # environment

@@ -1,0 +1,15 @@
+{
+  "editor_entity": "Entita",
+  "editor_name": "Názov",
+  "editor_hide_name": "Skryť názov",
+  "editor_theme": "Téma",
+  "editor_step": "Prepísanie kroku",
+  "editor_pending": "Čakanie (sekundy)",
+  "editor_ambient_temperature": "Senzor okolitej teploty",
+  "editor_status_entity": "Entita stavového textu",
+  "editor_readonly": "Režim len na čítanie",
+  "editor_show_power_toggle": "Tlačidlo napájania",
+  "editor_show_preset_indicator": "Ikona predvoľby",
+  "card_name": "Termostat tmavá karta",
+  "card_description": "Karta termostatu s kruhovým ciferníkom — podporuje tmavé a svetlé témy"
+}

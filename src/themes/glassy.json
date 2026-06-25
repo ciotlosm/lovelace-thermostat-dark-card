@@ -1,0 +1,13 @@
+{
+  "dial-off-fill": "transparent",
+  "dial-idle-fill": "transparent",
+  "dial-heating-fill": "transparent",
+  "dial-cooling-fill": "transparent",
+  "dial-drying-fill": "transparent",
+  "dial-text-color": "#f8fbff",
+  "dial-path-color": "rgba(255, 255, 255, 0.2)",
+  "dial-path-active-color": "#7fe8ff",
+  "dial-path-active-large-color": "#7fe8ff",
+  "dial-leaf-color": "#13eb13",
+  "dial-toggle-color": "rgba(255, 255, 255, 0.5)"
+}
