@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.5.0...v2.6.0) (2026-06-25)
+
+
+### Features
+
+* long-press more-info, toggle fixes, dead code cleanup ([#343](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/343)) ([d136482](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/d136482b7818cb41640ae7c108f1e40e44736ecc))
+
 ## [2.5.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.4.0...v2.5.0) (2026-06-25)
 
 
