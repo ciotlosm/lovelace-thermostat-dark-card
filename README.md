@@ -48,6 +48,10 @@ These are available in the visual card editor:
 | `name` | string / false | entity name | Card title. Set to `false` to hide |
 | `theme` | string | `dark` | `dark`, `light`, or `transparent` |
 | `step` | number | from entity | Temperature step override (celsius only) |
+| `readonly` | boolean | `false` | Disable all interaction (display only) |
+| `ambient_temperature` | string | — | External temperature sensor entity ID |
+| `show_power_toggle` | boolean | `true` | Show power on/off button |
+| `show_preset_indicator` | boolean | `true` | Show preset mode icon |
 
 ### Advanced Options (YAML only)
 
@@ -57,13 +61,8 @@ For fine-tuning behavior — not exposed in UI:
 |--------|------|---------|-------------|
 | `pending` | number | `3` | Seconds before committing temperature change |
 | `idle_zone` | number | `0` | Minimum gap between low/high targets in dual mode |
-| `show_ticks` | boolean | `true` | Show tick marks |
-| `show_power_toggle` | boolean | `true` | Show power on/off button |
-| `show_preset_indicator` | boolean | `true` | Show preset mode icon |
-| `readonly` | boolean | `false` | Disable all interaction (display only) |
 | `range_min` | number | from entity | Override minimum temperature |
 | `range_max` | number | from entity | Override maximum temperature |
-| `ambient_temperature` | string | — | External temperature sensor entity ID |
 | `colors` | object | — | Custom color overrides (see below) |
 | `preset_icons` | object | — | Map preset names to icons (see below) |
 
@@ -76,6 +75,7 @@ Internal rendering parameters — changing these may break the dial appearance:
 | `diameter` | number | `400` | SVG viewBox size (all proportions are relative to this) |
 | `num_ticks` | number | `150` | Number of tick marks on the ring |
 | `tick_degrees` | number | `300` | Arc span of tick marks (degrees) |
+| `show_ticks` | boolean | `true` | Show tick marks |
 
 ### Themes
 

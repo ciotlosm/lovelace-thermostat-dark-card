@@ -71,6 +71,36 @@ export class ThermostatDarkCardEditor extends LitElement {
             <option value="transparent" ?selected=${this._config.theme === 'transparent'}>Transparent</option>
           </select>
         </div>
+
+        <ha-entity-picker
+          .label=${'Ambient Temperature Sensor (Optional)'}
+          .hass=${this.hass}
+          .value=${this._config.ambient_temperature || ''}
+          .includeDomains=${['sensor']}
+          @value-changed=${this._ambientChanged}
+          allow-custom-entity
+        ></ha-entity-picker>
+
+        <div class="toggle-row">
+          <ha-formfield .label=${'Read-only mode'}>
+            <ha-switch
+              .checked=${this._config.readonly ?? false}
+              @change=${this._readonlyToggled}
+            ></ha-switch>
+          </ha-formfield>
+          <ha-formfield .label=${'Show power toggle'}>
+            <ha-switch
+              .checked=${this._config.show_power_toggle ?? true}
+              @change=${this._powerToggleChanged}
+            ></ha-switch>
+          </ha-formfield>
+          <ha-formfield .label=${'Show preset indicator'}>
+            <ha-switch
+              .checked=${this._config.show_preset_indicator ?? true}
+              @change=${this._presetToggleChanged}
+            ></ha-switch>
+          </ha-formfield>
+        </div>
       </div>
     `;
   }
@@ -121,6 +151,40 @@ export class ThermostatDarkCardEditor extends LitElement {
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
+  private _ambientChanged(ev: CustomEvent): void {
+    if (!this._config) return;
+    const value = ev.detail.value;
+    const newConfig = { ...this._config };
+    if (value) {
+      newConfig.ambient_temperature = value;
+    } else {
+      delete newConfig.ambient_temperature;
+    }
+    this._config = newConfig;
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _readonlyToggled(ev: Event): void {
+    if (!this._config) return;
+    const checked = (ev.target as HTMLInputElement).checked;
+    this._config = { ...this._config, readonly: checked || undefined };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _powerToggleChanged(ev: Event): void {
+    if (!this._config) return;
+    const checked = (ev.target as HTMLInputElement).checked;
+    this._config = { ...this._config, show_power_toggle: checked };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _presetToggleChanged(ev: Event): void {
+    if (!this._config) return;
+    const checked = (ev.target as HTMLInputElement).checked;
+    this._config = { ...this._config, show_preset_indicator: checked };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
   static get styles(): CSSResultGroup {
     return css`
       .card-config {
@@ -154,6 +218,11 @@ export class ThermostatDarkCardEditor extends LitElement {
         color: var(--primary-text-color);
         font-size: 14px;
         cursor: pointer;
+      }
+      .toggle-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
       }
     `;
   }
