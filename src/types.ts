@@ -15,6 +15,13 @@ export interface ThermostatCardConfig {
   show_preset_indicator?: boolean;
   num_ticks?: number;
   tick_degrees?: number;
+  // Color overrides (YAML only, not in visual editor)
+  colors?: {
+    heating?: string;
+    cooling?: string;
+    idle?: string;
+    off?: string;
+  };
   // Overrides
   range_min?: number;
   range_max?: number;

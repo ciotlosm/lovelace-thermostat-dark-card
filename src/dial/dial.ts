@@ -2,7 +2,7 @@ import { LitElement, html, svg, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { HvacAction } from '../types';
 import { ECO_PRESETS } from '../const';
-import { formatTemp, temperatureToTick, offsetDegrees, clamp, rotatePoint, rotatePoints, pointsToPath } from './svg-utils';
+import { temperatureToTick, offsetDegrees, clamp, rotatePoint, rotatePoints, pointsToPath } from './svg-utils';
 import { renderTicks, TickConfig, TickRange } from './dial-ticks';
 import { renderRing } from './dial-arc';
 import { DialInteractionController, InteractionHost } from './dial-interaction';
@@ -31,6 +31,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Boolean }) show_power_toggle = true;
   @property({ type: Boolean }) show_preset_indicator = true;
   @property({ type: String, reflect: true }) theme: 'dark' | 'light' | 'transparent' = 'dark';
+  @property({ type: Object }) colors?: { heating?: string; cooling?: string; idle?: string; off?: string };
 
   // --- Internal state ---
   @state() editing = false;
@@ -83,11 +84,13 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   protected render(): TemplateResult {
     const r = this._radius;
+    const colorStyle = this._getColorStyle();
     return html`
       <div class="dial-container">
         <svg
           viewBox="0 0 ${this.diameter} ${this.diameter}"
           class="dial"
+          style=${colorStyle}
           @click=${this._handleDialClick}
           @pointerdown=${this._handlePointerDown}
           @pointermove=${this._handlePointerMove}
@@ -104,6 +107,17 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         </svg>
       </div>
     `;
+  }
+
+  // --- Color overrides as inline CSS variables ---
+  private _getColorStyle(): string {
+    if (!this.colors) return '';
+    const vars: string[] = [];
+    if (this.colors.heating) vars.push(`--dial-heating-fill: ${this.colors.heating}`);
+    if (this.colors.cooling) vars.push(`--dial-cooling-fill: ${this.colors.cooling}`);
+    if (this.colors.idle) vars.push(`--dial-idle-fill: ${this.colors.idle}`);
+    if (this.colors.off) vars.push(`--dial-off-fill: ${this.colors.off}`);
+    return vars.join('; ');
   }
 
   // --- SVG Layer: Background disc ---

@@ -94,6 +94,7 @@ export class ThermostatDarkCard extends LitElement {
           .show_power_toggle=${this._config.show_power_toggle}
           .show_preset_indicator=${this._config.show_preset_indicator}
           .theme=${this._config.theme}
+          .colors=${this._config.colors}
           @temperature-changed=${this._handleTemperatureChanged}
           @toggle=${this._handleToggle}
         ></thermostat-dial>
