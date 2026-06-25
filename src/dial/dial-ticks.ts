@@ -32,18 +32,21 @@ export function renderTicks(
     const isLarge = largeIndices.includes(i);
     const isActive = from !== undefined && to !== undefined && i >= from && i <= to;
 
+    const tickOuter = outerRadius;
+    const tickInner = innerRadius;
+
     const points: [number, number][] = isLarge
       ? [
-          [radius - 1.5, outerRadius],
-          [radius + 1.5, outerRadius],
-          [radius + 1.5, innerRadius + 20],
-          [radius - 1.5, innerRadius + 20],
+          [radius - 1.5, tickOuter],
+          [radius + 1.5, tickOuter],
+          [radius + 1.5, tickInner + 20],
+          [radius - 1.5, tickInner + 20],
         ]
       : [
-          [radius - 1, outerRadius],
-          [radius + 1, outerRadius],
-          [radius + 1, innerRadius],
-          [radius - 1, innerRadius],
+          [radius - 1, tickOuter],
+          [radius + 1, tickOuter],
+          [radius + 1, tickInner],
+          [radius - 1, tickInner],
         ];
 
     const rotated = rotatePoints(points, i * theta - offsetDegrees, origin);

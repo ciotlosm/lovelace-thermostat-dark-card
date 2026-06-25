@@ -10,7 +10,7 @@ export class ThermostatDarkCardEditor extends LitElement {
   @state() private _config?: ThermostatCardConfig;
 
   public setConfig(config: ThermostatCardConfig): void {
-    this._config = config;
+    this._config = { ...config };
   }
 
   protected render(): TemplateResult {
@@ -19,65 +19,29 @@ export class ThermostatDarkCardEditor extends LitElement {
     return html`
       <div class="card-config">
         <ha-entity-picker
-          label="Entity (Required)"
+          .label=${'Entity (Required)'}
           .hass=${this.hass}
           .value=${this._config.entity || ''}
           .configValue=${'entity'}
           .includeDomains=${['climate']}
-          @value-changed=${this._valueChanged}
+          @value-changed=${this._entityChanged}
           allow-custom-entity
         ></ha-entity-picker>
-
-        <ha-textfield
-          label="Name (Optional)"
-          .value=${this._config.name || ''}
-          .configValue=${'name'}
-          @input=${this._valueChanged}
-        ></ha-textfield>
-
-        <ha-textfield
-          label="Step"
-          type="number"
-          .value=${String(this._config.step ?? 0.5)}
-          .configValue=${'step'}
-          @input=${this._valueChanged}
-        ></ha-textfield>
-
-        <ha-textfield
-          label="Pending (seconds)"
-          type="number"
-          .value=${String(this._config.pending ?? 3)}
-          .configValue=${'pending'}
-          @input=${this._valueChanged}
-        ></ha-textfield>
       </div>
     `;
   }
 
-  private _valueChanged(ev: Event): void {
-    if (!this._config || !this.hass) return;
-    const target = ev.target as HTMLInputElement & { configValue?: string };
-    const key = target.configValue;
-    if (!key) return;
-
-    let value: string | number = target.value;
-    if (target.type === 'number') {
-      value = parseFloat(value);
-      if (isNaN(value)) return;
-    }
-
-    if ((this._config as unknown as Record<string, unknown>)[key] === value) return;
-
-    this._config = value === '' ? { ...this._config, [key]: undefined } : { ...this._config, [key]: value };
+  private _entityChanged(ev: CustomEvent): void {
+    if (!this._config) return;
+    const value = ev.detail.value;
+    if (this._config.entity === value) return;
+    this._config = { ...this._config, entity: value };
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
   static get styles(): CSSResultGroup {
     return css`
       .card-config {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
         padding: 16px 0;
       }
     `;

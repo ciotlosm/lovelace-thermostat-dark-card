@@ -1,7 +1,6 @@
 export const CARD_VERSION = '1.0.0';
 
 export const DEFAULT_CONFIG = {
-  step: 0.5,
   pending: 3,
   idle_zone: 2,
   diameter: 400,

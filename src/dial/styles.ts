@@ -14,17 +14,18 @@ export const dialStyles = css`
   .dial {
     user-select: none;
     cursor: pointer;
+    touch-action: none;
     width: 100%;
     height: auto;
 
     /* Theme-aware colors */
-    --dial-off-fill: var(--card-background-color, #555);
-    --dial-idle-fill: var(--card-background-color, #222);
+    --dial-off-fill: #555;
+    --dial-idle-fill: #222;
     --dial-heating-fill: #e36304;
     --dial-cooling-fill: #007af1;
     --dial-drying-fill: #a68b00;
     --dial-text-color: var(--primary-text-color, #fff);
-    --dial-path-color: rgba(128, 128, 128, 0.3);
+    --dial-path-color: rgba(255, 255, 255, 0.3);
     --dial-path-active-color: rgba(255, 255, 255, 0.8);
     --dial-path-active-large-color: rgba(255, 255, 255, 1);
     --dial-leaf-color: #13eb13;
@@ -60,6 +61,8 @@ export const dialStyles = css`
     fill: var(--dial-idle-fill);
   }
 
+  /* Off state uses grey fill (handled by disc color) */
+
   /* Ticks */
   .dial-tick {
     fill: var(--dial-path-color);
@@ -76,32 +79,29 @@ export const dialStyles = css`
     fill: var(--dial-text-color);
     text-anchor: middle;
     dominant-baseline: central;
-    font-family: var(--ha-card-header-font-family, inherit);
+    font-family: Helvetica, sans-serif;
   }
   .dial-text--ambient {
-    font-size: 80px;
+    font-size: 120px;
     font-weight: bold;
     opacity: 1;
     transition: opacity 0.3s ease;
   }
   .dial-text--target {
-    font-size: 80px;
+    font-size: 120px;
     font-weight: bold;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
   .dial-text--low,
   .dial-text--high {
-    font-size: 55px;
+    font-size: 90px;
     font-weight: bold;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  .dial-text--unit {
-    font-size: 30px;
-  }
 
-  /* Edit mode: swap visibility */
+  /* Edit mode: swap center text and show dual targets */
   :host([editing]) .dial-text--ambient {
     opacity: 0;
   }
@@ -113,31 +113,45 @@ export const dialStyles = css`
     opacity: 1;
   }
 
-  /* Ring (editable indicator) */
+  /* Ring (edit mode indicator — thin outline at edge) */
   .dial-ring {
-    fill: white;
-    fill-rule: evenodd;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
   :host([editing]) .dial-ring {
-    opacity: 0.15;
+    opacity: 1;
+  }
+
+  /* Ring labels (temperature values on the tick ring) */
+  .dial-ring-label {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  /* Pointer tick — thicker, extends inward */
+  .dial-pointer {
+    fill: var(--dial-path-active-large-color);
+  }
+  :host([off]) .dial-pointer {
+    fill: var(--dial-path-color);
   }
 
   /* Controls (chevrons) */
   .dial-chevron {
+    cursor: pointer;
+    opacity: 0.3;
+    transition: opacity 0.15s ease;
+  }
+  .dial-chevron path {
     fill: none;
     stroke: var(--dial-text-color);
     stroke-width: 4px;
-    opacity: 0;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
   }
-  :host([editing]) .dial-chevron {
-    opacity: 0.3;
+  .dial-chevron:active {
+    opacity: 1;
   }
-  .dial-chevron--pressed {
-    opacity: 1 !important;
+  .dial-chevron:active path {
+    stroke: white;
   }
 
   /* Indicators */
@@ -151,12 +165,34 @@ export const dialStyles = css`
   }
 
   .dial-power {
-    fill: var(--dial-toggle-color);
     cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease;
+  }
+  .dial-power path {
+    fill: var(--dial-toggle-color);
+    transition: fill 0.3s ease;
+  }
+  :host([off]) .dial-power path {
+    fill: darkgrey;
+  }
+  :host(:not([off])) .dial-power path {
+    fill: lightgrey;
   }
   .dial-power:hover {
+    opacity: 0.8;
+  }
+  .dial-power--hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .dial-thermo {
+    fill: var(--dial-path-active-color);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .dial-thermo--visible {
     opacity: 1;
   }
 `;

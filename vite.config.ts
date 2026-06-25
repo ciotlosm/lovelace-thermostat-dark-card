@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   build: {
-    target: 'es2022',
+    target: 'es2017',
     minify: 'terser',
     lib: {
       entry: 'src/thermostat-dark-card.ts',

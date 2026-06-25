@@ -43,6 +43,16 @@ export class DialInteractionController implements ReactiveController {
     this._resetTimer();
   }
 
+  /** Pause the pending timer (e.g., during drag). */
+  pauseTimer(): void {
+    this._clearTimeout();
+  }
+
+  /** Resume the pending timer (e.g., after drag ends). */
+  resumeTimer(): void {
+    this._resetTimer();
+  }
+
   /** Adjust single target temperature. */
   adjustTarget(direction: 1 | -1): void {
     const host = this._host;
