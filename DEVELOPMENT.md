@@ -34,6 +34,18 @@ For watch mode (auto-rebuild on file changes):
 npm run dev
 ```
 
+## Demo Page
+
+A standalone interactive demo is available at `http://localhost:4000/demo.html` after building:
+
+```bash
+npm run build
+npm run preview
+# Open http://localhost:4000/demo.html
+```
+
+The demo lets you test all card options without Home Assistant — theme, HVAC state, temperatures, dual mode, presets, and more. Useful for quick visual testing during development.
+
 ## Project Structure
 
 ```

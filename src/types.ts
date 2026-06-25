@@ -4,7 +4,7 @@ export interface ThermostatCardConfig {
   entity: string;
   name?: string | false;
   hide_name?: boolean;
-  theme?: 'dark' | 'light' | 'transparent';
+  theme?: string;
   // Dial behavior
   step?: number;
   pending?: number; // seconds before committing temperature change
@@ -34,16 +34,6 @@ export interface ThermostatCardConfig {
   ambient_temperature?: string; // external sensor entity
 }
 
-// HA climate entity HVAC modes
-export type HvacMode =
-  | 'off'
-  | 'heat'
-  | 'cool'
-  | 'heat_cool'
-  | 'auto'
-  | 'dry'
-  | 'fan_only';
-
 // HA climate entity HVAC actions (what's actually happening)
 export type HvacAction =
   | 'off'
@@ -54,17 +44,3 @@ export type HvacAction =
   | 'fan'
   | 'preheating'
   | 'defrosting';
-
-// Resolved state passed from card to dial component
-export interface DialState {
-  current_temperature: number;
-  temperature: number | null; // single target
-  target_temp_low: number | null; // dual mode
-  target_temp_high: number | null; // dual mode
-  min_temp: number;
-  max_temp: number;
-  target_temp_step: number;
-  hvac_mode: HvacMode;
-  hvac_action: HvacAction | null;
-  preset_mode: string | null;
-}

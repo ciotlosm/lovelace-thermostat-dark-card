@@ -32,6 +32,13 @@ export function themeToStyle(themeName: string): string {
   const tokens = themes[themeName];
   if (!tokens) return '';
   return Object.entries(tokens)
+    .filter(([key]) => key !== 'colored-ticks')
     .map(([key, value]) => `--${key}: ${value}`)
     .join('; ');
+}
+
+/** Check if a theme enables colored ticks */
+export function themeHasColoredTicks(themeName: string): boolean {
+  const tokens = themes[themeName];
+  return tokens?.['colored-ticks'] === 'true';
 }

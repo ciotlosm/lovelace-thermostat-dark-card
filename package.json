@@ -35,7 +35,7 @@
   },
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
+    "build": "vite build && cp demo/index.html dist/demo.html",
     "preview": "vite preview --port 4000 --host 0.0.0.0",
     "lint": "eslint src/**/*.ts",
     "clean": "rm -rf dist",
