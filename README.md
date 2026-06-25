@@ -52,6 +52,7 @@ These are available in the visual card editor:
 | `ambient_temperature` | string | — | External temperature sensor entity ID |
 | `show_power_toggle` | boolean | `true` | Show power on/off button |
 | `show_preset_indicator` | boolean | `true` | Show preset mode icon |
+| `pending` | number | `3` | Seconds before committing temperature change |
 
 ### Advanced Options (YAML only)
 
@@ -59,7 +60,6 @@ For fine-tuning behavior — not exposed in UI:
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `pending` | number | `3` | Seconds before committing temperature change |
 | `idle_zone` | number | `0` | Minimum gap between low/high targets in dual mode |
 | `range_min` | number | from entity | Override minimum temperature |
 | `range_max` | number | from entity | Override maximum temperature |

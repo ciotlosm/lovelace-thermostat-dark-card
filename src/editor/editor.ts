@@ -52,6 +52,24 @@ export class ThermostatDarkCardEditor extends LitElement {
           </ha-formfield>
         </div>
 
+        <ha-entity-picker
+          .label=${'Ambient Temperature Sensor (Optional)'}
+          .hass=${this.hass}
+          .value=${this._config.ambient_temperature || ''}
+          .includeDomains=${['sensor']}
+          @value-changed=${this._ambientChanged}
+          allow-custom-entity
+        ></ha-entity-picker>
+
+        <div class="select-row">
+          <label>Theme</label>
+          <select @change=${this._themeChanged}>
+            <option value="dark" ?selected=${(this._config.theme || 'dark') === 'dark'}>Dark</option>
+            <option value="light" ?selected=${this._config.theme === 'light'}>Light</option>
+            <option value="transparent" ?selected=${this._config.theme === 'transparent'}>Transparent</option>
+          </select>
+        </div>
+
         ${isCelsius ? html`
           <div class="select-row">
             <label>Step override</label>
@@ -63,23 +81,12 @@ export class ThermostatDarkCardEditor extends LitElement {
           </div>
         ` : ''}
 
-        <div class="select-row">
-          <label>Theme</label>
-          <select @change=${this._themeChanged}>
-            <option value="dark" ?selected=${(this._config.theme || 'dark') === 'dark'}>Dark</option>
-            <option value="light" ?selected=${this._config.theme === 'light'}>Light</option>
-            <option value="transparent" ?selected=${this._config.theme === 'transparent'}>Transparent</option>
-          </select>
-        </div>
-
-        <ha-entity-picker
-          .label=${'Ambient Temperature Sensor (Optional)'}
-          .hass=${this.hass}
-          .value=${this._config.ambient_temperature || ''}
-          .includeDomains=${['sensor']}
-          @value-changed=${this._ambientChanged}
-          allow-custom-entity
-        ></ha-entity-picker>
+        <ha-textfield
+          .label=${'Pending seconds (delay before saving)'}
+          type="number"
+          .value=${String(this._config.pending ?? 3)}
+          @input=${this._pendingChanged}
+        ></ha-textfield>
 
         <div class="toggle-row">
           <ha-formfield .label=${'Read-only mode'}>
@@ -161,6 +168,14 @@ export class ThermostatDarkCardEditor extends LitElement {
       delete newConfig.ambient_temperature;
     }
     this._config = newConfig;
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _pendingChanged(ev: Event): void {
+    if (!this._config) return;
+    const value = parseFloat((ev.target as HTMLInputElement).value);
+    if (isNaN(value) || this._config.pending === value) return;
+    this._config = { ...this._config, pending: value };
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
