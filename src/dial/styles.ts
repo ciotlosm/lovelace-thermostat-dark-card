@@ -195,4 +195,16 @@ export const dialStyles = css`
   .dial-thermo--visible {
     opacity: 1;
   }
+
+  /* Light theme overrides */
+  :host([theme="light"]) .dial {
+    --dial-off-fill: #e0e0e0;
+    --dial-idle-fill: #f5f5f5;
+    --dial-text-color: #212121;
+    --dial-path-color: rgba(0, 0, 0, 0.15);
+    --dial-path-active-color: rgba(0, 0, 0, 0.5);
+    --dial-path-active-large-color: rgba(0, 0, 0, 0.8);
+    --dial-toggle-color: #757575;
+    --dial-leaf-color: #0a8f0a;
+  }
 `;

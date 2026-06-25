@@ -70,7 +70,7 @@ export class ThermostatDarkCard extends LitElement {
     const maxTemp = this._config.range_max ?? (attrs.max_temp as number) ?? 35;
     const step = this._config.step ?? (attrs.target_temp_step as number) ?? 0.5;
 
-    const name = this._config.name ?? (attrs.friendly_name as string) ?? '';
+    const name = this._config.name === false ? '' : (this._config.name ?? (attrs.friendly_name as string) ?? '');
 
     return html`
       <ha-card>
@@ -93,6 +93,7 @@ export class ThermostatDarkCard extends LitElement {
           .show_ticks=${this._config.show_ticks}
           .show_power_toggle=${this._config.show_power_toggle}
           .show_preset_indicator=${this._config.show_preset_indicator}
+          .theme=${this._config.theme}
           @temperature-changed=${this._handleTemperatureChanged}
           @toggle=${this._handleToggle}
         ></thermostat-dial>

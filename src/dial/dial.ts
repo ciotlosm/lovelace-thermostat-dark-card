@@ -30,6 +30,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Boolean }) show_ticks = true;
   @property({ type: Boolean }) show_power_toggle = true;
   @property({ type: Boolean }) show_preset_indicator = true;
+  @property({ type: String, reflect: true }) theme: 'dark' | 'light' = 'dark';
 
   // --- Internal state ---
   @state() editing = false;
