@@ -38,16 +38,16 @@ export function renderTicks(
 
     const points: [number, number][] = isLarge
       ? [
-          [radius - 1.5, tickOuter],
-          [radius + 1.5, tickOuter],
-          [radius + 1.5, tickInner + 20],
-          [radius - 1.5, tickInner + 20],
+          [radius - radius * 0.0075, tickOuter],
+          [radius + radius * 0.0075, tickOuter],
+          [radius + radius * 0.0075, tickInner + radius * 0.1],
+          [radius - radius * 0.0075, tickInner + radius * 0.1],
         ]
       : [
-          [radius - 1, tickOuter],
-          [radius + 1, tickOuter],
-          [radius + 1, tickInner],
-          [radius - 1, tickInner],
+          [radius - radius * 0.005, tickOuter],
+          [radius + radius * 0.005, tickOuter],
+          [radius + radius * 0.005, tickInner],
+          [radius - radius * 0.005, tickInner],
         ];
 
     const rotated = rotatePoints(points, i * theta - offsetDegrees, origin);

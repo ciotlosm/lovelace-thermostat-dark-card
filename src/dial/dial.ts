@@ -211,10 +211,10 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
       // Main thick line
       const linePoints: [number, number][] = [
-        [r - 2.5, pointerOuter],
-        [r + 2.5, pointerOuter],
-        [r + 2.5, pointerInner],
-        [r - 2.5, pointerInner],
+        [r - r * 0.0125, pointerOuter],
+        [r + r * 0.0125, pointerOuter],
+        [r + r * 0.0125, pointerInner],
+        [r - r * 0.0125, pointerInner],
       ];
 
       const origin: [number, number] = [r, r];
@@ -393,17 +393,17 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     const presetY = r + r * 0.32; // below center text, above power
 
     // Power icon — positioned on the outer ring area (bottom center)
-    const powerScale = 2.3;
+    const powerScale = r / 87;
     const powerWidth = 24 * powerScale;
     const powerX = r - powerWidth / 2;
-    const powerY = this.diameter - powerWidth - 10;
+    const powerY = this.diameter - powerWidth - r * 0.05;
     const powerPath = 'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
 
     // Thermometer outline icon (shown in edit mode instead of power)
-    const thermoScale = 2.3;
+    const thermoScale = r / 87;
     const thermoWidth = 24 * thermoScale;
     const thermoX = r - thermoWidth / 2;
-    const thermoY = this.diameter - thermoWidth - 10;
+    const thermoY = this.diameter - thermoWidth - r * 0.05;
     const thermoPath = 'M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z';
 
     return svg`
