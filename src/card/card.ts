@@ -109,6 +109,7 @@ export class ThermostatDarkCard extends LitElement {
           .theme=${this._config.theme}
           .colors=${this._config.colors}
           ._presetIcons=${this._config.preset_icons}
+          .status_text=${this._resolveStatusText()}
           @temperature-changed=${this._handleTemperatureChanged}
           @toggle=${this._handleToggle}
         ></thermostat-dial>
@@ -139,6 +140,15 @@ export class ThermostatDarkCard extends LitElement {
     this.hass.callService('climate', service, {
       entity_id: this._config.entity,
     });
+  }
+
+  private _resolveStatusText(): string | null {
+    if (!this._config.status_entity) return null;
+    const entity = this.hass.states[this._config.status_entity];
+    if (!entity) return null;
+    const state = entity.state;
+    if (!state || state === 'unknown' || state === 'unavailable') return null;
+    return state;
   }
 
   static get styles(): CSSResultGroup {

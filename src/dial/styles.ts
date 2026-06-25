@@ -87,6 +87,13 @@ export const dialStyles = css`
     opacity: 1;
     transition: opacity 0.3s ease;
   }
+  .dial-text--status {
+    font-size: 22px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+  }
   .dial-text--target {
     font-size: 120px;
     font-weight: bold;

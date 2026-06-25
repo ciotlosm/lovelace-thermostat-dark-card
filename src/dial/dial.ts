@@ -34,6 +34,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: String, reflect: true }) theme: 'dark' | 'light' | 'transparent' = 'dark';
   @property({ type: Object }) colors?: { heating?: string; cooling?: string; idle?: string; off?: string };
   @property({ type: Object }) _presetIcons?: Record<string, string>;
+  @property({ type: String }) status_text: string | null = null;
 
   // --- Internal state ---
   @state() editing = false;
@@ -337,6 +338,9 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
     return svg`
       <g class="dial-center">
+        ${this.status_text && !this.editing ? svg`
+          <text x=${r} y=${r - r * 0.25} class="dial-text dial-text--status">${this.status_text}</text>
+        ` : ''}
         <text x=${r} y=${r} class="dial-text dial-text--ambient">
           ${this._renderTempText(this.current_temperature)}
         </text>
