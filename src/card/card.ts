@@ -35,6 +35,7 @@ export class ThermostatDarkCard extends LitElement {
           name: '',
           flatten: true,
           schema: [
+            { name: 'hide_name', selector: { boolean: {} } },
             { name: 'readonly', selector: { boolean: {} } },
             { name: 'show_power_toggle', selector: { boolean: {} } },
             { name: 'show_preset_indicator', selector: { boolean: {} } },
@@ -113,7 +114,7 @@ export class ThermostatDarkCard extends LitElement {
     const maxTemp = this._config.range_max ?? (attrs.max_temp as number) ?? 35;
     const step = this._config.step ?? (attrs.target_temp_step as number) ?? 0.5;
 
-    const name = this._config.name === false ? '' : (this._config.name ?? (attrs.friendly_name as string) ?? '');
+    const name = (this._config.hide_name || this._config.name === false) ? '' : (this._config.name ?? (attrs.friendly_name as string) ?? '');
 
     return html`
       <ha-card>
