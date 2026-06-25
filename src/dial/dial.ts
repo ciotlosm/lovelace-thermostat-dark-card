@@ -17,7 +17,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Number }) target_temp_high: number | null = null;
   @property({ type: Number }) min_temp = 7;
   @property({ type: Number }) max_temp = 35;
-  @property({ type: Number }) target_temp_step = 0.5;
+  @property({ type: Number }) target_temp_step = 1;
   @property({ type: String }) hvac_action: HvacAction | null = null;
   @property({ type: String }) hvac_mode: string | null = null;
   @property({ type: String }) preset_mode: string | null = null;
@@ -27,7 +27,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Number }) num_ticks = 150;
   @property({ type: Number }) tick_degrees = 300;
   @property({ type: Number }) pending = 3;
-  @property({ type: Number }) idle_zone = 2;
+  @property({ type: Number }) idle_zone = 0;
   @property({ type: Boolean }) show_ticks = true;
   @property({ type: Boolean }) show_power_toggle = true;
   @property({ type: Boolean }) show_preset_indicator = true;
@@ -41,7 +41,6 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @state() editing = false;
   private _dragging = false;
   private _didPointerInteract = false;
-  private _longPressTimer?: number;
 
   private _interaction = new DialInteractionController(this);
 

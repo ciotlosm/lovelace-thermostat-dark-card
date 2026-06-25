@@ -58,10 +58,12 @@ These are available in the visual card editor:
 |--------|------|---------|-------------|
 | `entity` | string | **required** | Climate entity ID |
 | `name` | string / false | entity name | Card title. Set to `false` to hide |
-| `theme` | string | `dark` | `dark`, `light`, or `transparent` |
+| `hide_name` | boolean | `false` | Hide the card title |
+| `theme` | string | `dark` | `dark`, `light`, `transparent`, or `glassy` |
 | `step` | number | from entity | Temperature step override (celsius only) |
 | `readonly` | boolean | `false` | Disable all interaction (display only) |
 | `ambient_temperature` | string | — | External temperature sensor entity ID |
+| `status_entity` | string | — | Entity whose state is shown as text above temperature |
 | `show_power_toggle` | boolean | `true` | Show power on/off button |
 | `show_preset_indicator` | boolean | `true` | Show preset mode icon |
 | `pending` | number | `3` | Seconds before committing temperature change |
