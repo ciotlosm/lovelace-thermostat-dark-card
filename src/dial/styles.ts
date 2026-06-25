@@ -207,4 +207,13 @@ export const dialStyles = css`
     --dial-toggle-color: #757575;
     --dial-leaf-color: #0a8f0a;
   }
+
+  /* Transparent theme — disc is invisible, ticks and text remain */
+  :host([theme="transparent"]) .dial {
+    --dial-off-fill: transparent;
+    --dial-idle-fill: transparent;
+    --dial-heating-fill: transparent;
+    --dial-cooling-fill: transparent;
+    --dial-drying-fill: transparent;
+  }
 `;

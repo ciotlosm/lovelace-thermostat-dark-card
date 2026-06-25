@@ -68,6 +68,7 @@ export class ThermostatDarkCardEditor extends LitElement {
           <select @change=${this._themeChanged}>
             <option value="dark" ?selected=${(this._config.theme || 'dark') === 'dark'}>Dark</option>
             <option value="light" ?selected=${this._config.theme === 'light'}>Light</option>
+            <option value="transparent" ?selected=${this._config.theme === 'transparent'}>Transparent</option>
           </select>
         </div>
       </div>
@@ -99,7 +100,7 @@ export class ThermostatDarkCardEditor extends LitElement {
 
   private _themeChanged(ev: Event): void {
     if (!this._config) return;
-    const value = (ev.target as HTMLSelectElement).value as 'dark' | 'light';
+    const value = (ev.target as HTMLSelectElement).value as 'dark' | 'light' | 'transparent';
     if (this._config.theme === value) return;
     this._config = { ...this._config, theme: value };
     fireEvent(this, 'config-changed', { config: this._config });

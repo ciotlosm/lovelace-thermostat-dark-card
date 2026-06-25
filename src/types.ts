@@ -3,7 +3,7 @@ export interface ThermostatCardConfig {
   type: string;
   entity: string;
   name?: string | false;
-  theme?: 'dark' | 'light';
+  theme?: 'dark' | 'light' | 'transparent';
   // Dial behavior
   step?: number;
   pending?: number; // seconds before committing temperature change
