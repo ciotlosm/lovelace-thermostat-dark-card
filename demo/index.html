@@ -193,7 +193,7 @@
     });
 
     document.getElementById('show_ticks').addEventListener('change', e => {
-      update('show_ticks', e.target.checked ? 'true' : 'false');
+      dial.show_ticks = e.target.checked;
     });
 
     document.getElementById('readonly_mode').addEventListener('change', e => {
