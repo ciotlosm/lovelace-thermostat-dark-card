@@ -1,5 +1,7 @@
 {
-  "name": "Dark Thermostat",
+  "name": "Thermostat Dark Card",
   "render_readme": true,
-  "filename": "thermostat-dark-card.js"
+  "filename": "thermostat-dark-card.js",
+  "homeassistant": "2024.1.0",
+  "content_in_root": false
 }

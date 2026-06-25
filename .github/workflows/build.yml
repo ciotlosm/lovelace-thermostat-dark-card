@@ -1,10 +1,6 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - master
-      - redesign
   pull_request:
     branches:
       - master
@@ -16,13 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
 
       - name: Build
         run: npm run build
