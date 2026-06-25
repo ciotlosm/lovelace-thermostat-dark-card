@@ -1,7 +1,20 @@
-/node_modules/
+# dependencies
 node_modules/
-node_modules
-/.rpt2_cache/
-package-lock.json
-/dist
+
+# build output
+dist/
+
+# HA sandbox runtime (keep configuration.yaml, ignore the rest)
+.hass_dev/*
+!.hass_dev/configuration.yaml
+
+# editor and OS
 .DS_Store
+*.swp
+*.swo
+.idea/
+*.iml
+
+# environment
+.env
+.env.local

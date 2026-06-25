@@ -1,13 +1,15 @@
-export const HVAC_HEATING = 'heating';
-export const HVAC_COOLING = 'cooling';
-export const HVAC_IDLE = 'idle';
-export const HVAC_OFF = 'off';
+export const CARD_VERSION = '1.0.0';
 
-export const PRESET_ECO = 'eco';
-export const PRESET_AWAY = 'away';
-export const PRESET_NONE = 'none';
-export const PRESET_BOOST = 'boost';
-export const PRESET_COMFORT = 'comfort';
-export const PRESET_HOME = 'home';
+export const DEFAULT_CONFIG = {
+  pending: 3,
+  idle_zone: 0,
+  diameter: 400,
+  show_ticks: true,
+  show_power_toggle: true,
+  show_preset_indicator: true,
+  num_ticks: 150,
+  tick_degrees: 300,
+} as const;
 
-export const GREEN_LEAF_MODES = [PRESET_ECO, PRESET_AWAY];
+// Presets that show the eco/leaf indicator
+export const ECO_PRESETS = ['eco', 'away'];

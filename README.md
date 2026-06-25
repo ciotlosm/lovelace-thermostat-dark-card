@@ -1,159 +1,160 @@
-# Dark Thermostat by [@ciotlosm](https://www.github.com/ciotlosm)
+# Thermostat Dark Card
 
-A simple thermostat implemented in CSS based on [Nest Thermostat Control](https://codepen.io/dalhundal/pen/KpabZB/) by Dal Hundal
-[@dalhundal](https://codepen.io/dalhundal) on [CodePen](https://codepen.io)
+A Nest-style thermostat card for Home Assistant with a round dial interface. Supports single and dual (heat/cool) setpoints, preset modes, and multiple themes.
 
-![alt text](https://github.com/ciotlosm/lovelace-thermostat-dark-card/blob/master/sample.png)
+<!-- Add screenshot: place your preview image at docs/preview.png -->
+![Thermostat Dark Card](docs/preview.png)
 
-[![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE.md)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
+**Key features:**
+- Pure SVG rendering — lightweight, no images, optimized for low bandwidth
+- Single and dual (heat/cool) temperature modes
+- Ring drag interaction for setting temperature
+- Predictive state feedback while editing
+- Dark, light, and transparent themes
+- Preset mode indicators (eco, away, home, sleep, boost)
+- Responsive — scales to any card size
 
-![Project Maintenance][maintenance-shield]
-[![GitHub Activity][commits-shield]][commits]
+## Installation
 
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
+### HACS (Recommended)
 
-## Support
+1. Open HACS in Home Assistant
+2. Search for "Thermostat Dark Card"
+3. Install and restart Home Assistant
 
-Hey dude! Help me out for a couple of :beers: or a :coffee:!
+### Manual
 
-[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/gUEVWJc)
+1. Download `thermostat-dark-card.js` from the [latest release](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
+2. Place it in `config/www/`
+3. Add the resource in Settings → Dashboards → Resources:
+   - URL: `/local/thermostat-dark-card.js`
+   - Type: JavaScript Module
 
-## Options
-
-| Name                 | Type    | Default      | Description                                                                                            |
-| -------------------- | ------- | ------------ | ------------------------------------------------------------------------------------------------------ |
-| type                 | string  | **Required** | `custom:thermostat-dark-card`                                                                          |
-| entity               | string  | **Required** | The entity id of climate entity. Example: `climate.hvac`                                               |
-| name                 | string  | optional     | Card title                                                                                             |
-| [hvac](#hvac-object) | object  | optional     | Allows mapping of custom states or using a custom sensor/attribute for state                           |
-| step                 | number  | 0.5          | The step to use when increasing or decreasing temperature                                              |
-| highlight_tap        | boolean | false        | Show the tap area highlight when changing temperature settings                                         |
-| chevron_size         | number  | 50           | Size of chevrons for temperature adjustment                                                            |
-| pending              | number  | 3            | Seconds to wait in control mode until state changes are sent back to the server                        |
-| idle_zone            | number  | 2            | Degrees of minimum difference between set points when thermostat supports both heating and cooling     |
-| ambient_temperature  | string  | optional     | An entity id of a sensor to use as `ambient_temperature` instead of the one provided by the thermostat |
-| range_min            | number  | optional     | Override thermostat's minimum value                                                                    |
-| range_max            | number  | optional     | Override thermostat's maximum value                                                                    |
-| [away](#away-object) | object  | optional     | Allows usage of a custom sensor/attribute for the away detection.                                      |
-
-### hvac object
-
-| Name                     | Type     | Default     | Description                                                                                         |
-| ------------------------ | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
-| states                   | optional | optional    | A list of states. See examples.                                                                     |
-| attribute                | string   | hvac_action | An attribute of the entity to use as state. This cannot be used in conjunction with sensor.         |
-| [sensor](#sensor-object) | object   | optional    | The sensor object which monitors the hvac state. This cannot be used in conjunction with attribute. |
-
-### away object
-
-**NOTE:** If the climate entity already provides an attribute `away_mode`, this configuration is wont apply.
-
-| Name                     | Type   | Default     | Description                                 |
-| ------------------------ | ------ | ----------- | ------------------------------------------- |
-| [sensor](#sensor-object) | object | optional    | A sensor which provides the away state.     |
-| attribute                | string | preset_mode | An attribute of the entity to use as state. |
-
-### sensor object
-
-| Name      | Type   | Default      | Description                                           |
-| --------- | ------ | ------------ | ----------------------------------------------------- |
-| sensor    | string | **Required** | A sensor which provides the hvac state. See examples. |
-| attribute | string | state        | An attribute of the sensor to use as state.           |
-
-## Examples
-
-### Simple example
+## Usage
 
 ```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.ecobee
+type: custom:thermostat-dark-card
+entity: climate.living_room
 ```
 
-### Example with custom hvac_states
+## Configuration
+
+### UI Options
+
+These are available in the visual card editor:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `entity` | string | **required** | Climate entity ID |
+| `name` | string / false | entity name | Card title. Set to `false` to hide |
+| `theme` | string | `dark` | `dark`, `light`, or `transparent` |
+| `step` | number | from entity | Temperature step override (celsius only) |
+| `readonly` | boolean | `false` | Disable all interaction (display only) |
+| `ambient_temperature` | string | — | External temperature sensor entity ID |
+| `show_power_toggle` | boolean | `true` | Show power on/off button |
+| `show_preset_indicator` | boolean | `true` | Show preset mode icon |
+| `pending` | number | `3` | Seconds before committing temperature change |
+
+### Advanced Options (YAML only)
+
+For fine-tuning behavior — not exposed in UI:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `idle_zone` | number | `0` | Minimum gap between low/high targets in dual mode |
+| `range_min` | number | from entity | Override minimum temperature |
+| `range_max` | number | from entity | Override maximum temperature |
+| `colors` | object | — | Custom color overrides (see below) |
+| `preset_icons` | object | — | Map preset names to icons (see below) |
+
+### Expert Options (use at your own risk)
+
+Internal rendering parameters — changing these may break the dial appearance:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `diameter` | number | `400` | SVG viewBox size (all proportions are relative to this) |
+| `num_ticks` | number | `150` | Number of tick marks on the ring |
+| `tick_degrees` | number | `300` | Arc span of tick marks (degrees) |
+| `show_ticks` | boolean | `true` | Show tick marks |
+
+### Themes
+
+- **dark** — Black/dark grey background (default)
+- **light** — Light grey background with dark text
+- **transparent** — No disc background, use with card-mod for custom backgrounds
+
+Transparent theme example with a room photo:
 
 ```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.hvac
-  chevron_size: 100
-  hvac:
-    states:
-      'Off': 'idle'
-      'Cooling': 'cooling'
-      'Heating': 'heating'
-    attribute: operation_mode
+type: custom:thermostat-dark-card
+entity: climate.bedroom
+theme: transparent
+card_mod:
+  style: |
+    ha-card {
+      background: url("/local/bedroom.jpg") center/cover no-repeat;
+    }
 ```
 
-### Example with custom hvac_sensor
+### Color Overrides
+
+Override disc colors via YAML (not available in visual editor):
 
 ```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.nest
-  chevron_size: 100
-  hvac:
-    states:
-      'idle': 'idle'
-      'cooling': 'cooling'
-      'heating': 'heating'
-    sensor:
-      sensor: sensor.nest_thermostat_hvac_state
+type: custom:thermostat-dark-card
+entity: climate.living_room
+colors:
+  heating: "#ff5500"
+  cooling: "#0088ff"
+  idle: "#1a1a1a"
+  off: "#444444"
 ```
 
-### Example with external ambient sensor
+### Preset Icons
+
+Map custom preset mode names to built-in icons:
 
 ```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.ecobee
-  ambient_temperature: sensor.bedroom_temperature
+type: custom:thermostat-dark-card
+entity: climate.ecobee
+preset_icons:
+  vacation: eco
+  night: sleep
+  party: boost
 ```
 
-### Custom attribute only
+Available icon names: `eco`, `away`, `home`, `sleep`, `boost`, `comfort`, `activity`
+
+Built-in mappings (no config needed):
+- `eco`, `away` → leaf
+- `home` → house
+- `sleep` → moon
+- `boost` → flame
+- `comfort` → sun
+- `activity` → person
+
+Unknown presets show no icon unless mapped via `preset_icons`.
+
+### External Temperature Sensor
+
+Use a separate sensor for the ambient temperature display instead of the climate entity's built-in sensor:
 
 ```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.bedroom
-  away:
-    attribute: custom_away_mode
+type: custom:thermostat-dark-card
+entity: climate.living_room
+ambient_temperature: sensor.living_room_external_temp
 ```
 
-#### Sensor only
+## Features
 
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.bedroom
-  away:
-    sensor:
-      sensor: input_boolean.climate_bedroom_away
-```
+- **Single and dual mode** — Automatically adapts based on entity attributes
+- **Ring interaction** — Drag on the tick ring to set temperature
+- **Chevron controls** — Tap up/down arrows for precise adjustments
+- **Predictive feedback** — Disc color fades to show predicted heating/cooling state while editing
+- **Preset indicators** — Shows eco leaf, home, sleep, and other icons
+- **Responsive** — Scales to fit any card size
 
-#### Sensor with attribute
+## License
 
-```yaml
-- type: custom:thermostat-dark-card
-  title: Bedroom
-  entity: climate.bedroom
-  away:
-    sensor:
-      sensor: climate.bedroom
-      attribute: away
-```
-
-[commits-shield]: https://img.shields.io/github/commit-activity/y/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
-[commits]: https://github.com/ciotlosm/lovelace-thermostat-dark-card/commits/master
-[devcontainer]: https://code.visualstudio.com/docs/remote/containers
-[discord]: https://discord.gg/5e9yvq
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
-[forum]: https://community.home-assistant.io/c/projects/frontend
-[license-shield]: https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2020.svg?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/ciotlosm/lovelace-thermostat-dark-card.svg?style=for-the-badge
-[releases]: https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases
+MIT

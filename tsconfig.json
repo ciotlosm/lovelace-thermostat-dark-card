@@ -2,20 +2,16 @@
   "compilerOptions": {
     "target": "es2017",
     "module": "esnext",
-    "moduleResolution": "node",
-    "lib": [
-      "es2017",
-      "dom",
-      "dom.iterable"
-    ],
+    "moduleResolution": "bundler",
+    "lib": ["es2017", "dom", "dom.iterable"],
     "noEmit": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "strict": true,
-    "noImplicitAny": false,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
