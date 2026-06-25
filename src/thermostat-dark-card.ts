@@ -16,4 +16,5 @@ customCards.push({
   type: 'thermostat-dark-card',
   name: 'Thermostat Dark Card',
   description: 'A thermostat card with a round dial — supports dark and light themes',
+  preview: true,
 });

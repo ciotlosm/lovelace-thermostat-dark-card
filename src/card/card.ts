@@ -16,8 +16,9 @@ export class ThermostatDarkCard extends LitElement {
     return document.createElement('thermostat-dark-card-editor');
   }
 
-  public static getStubConfig(): Record<string, unknown> {
-    return { entity: '' };
+  public static getStubConfig(hass?: { states: Record<string, unknown> }): Record<string, unknown> {
+    const entities = hass ? Object.keys(hass.states).filter((e) => e.startsWith('climate.')) : [];
+    return { entity: entities[0] || 'climate.thermostat' };
   }
 
   public setConfig(config: ThermostatCardConfig): void {
@@ -28,7 +29,16 @@ export class ThermostatDarkCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return 5;
+    return 6;
+  }
+
+  public getGridOptions() {
+    return {
+      columns: 6,
+      rows: 6,
+      min_columns: 3,
+      min_rows: 3,
+    };
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -60,6 +70,7 @@ export class ThermostatDarkCard extends LitElement {
     }
 
     const hvacAction = (attrs.hvac_action || entity.state) as HvacAction;
+    const hvacMode = entity.state as string;
     const presetMode = (attrs.preset_mode as string) || null;
 
     const temperature = (attrs.temperature as number) ?? null;
@@ -84,6 +95,7 @@ export class ThermostatDarkCard extends LitElement {
           .max_temp=${maxTemp}
           .target_temp_step=${step}
           .hvac_action=${hvacAction}
+          .hvac_mode=${hvacMode}
           .preset_mode=${presetMode}
           .diameter=${this._config.diameter}
           .num_ticks=${this._config.num_ticks}
@@ -140,6 +152,7 @@ export class ThermostatDarkCard extends LitElement {
         color: var(--secondary-text-color);
         text-align: center;
         padding-bottom: 8px;
+        font-weight: 400;
       }
       .warning {
         padding: 16px;

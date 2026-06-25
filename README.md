@@ -2,6 +2,17 @@
 
 A Nest-style thermostat card for Home Assistant with a round dial interface. Supports single and dual (heat/cool) setpoints, preset modes, and multiple themes.
 
+![Thermostat Dark Card](docs/preview.png)
+
+**Key features:**
+- Pure SVG rendering — lightweight, no images, optimized for low bandwidth
+- Single and dual (heat/cool) temperature modes
+- Ring drag interaction for setting temperature
+- Predictive state feedback while editing
+- Dark, light, and transparent themes
+- Preset mode indicators (eco, away, home, sleep, boost)
+- Responsive — scales to any card size
+
 ## Installation
 
 ### HACS (Recommended)

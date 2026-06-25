@@ -18,6 +18,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Number }) max_temp = 35;
   @property({ type: Number }) target_temp_step = 0.5;
   @property({ type: String }) hvac_action: HvacAction | null = null;
+  @property({ type: String }) hvac_mode: string | null = null;
   @property({ type: String }) preset_mode: string | null = null;
 
   // --- Card config options ---
@@ -140,13 +141,23 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   /** Predict hvac action based on current target positions vs ambient */
   private _predictAction(): string {
     const ambient = this.current_temperature;
+    const mode = this.hvac_mode;
+
     if (this.dual && this.target_temp_low !== null && this.target_temp_high !== null) {
       if (ambient < this.target_temp_low) return 'heating';
       if (ambient > this.target_temp_high) return 'cooling';
       return 'idle';
     } else if (this.temperature !== null) {
-      if (this.temperature > ambient) return 'heating';
-      if (this.temperature < ambient) return 'cooling';
+      if (this.temperature > ambient) {
+        // Only predict heating if the device supports it
+        if (mode === 'cool') return 'idle';
+        return 'heating';
+      }
+      if (this.temperature < ambient) {
+        // Only predict cooling if the device supports it
+        if (mode === 'heat') return 'idle';
+        return 'cooling';
+      }
       return 'idle';
     }
     return 'off';
@@ -469,10 +480,10 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     if (this.dual) {
       return svg`
         <g class="dial-controls">
-          ${this._renderChevron(r - r / 4, r - offset, 0, chevronWidth * 0.7, 'low-up')}
-          ${this._renderChevron(r - r / 4, r + offset, 180, chevronWidth * 0.7, 'low-down')}
-          ${this._renderChevron(r + r / 4, r - offset, 0, chevronWidth * 0.7, 'high-up')}
-          ${this._renderChevron(r + r / 4, r + offset, 180, chevronWidth * 0.7, 'high-down')}
+          ${this._renderChevron(r - r / 3, r - offset, 0, chevronWidth * 0.7, 'low-up')}
+          ${this._renderChevron(r - r / 3, r + offset, 180, chevronWidth * 0.7, 'low-down')}
+          ${this._renderChevron(r + r / 3, r - offset, 0, chevronWidth * 0.7, 'high-up')}
+          ${this._renderChevron(r + r / 3, r + offset, 180, chevronWidth * 0.7, 'high-down')}
         </g>
       `;
     }
