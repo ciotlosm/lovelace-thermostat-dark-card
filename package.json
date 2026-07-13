@@ -24,20 +24,21 @@
     "lit": "^3.3.2"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.63.0",
-    "@typescript-eslint/parser": "^8.63.0",
-    "eslint": "^10.7.0",
-    "eslint-config-prettier": "^10.0.0",
-    "prettier": "^3.9.5",
+    "@biomejs/biome": "^2.5.3",
     "terser": "^5.49.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vite": "^8.1.4"
   },
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build && cp demo/index.html dist/demo.html",
     "preview": "vite preview --port 4000 --host 0.0.0.0",
-    "lint": "eslint src/**/*.ts",
+    "check": "biome check",
+    "check:fix": "biome check --write",
+    "format": "biome format --write",
+    "lint": "biome lint",
+    "lint:fix": "biome lint --write",
+    "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "start:hass": "podman run --rm -p 8123:8123 -v ./.hass_dev:/config homeassistant/home-assistant:stable"
   }

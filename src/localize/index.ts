@@ -32,7 +32,6 @@ if (languages['zh-Hans']) {
  */
 export function localize(key: string, language?: string): string {
   const lang = language ?? 'en';
-  const translations =
-    languages[lang] ?? languages[lang.split('-')[0]] ?? languages['en'];
+  const translations = languages[lang] ?? languages[lang.split('-')[0]] ?? languages['en'];
   return translations?.[key] ?? languages['en']?.[key] ?? key;
 }

@@ -1,5 +1,5 @@
-import type { PropertyValues } from 'lit';
 import type { HassEntity } from 'home-assistant-js-websocket';
+import type { PropertyValues } from 'lit';
 
 export interface HomeAssistant {
   states: Record<string, HassEntity>;

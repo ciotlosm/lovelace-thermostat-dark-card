@@ -1,11 +1,18 @@
-import { LitElement, html, css, CSSResultGroup, TemplateResult, PropertyValues } from 'lit';
+import {
+  type CSSResultGroup,
+  css,
+  html,
+  LitElement,
+  type PropertyValues,
+  type TemplateResult,
+} from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { DEFAULT_CONFIG } from '../const';
 import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
-import type { ThermostatCardConfig, HvacAction } from '../types';
-import { DEFAULT_CONFIG } from '../const';
 import { localize } from '../localize/index';
 import { getAvailableThemes } from '../themes/index';
+import type { HvacAction, ThermostatCardConfig } from '../types';
 import '../dial/dial';
 
 @customElement('thermostat-dark-card')
@@ -23,7 +30,10 @@ export class ThermostatDarkCard extends LitElement {
           name: '',
           flatten: true,
           schema: [
-            { name: 'theme', selector: { select: { options: getAvailableThemes(), mode: 'dropdown' } } },
+            {
+              name: 'theme',
+              selector: { select: { options: getAvailableThemes(), mode: 'dropdown' } },
+            },
             { name: 'step', selector: { number: { min: 0.5, max: 5, step: 0.5, mode: 'box' } } },
             { name: 'pending', selector: { number: { min: 1, max: 30, step: 1, mode: 'box' } } },
           ],
@@ -55,7 +65,7 @@ export class ThermostatDarkCard extends LitElement {
   }
 
   public setConfig(config: ThermostatCardConfig): void {
-    if (!config || !config.entity) {
+    if (!config?.entity) {
       throw new Error('Entity is required');
     }
     this._config = { ...DEFAULT_CONFIG, ...config };
@@ -112,7 +122,10 @@ export class ThermostatDarkCard extends LitElement {
     const maxTemp = this._config.range_max ?? (attrs.max_temp as number) ?? 35;
     const step = this._config.step ?? (attrs.target_temp_step as number) ?? 0.5;
 
-    const name = (this._config.hide_name || this._config.name === false) ? '' : (this._config.name ?? (attrs.friendly_name as string) ?? '');
+    const name =
+      this._config.hide_name || this._config.name === false
+        ? ''
+        : (this._config.name ?? (attrs.friendly_name as string) ?? '');
 
     return html`
       <ha-card>
