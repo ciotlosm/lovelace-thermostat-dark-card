@@ -1,11 +1,14 @@
 version: 2
 updates:
-  # Check npm dependencies for security updates
+  # Check npm dependencies for version updates
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore"
+      include: "scope"
     labels:
       - "patch"
 
@@ -15,5 +18,8 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"
     labels:
       - "patch"
