@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.6.0...v2.6.1) (2026-07-13)
+
+
+### Miscellaneous
+
+* migrate to biome, bump typescript to 7.0.2, update dev dependencies ([#359](https://github.com/ciotlosm/lovelace-thermostat-dark-card/pull/359))
+
 ## [2.6.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.5.0...v2.6.0) (2026-06-25)
 
 
