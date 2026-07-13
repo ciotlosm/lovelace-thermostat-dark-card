@@ -1,4 +1,4 @@
-import { svg, TemplateResult } from 'lit';
+import { svg, type TemplateResult } from 'lit';
 
 /**
  * Render the edit-mode ring indicator — proportional to dial size.

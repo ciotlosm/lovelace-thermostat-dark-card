@@ -1,12 +1,19 @@
-import { LitElement, html, svg, PropertyValues, TemplateResult } from 'lit';
+import { html, LitElement, type PropertyValues, svg, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { themeHasColoredTicks, themeToStyle } from '../themes/index';
 import type { HvacAction } from '../types';
-import { temperatureToTick, offsetDegrees, clamp, rotatePoint, rotatePoints, pointsToPath } from './svg-utils';
-import { renderTicks, TickConfig, TickRange } from './dial-ticks';
-import { themeToStyle, themeHasColoredTicks } from '../themes/index';
 import { renderRing } from './dial-arc';
-import { DialInteractionController, InteractionHost } from './dial-interaction';
+import { DialInteractionController, type InteractionHost } from './dial-interaction';
+import { renderTicks, type TickConfig, type TickRange } from './dial-ticks';
 import { dialStyles } from './styles';
+import {
+  clamp,
+  offsetDegrees,
+  pointsToPath,
+  rotatePoint,
+  rotatePoints,
+  temperatureToTick,
+} from './svg-utils';
 
 @customElement('thermostat-dial')
 export class ThermostatDial extends LitElement implements InteractionHost {
@@ -33,7 +40,12 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Boolean }) show_preset_indicator = true;
   @property({ type: Boolean }) readonly = false;
   @property({ type: String, reflect: true }) theme: string = 'dark';
-  @property({ type: Object }) colors?: { heating?: string; cooling?: string; idle?: string; off?: string };
+  @property({ type: Object }) colors?: {
+    heating?: string;
+    cooling?: string;
+    idle?: string;
+    off?: string;
+  };
   @property({ type: Object }) _presetIcons?: Record<string, string>;
   @property({ type: String }) status_text: string | null = null;
 
@@ -382,17 +394,25 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
     return svg`
       <g class="dial-center">
-        ${this.status_text && !this.editing ? svg`
-          <text x=${r} y=${r - r * 0.35} class="dial-text dial-text--status">${this.status_text.length > 16 ? this.status_text.substring(0, 14) + '…' : this.status_text}</text>
-        ` : ''}
+        ${
+          this.status_text && !this.editing
+            ? svg`
+          <text x=${r} y=${r - r * 0.35} class="dial-text dial-text--status">${this.status_text.length > 16 ? `${this.status_text.substring(0, 14)}…` : this.status_text}</text>
+        `
+            : ''
+        }
         <text x=${r} y=${r} class="dial-text dial-text--ambient">
           ${this._renderTempText(this.current_temperature)}
         </text>
-        ${this.temperature !== null ? svg`
+        ${
+          this.temperature !== null
+            ? svg`
           <text x=${r} y=${r} class="dial-text dial-text--target">
             ${this._renderTempText(this.temperature)}
           </text>
-        ` : ''}
+        `
+            : ''
+        }
       </g>
     `;
   }
@@ -445,26 +465,33 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     const powerWidth = 24 * powerScale;
     const powerX = r - powerWidth / 2;
     const powerY = this.diameter - powerWidth - r * 0.05;
-    const powerPath = 'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
+    const powerPath =
+      'M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13';
 
     // Thermometer outline icon (shown in edit mode instead of power)
     const thermoScale = r / 87;
     const thermoWidth = 24 * thermoScale;
     const thermoX = r - thermoWidth / 2;
     const thermoY = this.diameter - thermoWidth - r * 0.05;
-    const thermoPath = 'M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z';
+    const thermoPath =
+      'M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z';
 
     return svg`
       <g>
-        ${presetIcon !== null ? svg`
+        ${
+          presetIcon !== null
+            ? svg`
           <path
             d=${presetIcon}
             class=${presetClass}
             transform="translate(${presetX}, ${presetY}) scale(${presetScale})"
           />
-        ` : ''}
-        ${this.show_power_toggle
-          ? svg`
+        `
+            : ''
+        }
+        ${
+          this.show_power_toggle
+            ? svg`
             <g class="dial-power ${this.editing ? 'dial-power--hidden' : ''}" @click=${this._handlePowerClick}>
               <rect
                 x=${powerX}
@@ -484,7 +511,8 @@ export class ThermostatDial extends LitElement implements InteractionHost {
               transform="translate(${thermoX}, ${thermoY}) scale(${thermoScale})"
             />
           `
-          : ''}
+            : ''
+        }
       </g>
     `;
   }
@@ -501,17 +529,21 @@ export class ThermostatDial extends LitElement implements InteractionHost {
       // Home
       home: 'M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z',
       // Moon — sleep
-      sleep: 'M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87,20.69,17.05,20.16,17.8C19.84,18.25,19.5,18.67,19.08,19.07C15.17,23,8.84,23,4.94,19.07C1.03,15.17,1.03,8.83,4.94,4.93C5.34,4.53,5.76,4.17,6.21,3.85C6.96,3.32,8.14,4.21,8.06,5.04C7.79,7.9,8.75,10.87,10.95,13.06C13.14,15.26,16.1,16.22,18.97,15.95Z',
+      sleep:
+        'M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87,20.69,17.05,20.16,17.8C19.84,18.25,19.5,18.67,19.08,19.07C15.17,23,8.84,23,4.94,19.07C1.03,15.17,1.03,8.83,4.94,4.93C5.34,4.53,5.76,4.17,6.21,3.85C6.96,3.32,8.14,4.21,8.06,5.04C7.79,7.9,8.75,10.87,10.95,13.06C13.14,15.26,16.1,16.22,18.97,15.95Z',
       // Fire — boost
-      boost: 'M17.66,11.2C17.43,10.9,17.15,10.64,16.89,10.38C16.22,9.78,15.46,9.35,14.82,8.72C13.33,7.26,13,4.85,13.95,3C13,3.23,12.17,3.75,11.46,4.32C8.87,6.4,7.85,10.07,9.07,13.22C9.11,13.32,9.15,13.42,9.15,13.55C9.15,13.77,9,13.97,8.8,14.05C8.57,14.15,8.33,14.09,8.14,13.93C8.08,13.88,8.04,13.83,8,13.76C6.87,12.33,6.69,10.28,7.45,8.64C5.78,10,4.87,12.3,5,14.47C5.06,14.97,5.12,15.47,5.29,15.97C5.43,16.57,5.7,17.17,6,17.7C7.08,19.43,8.95,20.67,10.96,20.92C13.1,21.19,15.39,20.8,16.89,19.32C18.55,17.68,19.15,15.15,18.43,12.97L18.3,12.66C18.1,12.16,17.83,11.68,17.66,11.2Z',
+      boost:
+        'M17.66,11.2C17.43,10.9,17.15,10.64,16.89,10.38C16.22,9.78,15.46,9.35,14.82,8.72C13.33,7.26,13,4.85,13.95,3C13,3.23,12.17,3.75,11.46,4.32C8.87,6.4,7.85,10.07,9.07,13.22C9.11,13.32,9.15,13.42,9.15,13.55C9.15,13.77,9,13.97,8.8,14.05C8.57,14.15,8.33,14.09,8.14,13.93C8.08,13.88,8.04,13.83,8,13.76C6.87,12.33,6.69,10.28,7.45,8.64C5.78,10,4.87,12.3,5,14.47C5.06,14.97,5.12,15.47,5.29,15.97C5.43,16.57,5.7,17.17,6,17.7C7.08,19.43,8.95,20.67,10.96,20.92C13.1,21.19,15.39,20.8,16.89,19.32C18.55,17.68,19.15,15.15,18.43,12.97L18.3,12.66C18.1,12.16,17.83,11.68,17.66,11.2Z',
       // Sun — comfort
-      comfort: 'M12,7A5,5,0,1,0,17,12,5,5,0,0,0,12,7ZM12,2L14.39,5.42C13.65,5.15,12.84,5,12,5S10.36,5.15,9.61,5.42ZM3.34,7L7.5,6.65A6.86,6.86,0,0,0,5.42,9.61ZM3.34,17L5.42,14.39A6.86,6.86,0,0,0,7.5,17.35ZM12,22L9.61,18.58C10.36,18.85,11.16,19,12,19S13.65,18.85,14.39,18.58ZM20.66,17L16.5,17.35A6.86,6.86,0,0,0,18.58,14.39ZM20.66,7L18.58,9.61A6.86,6.86,0,0,0,16.5,6.65Z',
+      comfort:
+        'M12,7A5,5,0,1,0,17,12,5,5,0,0,0,12,7ZM12,2L14.39,5.42C13.65,5.15,12.84,5,12,5S10.36,5.15,9.61,5.42ZM3.34,7L7.5,6.65A6.86,6.86,0,0,0,5.42,9.61ZM3.34,17L5.42,14.39A6.86,6.86,0,0,0,7.5,17.35ZM12,22L9.61,18.58C10.36,18.85,11.16,19,12,19S13.65,18.85,14.39,18.58ZM20.66,17L16.5,17.35A6.86,6.86,0,0,0,18.58,14.39ZM20.66,7L18.58,9.61A6.86,6.86,0,0,0,16.5,6.65Z',
       // Person — activity
-      activity: 'M12,4A4,4,0,1,1,8,8,4,4,0,0,1,12,4ZM12,14C7.58,14,4,15.79,4,18V20H20V18C20,15.79,16.42,14,12,14Z',
+      activity:
+        'M12,4A4,4,0,1,1,8,8,4,4,0,0,1,12,4ZM12,14C7.58,14,4,15.79,4,18V20H20V18C20,15.79,16.42,14,12,14Z',
     };
 
     // Check config-based preset_icons mapping first
-    if (this._presetIcons && this._presetIcons[this.preset_mode]) {
+    if (this._presetIcons?.[this.preset_mode]) {
       const mappedIcon = this._presetIcons[this.preset_mode];
       return icons[mappedIcon] ?? null;
     }
@@ -591,14 +623,12 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   private _handleLongPress(e: Event): void {
     e.preventDefault();
-    this.dispatchEvent(
-      new CustomEvent('more-info', { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent('more-info', { bubbles: true, composed: true }));
   }
 
   private _handleChevronClick(e: MouseEvent): void {
     e.stopPropagation();
-    const target = (e.currentTarget as SVGElement);
+    const target = e.currentTarget as SVGElement;
     const id = target.dataset.id;
     if (!id) return;
 
@@ -627,9 +657,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   private _handlePowerClick(e: MouseEvent): void {
     if (this.readonly) return;
     e.stopPropagation();
-    this.dispatchEvent(
-      new CustomEvent('toggle', { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent('toggle', { bubbles: true, composed: true }));
   }
 
   // --- Ring drag/tap interaction ---
@@ -690,7 +718,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     const startAngle = gap / 2; // where min_temp starts (bottom-left)
 
     // Check if angle is in the gap (bottom center)
-    if (angle > (360 - gap / 2) || angle < gap / 2) return null;
+    if (angle > 360 - gap / 2 || angle < gap / 2) return null;
 
     // Normalize: subtract startAngle to get 0..tick_degrees
     const normalized = angle - startAngle;

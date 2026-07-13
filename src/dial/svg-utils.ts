@@ -29,9 +29,7 @@ export function rotatePoints(
 
 /** Convert an array of points to an SVG path string. */
 export function pointsToPath(points: [number, number][]): string {
-  return (
-    points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0]} ${p[1]}`).join(' ') + 'Z'
-  );
+  return `${points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0]} ${p[1]}`).join(' ')}Z`;
 }
 
 /** Map a temperature value to a tick index. */

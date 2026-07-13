@@ -1,5 +1,5 @@
-import { svg, TemplateResult } from 'lit';
-import { rotatePoints, pointsToPath } from './svg-utils';
+import { svg, type TemplateResult } from 'lit';
+import { pointsToPath, rotatePoints } from './svg-utils';
 
 export interface TickConfig {
   numTicks: number;
@@ -18,10 +18,7 @@ export interface TickRange {
 }
 
 /** Render all tick marks as SVG paths. */
-export function renderTicks(
-  config: TickConfig,
-  range: TickRange,
-): TemplateResult {
+export function renderTicks(config: TickConfig, range: TickRange): TemplateResult {
   const { numTicks, tickDegrees, radius, outerRadius, innerRadius, offsetDegrees } = config;
   const { from, to, largeIndices } = range;
   const theta = tickDegrees / numTicks;

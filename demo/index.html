@@ -45,7 +45,7 @@
 
     <div class="controls">
       <div class="control">
-        <label>Theme</label>
+        <label for="theme">Theme</label>
         <select id="theme">
           <option value="dark">Dark</option>
           <option value="light">Light</option>
@@ -55,7 +55,7 @@
       </div>
 
       <div class="control">
-        <label>HVAC Action</label>
+        <label for="hvac_action">HVAC Action</label>
         <select id="hvac_action">
           <option value="heating">Heating</option>
           <option value="cooling">Cooling</option>
@@ -66,7 +66,7 @@
       </div>
 
       <div class="control">
-        <label>HVAC Mode</label>
+        <label for="hvac_mode">HVAC Mode</label>
         <select id="hvac_mode">
           <option value="heat">Heat</option>
           <option value="cool">Cool</option>
@@ -77,22 +77,22 @@
       </div>
 
       <div class="control">
-        <label>Current Temperature: <span class="value" id="current_val">21.5</span></label>
+        <label for="current_temperature">Current Temperature: <span class="value" id="current_val">21.5</span></label>
         <input type="range" id="current_temperature" min="15" max="30" step="0.5" value="21.5">
       </div>
 
       <div class="control">
-        <label>Target Temperature: <span class="value" id="target_val">22</span></label>
+        <label for="temperature">Target Temperature: <span class="value" id="target_val">22</span></label>
         <input type="range" id="temperature" min="15" max="30" step="0.5" value="22">
       </div>
 
       <div class="control">
-        <label>Target Low (dual): <span class="value" id="low_val">—</span></label>
+        <label for="target_temp_low">Target Low (dual): <span class="value" id="low_val">—</span></label>
         <input type="range" id="target_temp_low" min="15" max="30" step="0.5" value="19" disabled>
       </div>
 
       <div class="control">
-        <label>Target High (dual): <span class="value" id="high_val">—</span></label>
+        <label for="target_temp_high">Target High (dual): <span class="value" id="high_val">—</span></label>
         <input type="range" id="target_temp_high" min="15" max="30" step="0.5" value="24" disabled>
       </div>
 
@@ -112,7 +112,7 @@
       </div>
 
       <div class="control">
-        <label>Preset Mode</label>
+        <label for="preset_mode">Preset Mode</label>
         <select id="preset_mode">
           <option value="">None</option>
           <option value="eco">Eco (leaf)</option>
