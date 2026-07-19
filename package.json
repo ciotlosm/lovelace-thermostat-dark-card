@@ -24,7 +24,7 @@
     "lit": "^3.3.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.3",
+    "@biomejs/biome": "^2.5.4",
     "terser": "^5.49.0",
     "typescript": "^7.0.2",
     "vite": "^8.1.4"
