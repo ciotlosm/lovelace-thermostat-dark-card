@@ -27,7 +27,7 @@
     "@biomejs/biome": "^2.5.4",
     "terser": "^5.49.0",
     "typescript": "^7.0.2",
-    "vite": "^8.1.4"
+    "vite": "^8.1.5"
   },
   "scripts": {
     "dev": "vite build --watch",
