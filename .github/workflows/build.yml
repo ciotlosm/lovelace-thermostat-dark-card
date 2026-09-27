@@ -50,6 +50,14 @@ jobs:
             });
 
       - name: HACS Validation
+        # The HACS plugin structure check resolves the plugin JS at the
+        # PR head branch on `head.repo.full_name`. For fork PRs that
+        # means the contributor's fork, which has no release assets,
+        # no `dist/` committed, and no JS at the root -- so the check
+        # raises "Repository structure ... is not compliant" even when
+        # the upstream's branch would pass. Skip HACS on fork PRs;
+        # same-repo PRs (and dependabot branches) still validate.
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: hacs/action@main
         with:
           category: plugin
