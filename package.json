@@ -20,7 +20,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "home-assistant-js-websocket": "^9.6.0",
+    "home-assistant-js-websocket": "^9.7.0",
     "lit": "^3.3.2"
   },
   "devDependencies": {
