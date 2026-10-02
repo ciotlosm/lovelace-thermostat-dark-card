@@ -84,7 +84,12 @@ export class ThermostatDarkCard extends LitElement {
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this._config) return false;
-    return hasEntityChanged(this, changedProps, this._config.entity);
+    const entityIds = [
+      this._config.entity,
+      this._config.ambient_temperature,
+      this._config.status_entity,
+    ].filter((entityId): entityId is string => Boolean(entityId));
+    return hasEntityChanged(this, changedProps, entityIds);
   }
 
   protected render(): TemplateResult {
