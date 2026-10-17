@@ -11,12 +11,13 @@ export interface HomeAssistant {
 export function hasEntityChanged(
   element: { hass?: HomeAssistant },
   changedProps: PropertyValues,
-  entityId: string,
+  entityIds: string | readonly string[],
 ): boolean {
   if (changedProps.has('_config')) return true;
   const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
   if (!oldHass) return true;
-  return oldHass.states[entityId] !== element.hass?.states[entityId];
+  const ids = Array.isArray(entityIds) ? entityIds : [entityIds];
+  return ids.some((entityId) => oldHass.states[entityId] !== element.hass?.states[entityId]);
 }
 
 export function fireEvent(node: HTMLElement, type: string, detail?: Record<string, unknown>): void {
