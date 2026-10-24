@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.2](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.6.1...v2.6.2) (2026-10-24)
+
+
+### Bug Fixes
+
+* stop tapping the ring from jumping the temperature ([#390](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/390)) ([4c9c463](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/4c9c463a8465da810e941a359c2bd344eb688c60))
+
 ## [2.6.1](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.6.0...v2.6.1) (2026-07-13)
 
 
