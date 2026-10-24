@@ -17,6 +17,7 @@ A Nest-style thermostat card for Home Assistant with a round dial interface. Sup
 - Pure SVG rendering — lightweight, no images, optimized for low bandwidth
 - Single and dual (heat/cool) temperature modes
 - Ring drag interaction for setting temperature
+- Chevron controls with finger-sized touch targets on narrow cards
 - Predictive state feedback while editing
 - Dark, light, and transparent themes
 - Preset mode indicators (eco, away, home, sleep, boost)
@@ -47,6 +48,19 @@ Or manually:
 type: custom:thermostat-dark-card
 entity: climate.living_room
 ```
+
+## Interaction
+
+| Gesture | Result |
+|---------|--------|
+| Tap the dial | Enter edit mode — the chevrons appear |
+| Tap ▲ / ▼ | Raise / lower the target temperature by one step |
+| Drag on the tick ring | Set the temperature to the dragged position |
+| Tap the tick ring | Nothing — a plain tap never changes the setpoint |
+| Long-press / right-click | Open the Home Assistant entity dialog |
+
+The chevrons are the primary control on small screens. Their touch targets grow automatically as
+the card gets narrower, so they stay large enough to hit with a finger.
 
 ## Configuration
 
@@ -162,8 +176,10 @@ ambient_temperature: sensor.living_room_external_temp
 ## Features
 
 - **Single and dual mode** — Automatically adapts based on entity attributes
-- **Ring interaction** — Drag on the tick ring to set temperature
-- **Chevron controls** — Tap up/down arrows for precise adjustments
+- **Chevron controls** — Tap the up/down arrows to adjust the target temperature. The touch
+  targets grow on narrow cards so they stay easy to hit with a finger
+- **Ring drag** — Drag on the tick ring to set the temperature. A plain tap on the ring does
+  nothing, so a stray finger can never move the setpoint
 - **Predictive feedback** — Disc color fades to show predicted heating/cooling state while editing
 - **Preset indicators** — Shows eco leaf, home, sleep, and other icons
 - **More-info dialog** — Long-press (mobile) or right-click (desktop) opens the HA entity dialog

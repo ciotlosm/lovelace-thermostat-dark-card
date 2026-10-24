@@ -15,6 +15,22 @@ import {
   temperatureToTick,
 } from './svg-utils';
 
+/**
+ * Minimum touch target for the chevrons, in CSS pixels.
+ *
+ * The dial is drawn in an SVG viewBox and scaled to the card width, so on a
+ * narrow card the chevrons shrink below a finger-sized target. The hit box is
+ * grown to compensate (see `_chevronTapSize`).
+ */
+const MIN_TOUCH_TARGET_PX = 44;
+
+/**
+ * How far the pointer must travel (in CSS pixels) before a gesture on the ring
+ * counts as a drag. Keeps a plain tap on the ring from moving the
+ * temperature.
+ */
+const DRAG_THRESHOLD_PX = 6;
+
 @customElement('thermostat-dial')
 export class ThermostatDial extends LitElement implements InteractionHost {
   // --- Properties from climate entity (HA-aligned names) ---
@@ -53,6 +69,12 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @state() editing = false;
   private _dragging = false;
   private _didPointerInteract = false;
+  private _dragStartX = 0;
+  private _dragStartY = 0;
+  private _dragActivated = false;
+  /** Rendered CSS pixels per viewBox unit — used to size touch targets. */
+  private _scale = 1;
+  private _resizeObserver?: ResizeObserver;
 
   private _interaction = new DialInteractionController(this);
 
@@ -76,10 +98,52 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     return offsetDegrees(this.tick_degrees);
   }
 
+  /**
+   * Touch target size of the chevrons, in viewBox units.
+   *
+   * The hit box grows on small cards so the arrows stay finger-sized, but it
+   * never grows past the point where the up/down (or dual-mode) arrows would
+   * start to overlap each other.
+   */
+  private get _chevronTapSize(): number {
+    const min = (this._radius / 3) * 1.2;
+    const max = this._radius * 0.6;
+    const desired = this._scale > 0 ? MIN_TOUCH_TARGET_PX / this._scale : min;
+    return Math.min(Math.max(min, desired), max);
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(() => this._updateScale());
+      this._resizeObserver.observe(this);
+    }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
+  }
+
+  /** Recompute the rendered scale so touch targets track the card width. */
+  private _updateScale(): void {
+    const width = this.getBoundingClientRect().width;
+    if (width <= 0) return;
+    const scale = width / this.diameter;
+    if (Math.abs(scale - this._scale) < 0.005) return;
+    this._scale = scale;
+    this.requestUpdate();
+  }
+
   static styles = dialStyles;
 
   protected updated(changedProps: PropertyValues): void {
     super.updated(changedProps);
+    // The viewBox size may have changed, which changes the rendered scale.
+    if (changedProps.has('diameter')) {
+      this._updateScale();
+    }
     // Reflect editing state as attribute for CSS
     if (changedProps.has('editing')) {
       if (this.editing) {
@@ -586,7 +650,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     const halfW = width / 2;
     const height = width * 0.3;
     const d = `M${-halfW},0 L0,${-height} L${halfW},0`;
-    const tapSize = width * 1.2;
+    const tapSize = this._chevronTapSize;
     return svg`
       <g
         class="dial-chevron"
@@ -664,19 +728,37 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   private _handlePointerDown(e: PointerEvent): void {
     if (this.readonly) return;
     if (!this.editing) return;
-    const temp = this._pointerToTemperature(e);
-    if (temp === null) return;
+
+    // A gesture that starts on a control must not be treated as a ring
+    // interaction. The chevron hit box overlaps the ring area, so without this
+    // guard an arrow tap also jumps the temperature to the tapped angle.
+    const target = e.target as SVGElement;
+    if (target.closest('.dial-power') || target.closest('.dial-chevron')) return;
+
+    // The gesture has to start on the ring itself.
+    if (this._pointerToTemperature(e) === null) return;
 
     this._dragging = true;
     this._didPointerInteract = true;
+    this._dragStartX = e.clientX;
+    this._dragStartY = e.clientY;
+    this._dragActivated = false;
     this._interaction.pauseTimer();
-    (e.target as SVGElement).setPointerCapture(e.pointerId);
-    this._setTemperatureFromRing(temp);
+    target.setPointerCapture(e.pointerId);
     e.preventDefault();
   }
 
   private _handlePointerMove(e: PointerEvent): void {
     if (!this._dragging) return;
+
+    // Only a real drag changes the temperature — a tap on the ring does not.
+    if (!this._dragActivated) {
+      const dx = e.clientX - this._dragStartX;
+      const dy = e.clientY - this._dragStartY;
+      if (dx * dx + dy * dy < DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) return;
+      this._dragActivated = true;
+    }
+
     const temp = this._pointerToTemperature(e);
     if (temp === null) return;
     this._setTemperatureFromRing(temp);
@@ -686,9 +768,15 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   private _handlePointerUp(e: PointerEvent): void {
     if (!this._dragging) return;
     this._dragging = false;
+    this._dragActivated = false;
     (e.target as SVGElement).releasePointerCapture(e.pointerId);
     // Resume the pending timer after drag ends
     this._interaction.resumeTimer();
+    // A cancelled gesture is not followed by a click event, so clear the
+    // flag here — otherwise the next tap on the dial would be swallowed.
+    if (e.type === 'pointercancel') {
+      this._didPointerInteract = false;
+    }
   }
 
   private _pointerToTemperature(e: PointerEvent): number | null {
