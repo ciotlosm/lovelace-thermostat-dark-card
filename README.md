@@ -245,6 +245,39 @@ ambient_temperature: sensor.living_room_external_temp
 - **More-info dialog** — Long-press (mobile) or right-click (desktop) opens the HA entity dialog
 - **Responsive** — Scales to fit any card size
 
+## Releasing (maintainers)
+
+Releases run through [release-please](https://github.com/googleapis/release-please-action). Merging a
+feature PR opens a `chore(main): release X.Y.Z` PR, and merging that one publishes the GitHub release with
+the built `thermostat-dark-card.js` attached.
+
+**The release PR needs its workflow run approved before it can be merged.**
+
+`release-please` creates its branch with `GITHUB_TOKEN`. GitHub holds workflows triggered that way in an
+approval-required state instead of running them, so the `Build & Validate` check that branch protection
+requires never reports, and the merge is refused with *"the base branch policy prohibits the merge"*.
+
+In the GitHub UI this is the **Approve workflows to run** banner on the release PR — one click. From the
+command line:
+
+```bash
+# 1. Approve the held build run for the release PR
+PR=<release-pr-number>
+BR=$(gh pr view "$PR" --json headRefName --jq .headRefName)
+RUN=$(gh run list --workflow=build.yml --branch "$BR" --limit 5 --json databaseId,conclusion \
+  --jq '[.[] | select(.conclusion == "action_required")][0].databaseId')
+gh api -X POST "repos/ciotlosm/lovelace-thermostat-dark-card/actions/runs/$RUN/approve"
+
+# 2. Wait for it to go green
+gh run watch "$RUN" --exit-status
+
+# 3. Merge the release PR
+gh pr merge "$PR" --squash
+```
+
+Do not reach for `--admin`. It skips the required check instead of producing it, so the release would ship
+without the build and without the HACS validation.
+
 ## License
 
 MIT
