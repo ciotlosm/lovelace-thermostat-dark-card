@@ -47,6 +47,10 @@
     .controls { flex: 0 0 280px; display: flex; flex-direction: column; gap: 12px; }
     .control { display: flex; flex-direction: column; gap: 4px; }
     .control label { font-size: 12px; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing: 0.5px; }
+    .hint {
+      font-size: 12px; line-height: 1.45; color: var(--secondary-text-color); margin-top: 2px;
+    }
+    .hint code { font-size: 11px; }
     .control select, .control input {
       padding: 8px 12px; border: 1px solid var(--divider-color); border-radius: 6px;
       background: var(--card-background-color); color: var(--primary-text-color); font-size: 14px;
@@ -76,7 +80,8 @@
 </head>
 <body>
   <h1>Thermostat Dark Card — Demo</h1>
-  <p class="subtitle">Interactive preview. Adjust controls to see changes in real-time.</p>
+  <p class="subtitle">Two layers: the Home Assistant theme sets the dashboard, the card skin sets the
+    dial. <strong>Auto</strong> ties them together.</p>
 
   <div class="layout">
     <div class="preview">
@@ -97,22 +102,26 @@
 
     <div class="controls">
       <div class="control">
-        <label for="theme">Theme</label>
-        <select id="theme">
-          <option value="auto">Auto (follows HA theme)</option>
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-          <option value="transparent">Transparent</option>
-          <option value="glassy">Glassy</option>
-        </select>
-      </div>
-
-      <div class="control">
-        <label for="mode">Home Assistant mode</label>
+        <label for="mode">1 · Home Assistant theme</label>
         <select id="mode">
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </select>
+        <p class="hint">The dashboard look — page background, card surface, text colors. The card
+          reads this as <code>hass.themes.darkMode</code>.</p>
+      </div>
+
+      <div class="control">
+        <label for="theme">2 · Card skin</label>
+        <select id="theme">
+          <option value="auto">Auto (follows the HA theme)</option>
+          <option value="dark">Dark (fixed)</option>
+          <option value="light">Light (fixed)</option>
+          <option value="transparent">Transparent</option>
+          <option value="glassy">Glassy</option>
+        </select>
+        <p class="hint">The card's own <code>theme:</code> option. <strong>Auto</strong> follows the
+          Home Assistant theme; the fixed ones ignore it and look the same on every dashboard.</p>
       </div>
 
       <div class="control">
