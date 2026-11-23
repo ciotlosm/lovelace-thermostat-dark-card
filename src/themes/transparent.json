@@ -4,11 +4,11 @@
   "dial-heating-fill": "transparent",
   "dial-cooling-fill": "transparent",
   "dial-drying-fill": "transparent",
-  "dial-text-color": "#fff",
-  "dial-path-color": "rgba(255, 255, 255, 0.3)",
-  "dial-path-active-color": "rgba(255, 255, 255, 0.8)",
-  "dial-path-active-large-color": "rgba(255, 255, 255, 1)",
-  "dial-leaf-color": "#13eb13",
-  "dial-toggle-color": "grey",
+  "dial-text-color": "var(--primary-text-color, #212121)",
+  "dial-path-color": "color-mix(in srgb, var(--primary-text-color, #212121) 30%, transparent)",
+  "dial-path-active-color": "var(--primary-text-color, #212121)",
+  "dial-path-active-large-color": "var(--primary-text-color, #212121)",
+  "dial-leaf-color": "var(--success-color, #0a8f0a)",
+  "dial-toggle-color": "var(--secondary-text-color, #757575)",
   "colored-ticks": "true"
 }

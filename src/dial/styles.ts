@@ -18,18 +18,21 @@ export const dialStyles = css`
     width: 100%;
     height: auto;
 
-    /* Theme-aware colors */
+    /* Theme-aware colors. These defaults are the "dark" theme and must stay
+       in sync with src/themes/dark.json — a fixed theme may not pick up the
+       surrounding Home Assistant theme by accident. Themes that do follow the
+       HA theme set their own tokens over these. */
     --dial-off-fill: #555;
     --dial-idle-fill: #222;
     --dial-heating-fill: #e36304;
     --dial-cooling-fill: #007af1;
     --dial-drying-fill: #a68b00;
-    --dial-text-color: var(--primary-text-color, #fff);
+    --dial-text-color: #fff;
     --dial-path-color: rgba(255, 255, 255, 0.3);
     --dial-path-active-color: rgba(255, 255, 255, 0.8);
     --dial-path-active-large-color: rgba(255, 255, 255, 1);
     --dial-leaf-color: #13eb13;
-    --dial-toggle-color: var(--secondary-text-color, grey);
+    --dial-toggle-color: grey;
   }
 
   /* Disc background — colored by hvac_action */
@@ -80,6 +83,14 @@ export const dialStyles = css`
     text-anchor: middle;
     dominant-baseline: central;
     font-family: Helvetica, sans-serif;
+  }
+  /* The center temperature can carry the HVAC state color, so a theme can
+     show the state on the number instead of on the whole disc. */
+  .dial-text--ambient,
+  .dial-text--target,
+  .dial-text--low,
+  .dial-text--high {
+    fill: var(--dial-center-text-color, var(--dial-text-color));
   }
   .dial-text--ambient {
     font-size: 120px;
@@ -146,7 +157,7 @@ export const dialStyles = css`
   /* Controls (chevrons) */
   .dial-chevron {
     cursor: pointer;
-    opacity: 0.3;
+    opacity: 0.45;
     transition: opacity 0.15s ease;
   }
   .dial-chevron path {
@@ -156,9 +167,6 @@ export const dialStyles = css`
   }
   .dial-chevron:active {
     opacity: 1;
-  }
-  .dial-chevron:active path {
-    stroke: white;
   }
 
   /* Indicators */
@@ -179,11 +187,9 @@ export const dialStyles = css`
     fill: var(--dial-toggle-color);
     transition: fill 0.3s ease;
   }
+  /* Dimmed when the thermostat is off, but still the theme's own color. */
   :host([off]) .dial-power path {
-    fill: darkgrey;
-  }
-  :host(:not([off])) .dial-power path {
-    fill: lightgrey;
+    opacity: 0.4;
   }
   .dial-power:hover {
     opacity: 0.8;

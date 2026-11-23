@@ -6,23 +6,41 @@
   <title>Thermostat Dark Card — Demo</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #1a1a1a; color: #fff; font-family: system-ui, sans-serif; padding: 24px; }
+    body {
+      --demo-bg: #1a1a1a;
+      --demo-fg: #ffffff;
+      --demo-muted: #888888;
+      --demo-input-bg: #2a2a2a;
+      --demo-input-border: #444444;
+      background: var(--demo-bg);
+      color: var(--demo-fg);
+      font-family: system-ui, sans-serif;
+      padding: 24px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    body.light {
+      --demo-bg: #fafafa;
+      --demo-fg: #212121;
+      --demo-muted: #727272;
+      --demo-input-bg: #ffffff;
+      --demo-input-border: #dddddd;
+    }
     h1 { margin-bottom: 8px; font-weight: 300; }
-    p.subtitle { color: #888; margin-bottom: 24px; font-size: 14px; }
+    p.subtitle { color: var(--demo-muted); margin-bottom: 24px; font-size: 14px; }
     .layout { display: flex; gap: 24px; flex-wrap: wrap; }
     .preview { flex: 1; min-width: 300px; max-width: 400px; }
     .controls { flex: 0 0 280px; display: flex; flex-direction: column; gap: 12px; }
     .control { display: flex; flex-direction: column; gap: 4px; }
-    .control label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-    .control select, .control input { 
-      padding: 8px 12px; border: 1px solid #444; border-radius: 6px;
-      background: #2a2a2a; color: #fff; font-size: 14px;
+    .control label { font-size: 12px; color: var(--demo-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .control select, .control input {
+      padding: 8px 12px; border: 1px solid var(--demo-input-border); border-radius: 6px;
+      background: var(--demo-input-bg); color: var(--demo-fg); font-size: 14px;
     }
     .control input[type="range"] { padding: 4px 0; }
-    .control .value { font-size: 12px; color: #aaa; text-align: right; }
+    .control .value { font-size: 12px; color: var(--demo-muted); text-align: right; }
     .toggle { display: flex; align-items: center; gap: 8px; }
     .toggle input { width: 18px; height: 18px; }
-    .toggle label { font-size: 13px; color: #ccc; }
+    .toggle label { font-size: 13px; color: var(--demo-fg); }
   </style>
 </head>
 <body>
@@ -39,7 +57,7 @@
         target_temp_step="0.5"
         hvac_action="heating"
         hvac_mode="heat"
-        theme="dark"
+        theme="auto"
       ></thermostat-dial>
     </div>
 
@@ -47,10 +65,19 @@
       <div class="control">
         <label for="theme">Theme</label>
         <select id="theme">
+          <option value="auto">Auto (follows HA theme)</option>
           <option value="dark">Dark</option>
           <option value="light">Light</option>
           <option value="transparent">Transparent</option>
           <option value="glassy">Glassy</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label for="mode">Home Assistant mode</label>
+        <select id="mode">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
         </select>
       </div>
 
@@ -145,6 +172,21 @@
     document.getElementById('preset_mode').addEventListener('change', e => {
       update('preset_mode', e.target.value || null);
     });
+
+    // Home Assistant light/dark mode — the card reads this as hass.themes.darkMode
+    const modeSelect = document.getElementById('mode');
+
+    function setMode(dark) {
+      document.body.classList.toggle('light', !dark);
+      dial.dark_mode = dark;
+    }
+
+    modeSelect.addEventListener('change', e => setMode(e.target.value === 'dark'));
+
+    // Start on the mode the browser reports, and apply it right away.
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+    modeSelect.value = prefersDark ? 'dark' : 'light';
+    setMode(prefersDark);
 
     // Ranges
     document.getElementById('current_temperature').addEventListener('input', e => {

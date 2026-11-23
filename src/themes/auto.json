@@ -1,0 +1,28 @@
+{
+  "dial-text-color": "var(--primary-text-color, #212121)",
+  "dial-leaf-color": "var(--success-color, #0a8f0a)",
+  "dial-toggle-color": "var(--secondary-text-color, #757575)",
+  "modes": {
+    "light": {
+      "dial-off-fill": "#e0e0e0",
+      "dial-idle-fill": "#f5f5f5",
+      "dial-heating-fill": "#f5f5f5",
+      "dial-cooling-fill": "#f5f5f5",
+      "dial-drying-fill": "#f5f5f5",
+      "dial-path-color": "color-mix(in srgb, var(--primary-text-color, #212121) 25%, transparent)",
+      "dial-path-active-color": "color-mix(in srgb, var(--primary-text-color, #212121) 60%, transparent)",
+      "dial-path-active-large-color": "color-mix(in srgb, var(--primary-text-color, #212121) 90%, transparent)",
+      "state-text": "true"
+    },
+    "dark": {
+      "dial-off-fill": "#555",
+      "dial-idle-fill": "#222",
+      "dial-heating-fill": "#e36304",
+      "dial-cooling-fill": "#007af1",
+      "dial-drying-fill": "#a68b00",
+      "dial-path-color": "color-mix(in srgb, var(--primary-text-color, #e1e1e1) 30%, transparent)",
+      "dial-path-active-color": "color-mix(in srgb, var(--primary-text-color, #e1e1e1) 80%, transparent)",
+      "dial-path-active-large-color": "var(--primary-text-color, #e1e1e1)"
+    }
+  }
+}

@@ -11,5 +11,5 @@
   "editor_show_power_toggle": "电源按钮",
   "editor_show_preset_indicator": "预设图标",
   "card_name": "恒温器暗色卡片",
-  "card_description": "带有圆形表盘的恒温器卡片 — 支持深色和浅色主题"
+  "card_description": "带有圆形表盘的恒温器卡片 — 跟随 Home Assistant 主题"
 }

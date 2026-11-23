@@ -84,6 +84,10 @@ export class ThermostatDarkCard extends LitElement {
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this._config) return false;
+    // A theme change repaints the dial even when the entity state is the same.
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
+    if (oldHass && oldHass.themes?.darkMode !== this.hass.themes?.darkMode) return true;
+    if (oldHass && oldHass.themes?.theme !== this.hass.themes?.theme) return true;
     return hasEntityChanged(this, changedProps, this._config.entity);
   }
 
@@ -151,6 +155,7 @@ export class ThermostatDarkCard extends LitElement {
           .show_preset_indicator=${this._config.show_preset_indicator ?? true}
           .readonly=${this._config.readonly ?? false}
           .theme=${this._config.theme}
+          .dark_mode=${this.hass.themes?.darkMode}
           .colors=${this._config.colors}
           ._presetIcons=${this._config.preset_icons}
           .status_text=${this._resolveStatusText()}

@@ -2,7 +2,7 @@
 
 [English](README.md) | 🌐 Supports: English, 中文 (Chinese Simplified), Slovenčina (Slovak)
 
-[![HACS Default](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![Marketplace | HACS](https://img.shields.io/badge/Marketplace%20%7C%20HACS-Default-orange.svg?style=for-the-badge)](https://hacs.xyz/docs/marketplace/)
 [![GitHub Release](https://img.shields.io/github/v/release/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
 [![Build](https://img.shields.io/github/actions/workflow/status/ciotlosm/lovelace-thermostat-dark-card/release.yml?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/actions)
 [![License](https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/blob/main/LICENSE)
@@ -19,17 +19,35 @@ A Nest-style thermostat card for Home Assistant with a round dial interface. Sup
 - Ring drag interaction for setting temperature
 - Chevron controls with finger-sized touch targets on narrow cards
 - Predictive state feedback while editing
-- Dark, light, and transparent themes
+- Follows the Home Assistant theme — light and dark, with your theme's colors
+- Fixed dark, light and transparent skins if you prefer them
 - Preset mode indicators (eco, away, home, sleep, boost)
 - Responsive — scales to any card size
 
 ## Installation
 
-### HACS (Recommended)
+<!-- ha-marketplace:exclude-start -->
+
+### Marketplace (Home Assistant 2026.11 and newer)
+
+Home Assistant 2026.11 ships HACS as the built-in **Marketplace**, under
+**Settings → Marketplace**. There is nothing to install first.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=ciotlosm&repository=lovelace-thermostat-dark-card&category=plugin)
+
+Or manually:
+
+1. Open **Settings → Marketplace**
+2. Search for "Thermostat Dark Card"
+3. Install it, then reload your browser
+
+The Marketplace installs the card as a dashboard resource for you, so there is no
+resource to add by hand.
+
+### HACS (Home Assistant 2026.10 and older)
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ciotlosm&repository=lovelace-thermostat-dark-card&category=plugin)
 
-Or manually:
 1. Open HACS in Home Assistant
 2. Search for "Thermostat Dark Card"
 3. Install and restart Home Assistant
@@ -41,6 +59,13 @@ Or manually:
 3. Add the resource in Settings → Dashboards → Resources:
    - URL: `/local/thermostat-dark-card.js`
    - Type: JavaScript Module
+
+<!-- ha-marketplace:exclude-end -->
+
+> **Upgrading to Home Assistant 2026.11?** The Marketplace takes over from HACS
+> automatically. Everything you installed stays installed and keeps updating.
+> Dashboard resources move to `/local/community/<repository name>/` — the old
+> `/hacsfiles/` paths keep working.
 
 ## Usage
 
@@ -73,7 +98,7 @@ These are available in the visual card editor:
 | `entity` | string | **required** | Climate entity ID |
 | `name` | string / false | entity name | Card title. Set to `false` to hide |
 | `hide_name` | boolean | `false` | Hide the card title |
-| `theme` | string | `dark` | `dark`, `light`, `transparent`, or `glassy` |
+| `theme` | string | `auto` | `auto` (follows the HA theme), `dark`, `light`, `transparent`, or `glassy` |
 | `step` | number | from entity | Temperature step override (celsius only) |
 | `readonly` | boolean | `false` | Disable all interaction (display only) |
 | `ambient_temperature` | string | — | External temperature sensor entity ID |
@@ -91,7 +116,7 @@ For fine-tuning behavior — not exposed in UI:
 | `idle_zone` | number | `0` | Minimum gap between low/high targets in dual mode |
 | `range_min` | number | from entity | Override minimum temperature |
 | `range_max` | number | from entity | Override maximum temperature |
-| `colors` | object | — | Custom color overrides (see below) |
+| `colors` | object | — | Custom color overrides — `heating`, `cooling`, `idle`, `off`, `text` (see below) |
 | `preset_icons` | object | — | Map preset names to icons (see below) |
 
 ### Expert Options (use at your own risk)
@@ -107,9 +132,36 @@ Internal rendering parameters — changing these may break the dial appearance:
 
 ### Themes
 
-- **dark** — Black/dark grey background (default)
-- **light** — Light grey background with dark text
-- **transparent** — No disc background, use with card-mod for custom backgrounds
+| Theme | Behaviour |
+|-------|-----------|
+| `auto` | **Default.** Follows the Home Assistant theme. On a dark dashboard the disc is solid orange when heating, like always; on a light dashboard the disc stays neutral and the state color moves to the center temperature |
+| `dark` | Fixed dark skin — the same colors on every dashboard, light or dark |
+| `light` | Fixed light skin — the same colors on every dashboard, light or dark |
+| `transparent` | No disc background, so the card background shows through. Text and ticks follow the Home Assistant theme |
+| `glassy` | Like `transparent`, with a cyan accent for the active arc |
+
+`auto` reads the theme Home Assistant is actually using. That includes the theme
+you picked in **Profile → Theme** and a theme's own light/dark variants, so the
+card repaints as soon as you switch mode — no reload needed.
+
+It keeps the palette the card has always had: orange for heating, blue for
+cooling, yellow for drying. Only the neutral parts — the tick ring, the preset
+and power icons — are taken from your Home Assistant theme.
+
+Where the state color lands depends on the mode:
+
+- **Dark dashboard** — the disc is filled with the state color and the text
+  stays light on top of it. The classic look.
+- **Light dashboard** — the disc keeps its neutral surface and the center
+  temperature takes the state color instead: orange while heating, blue while
+  cooling, back to the theme's text color when idle. A big saturated disc is
+  heavy on a light card, and the number is what the eye goes to anyway.
+
+The `dark` and `light` skins ignore the Home Assistant theme on purpose: they
+look the same everywhere, which is what you want when a card sits on a shared
+wall tablet. Use `light` if you want the solid orange disc on a light dashboard.
+
+![Themes on a light and a dark dashboard](docs/theme-comparison.png)
 
 Transparent theme example with a room photo:
 
@@ -117,12 +169,17 @@ Transparent theme example with a room photo:
 type: custom:thermostat-dark-card
 entity: climate.bedroom
 theme: transparent
+colors:
+  text: "#ffffff"
 card_mod:
   style: |
     ha-card {
       background: url("/local/bedroom.jpg") center/cover no-repeat;
     }
 ```
+
+With a custom background, pin the text color with `colors.text` — the default
+follows the Home Assistant theme, which may not contrast with your photo.
 
 ### Color Overrides
 
@@ -136,6 +193,7 @@ colors:
   cooling: "#0088ff"
   idle: "#1a1a1a"
   off: "#444444"
+  text: "#ffffff"
 ```
 
 ### Preset Icons
@@ -182,6 +240,8 @@ ambient_temperature: sensor.living_room_external_temp
   nothing, so a stray finger can never move the setpoint
 - **Predictive feedback** — Disc color fades to show predicted heating/cooling state while editing
 - **Preset indicators** — Shows eco leaf, home, sleep, and other icons
+- **Theme-aware** — The default `auto` skin follows the Home Assistant theme: your colors,
+  your light or dark mode, repainted the moment you switch
 - **More-info dialog** — Long-press (mobile) or right-click (desktop) opens the HA entity dialog
 - **Responsive** — Scales to fit any card size
 
