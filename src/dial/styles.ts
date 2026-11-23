@@ -18,9 +18,9 @@ export const dialStyles = css`
     width: 100%;
     height: auto;
 
-    /* Theme-aware colors. These defaults are the "dark" theme and must stay
-       in sync with src/themes/dark.json — a fixed theme may not pick up the
-       surrounding Home Assistant theme by accident. Themes that do follow the
+    /* Theme-aware colors. These defaults are the "dark" skin and must stay
+       in sync with src/skins/dark.json — a fixed skin may not pick up the
+       surrounding Home Assistant theme by accident. Skins that do follow the
        HA theme set their own tokens over these. */
     --dial-off-fill: #555;
     --dial-idle-fill: #222;

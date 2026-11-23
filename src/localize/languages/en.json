@@ -2,7 +2,7 @@
   "editor_entity": "Entity",
   "editor_name": "Name",
   "editor_hide_name": "Hide name",
-  "editor_theme": "Theme",
+  "editor_skin": "Skin",
   "editor_step": "Step override",
   "editor_pending": "Pending (seconds)",
   "editor_ambient_temperature": "Ambient temperature sensor",

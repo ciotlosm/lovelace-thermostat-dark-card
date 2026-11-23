@@ -1,12 +1,12 @@
 import { html, LitElement, type PropertyValues, svg, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import {
-  type ThemeMode,
-  themeFollowsMode,
-  themeHasColoredTicks,
-  themeHasStateText,
-  themeToStyle,
-} from '../themes/index';
+  type SkinMode,
+  skinFollowsMode,
+  skinHasColoredTicks,
+  skinHasStateText,
+  skinToStyle,
+} from '../skins/index';
 import type { HvacAction } from '../types';
 import { renderRing } from './dial-arc';
 import { DialInteractionController, type InteractionHost } from './dial-interaction';
@@ -74,7 +74,14 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Boolean }) show_power_toggle = true;
   @property({ type: Boolean }) show_preset_indicator = true;
   @property({ type: Boolean }) readonly = false;
-  @property({ type: String, reflect: true }) theme: string = 'auto';
+  /**
+   * The skin the dial draws itself with.
+   *
+   * Not to be confused with a Home Assistant theme, which belongs to the
+   * dashboard. `auto` follows the Home Assistant theme; the other skins are
+   * fixed and look the same on every dashboard.
+   */
+  @property({ type: String, reflect: true }) skin: string = 'auto';
   /**
    * Whether Home Assistant is currently in dark mode.
    *
@@ -125,8 +132,8 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  /** The mode used to pick the variant of a theme that follows the HA mode. */
-  private get _mode(): ThemeMode {
+  /** The mode used to pick the variant of a skin that follows the HA mode. */
+  private get _mode(): SkinMode {
     return this._isDark ? 'dark' : 'light';
   }
 
@@ -238,18 +245,18 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     `;
   }
 
-  // --- Color/theme as inline CSS variables ---
+  // --- Color/skin as inline CSS variables ---
   private _getColorStyle(): string {
     const vars: string[] = [];
-    const themeName = this.theme || 'auto';
+    const skinName = this.skin || 'auto';
     const mode = this._mode;
 
-    // Apply theme tokens. A theme that carries "modes" gets the variant for
-    // the current mode; a fixed theme always uses the same tokens.
-    const themeStyle = themeToStyle(themeName, mode);
-    if (themeStyle) vars.push(themeStyle);
+    // Apply skin tokens. A skin that carries "modes" gets the variant for
+    // the current mode; a fixed skin always uses the same tokens.
+    const skinStyle = skinToStyle(skinName, mode);
+    if (skinStyle) vars.push(skinStyle);
 
-    // Manual color overrides take precedence over theme
+    // Manual color overrides take precedence over the skin
     if (this.colors) {
       if (this.colors.heating) vars.push(`--dial-heating-fill: ${this.colors.heating}`);
       if (this.colors.cooling) vars.push(`--dial-cooling-fill: ${this.colors.cooling}`);
@@ -259,19 +266,19 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     }
 
     // Colored ticks: active tick color matches HVAC action
-    // Enabled by theme setting (colored-ticks: "true" in theme JSON)
+    // Enabled by skin setting (colored-ticks: "true" in the skin JSON)
     const action = this.editing ? this._predictAction() : (this.hvac_action ?? 'off');
     const stateColor = STATE_COLORS[action];
 
-    if (themeHasColoredTicks(themeName, mode) && stateColor) {
-      const [active, activeLarge] = this._activeTickColors(stateColor, themeName, mode);
+    if (skinHasColoredTicks(skinName, mode) && stateColor) {
+      const [active, activeLarge] = this._activeTickColors(stateColor, skinName, mode);
       vars.push(`--dial-path-active-color: ${active}`);
       vars.push(`--dial-path-active-large-color: ${activeLarge}`);
     }
 
     // The center temperature carries the state color instead of the disc.
-    // Enabled by theme setting (state-text: "true" in theme JSON)
-    if (themeHasStateText(themeName, mode) && stateColor) {
+    // Enabled by skin setting (state-text: "true" in the skin JSON)
+    if (skinHasStateText(skinName, mode) && stateColor) {
       vars.push(`--dial-center-text-color: ${stateColor}`);
     }
 
@@ -282,20 +289,16 @@ export class ThermostatDial extends LitElement implements InteractionHost {
    * Tick colors for the active arc, derived from the HVAC state color.
    *
    * - A transparent disc has nothing behind it, so the raw state color is used.
-   * - A theme that follows the HA mode is tuned for the dashboard it sits in:
+   * - A skin that follows the HA mode is tuned for the dashboard it sits in:
    *   a darker tone on a light dashboard, a lighter one on a dark dashboard.
-   * - A fixed theme keeps the look it was designed with.
+   * - A fixed skin keeps the look it was designed with.
    */
-  private _activeTickColors(
-    baseColor: string,
-    themeName: string,
-    mode: ThemeMode,
-  ): [string, string] {
-    if (themeName === 'transparent' || themeName === 'glassy') {
+  private _activeTickColors(baseColor: string, skinName: string, mode: SkinMode): [string, string] {
+    if (skinName === 'transparent' || skinName === 'glassy') {
       return [baseColor, baseColor];
     }
 
-    const onLight = themeFollowsMode(themeName) ? mode === 'light' : themeName === 'light';
+    const onLight = skinFollowsMode(skinName) ? mode === 'light' : skinName === 'light';
     return onLight
       ? [
           `color-mix(in srgb, ${baseColor} 60%, black)`,

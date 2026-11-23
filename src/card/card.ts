@@ -11,7 +11,7 @@ import { DEFAULT_CONFIG } from '../const';
 import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import { localize } from '../localize/index';
-import { AUTO_THEME, getAvailableThemes, isSkinName } from '../themes/index';
+import { AUTO_SKIN, getAvailableSkins, isSkinName } from '../skins/index';
 import type { HvacAction, ThermostatCardConfig } from '../types';
 import '../dial/dial';
 
@@ -31,8 +31,8 @@ export class ThermostatDarkCard extends LitElement {
           flatten: true,
           schema: [
             {
-              name: 'theme',
-              selector: { select: { options: getAvailableThemes(), mode: 'dropdown' } },
+              name: 'skin',
+              selector: { select: { options: getAvailableSkins(), mode: 'dropdown' } },
             },
             { name: 'step', selector: { number: { min: 0.5, max: 5, step: 0.5, mode: 'box' } } },
             { name: 'pending', selector: { number: { min: 1, max: 30, step: 1, mode: 'box' } } },
@@ -68,7 +68,12 @@ export class ThermostatDarkCard extends LitElement {
     if (!config?.entity) {
       throw new Error('Entity is required');
     }
-    this._config = { ...DEFAULT_CONFIG, ...config };
+    this._config = {
+      ...DEFAULT_CONFIG,
+      ...config,
+      // An unknown skin name is a typo, not a theme — fall back to `auto`.
+      skin: config.skin && isSkinName(config.skin) ? config.skin : AUTO_SKIN,
+    };
   }
 
   public getCardSize(): number {
@@ -154,7 +159,7 @@ export class ThermostatDarkCard extends LitElement {
           .show_power_toggle=${this._config.show_power_toggle ?? true}
           .show_preset_indicator=${this._config.show_preset_indicator ?? true}
           .readonly=${this._config.readonly ?? false}
-          .theme=${this._skin}
+          .skin=${this._config.skin}
           .dark_mode=${this.hass.themes?.darkMode}
           .colors=${this._config.colors}
           ._presetIcons=${this._config.preset_icons}
@@ -199,20 +204,6 @@ export class ThermostatDarkCard extends LitElement {
       detail: { entityId: this._config.entity },
     });
     this.dispatchEvent(event);
-  }
-
-  /**
-   * The skin to render with.
-   *
-   * `theme` is also a Home Assistant option on every card, where it overrides
-   * the theme for that card. A name that is not one of our skins is therefore
-   * an HA theme, and the card follows it the way `auto` does — otherwise a
-   * user setting `theme: Nord` would silently get the fixed dark skin.
-   */
-  private get _skin(): string {
-    const theme = this._config.theme;
-    if (!theme) return AUTO_THEME;
-    return isSkinName(theme) ? theme : AUTO_THEME;
   }
 
   private _resolveStatusText(): string | null {

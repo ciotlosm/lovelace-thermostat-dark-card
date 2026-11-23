@@ -44,16 +44,20 @@ npm run preview
 # Open http://localhost:4000/demo.html
 ```
 
-The demo lets you test all card options without Home Assistant — theme, HVAC state, temperatures, dual mode, presets, and more. Useful for quick visual testing during development.
+The demo lets you test all card options without Home Assistant — skin, HVAC state, temperatures, dual mode, presets, and more. Useful for quick visual testing during development.
+
+It drives two independent layers: the **Home Assistant theme** (light/dark, which sets
+the page background and the CSS variables the card reads) and the **card skin**
+(which sets how the dial draws itself).
 
 A second page, `http://localhost:4000/theme-preview.html`, renders the card in
 every skin under a simulated Home Assistant dashboard, with a light/dark switch.
-Use it to check a skin against both modes. Add `?theme=<name>` to see one skin
+Use it to check a skin against both modes. Add `?skin=<name>` to see one skin
 on its own, and `&mode=dark` to start in dark mode.
 
-## Theme Files
+## Skin Files
 
-Each skin is a JSON file in `src/themes/`, discovered automatically at build
+Each skin is a JSON file in `src/skins/`, discovered automatically at build
 time. A file is a flat map of tokens, where the token name is the CSS variable
 without the leading `--`:
 
@@ -85,7 +89,7 @@ Two keys are flags rather than colors, so they never become CSS variables:
 
 | Flag | What it does |
 |------|--------------|
-| `colored-ticks` | The active arc takes the HVAC state color instead of the theme's neutral |
+| `colored-ticks` | The active arc takes the HVAC state color instead of the skin's neutral |
 | `state-text` | The center temperature takes the HVAC state color |
 
 Both accept `"true"` and can sit in the flat map or in a `modes` block, so a
@@ -98,7 +102,7 @@ theme's own light/dark variants. `src/card/card.ts` passes it to the dial as
 report it) the dial falls back to `prefers-color-scheme`.
 
 The CSS defaults in `src/dial/styles.ts` are the `dark` skin. Keep them in sync
-with `src/themes/dark.json` — a fixed skin must not pick up the surrounding
+with `src/skins/dark.json` — a fixed skin must not pick up the surrounding
 Home Assistant theme by accident.
 
 ### Where the state color goes
@@ -116,9 +120,9 @@ Where the color lands does depend on the mode:
   temperature takes the state color instead. A big saturated disc is heavy on
   a light card, and the number is what the eye goes to anyway.
 
-That split is what the `state-text` flag in a theme file controls. It is a
-per-mode flag, so a theme can do one thing in light and another in dark. The
-flag is off unless a theme asks for it, and the `dark` and `light` skins leave
+That split is what the `state-text` flag in a skin file controls. It is a
+per-mode flag, so a skin can do one thing in light and another in dark. The
+flag is off unless a skin asks for it, and the `dark` and `light` skins leave
 it off, so they keep their solid disc.
 
 ## Project Structure
@@ -137,8 +141,8 @@ src/
 ├── localize/
 │   ├── index.ts         # Translation lookup
 │   └── languages/       # One JSON file per language
-├── themes/
-│   ├── index.ts         # Theme loading and token resolution
+├── skins/
+│   ├── index.ts         # Skin loading and token resolution
 │   └── *.json           # One file per skin
 ├── const.ts             # Constants and defaults
 ├── ha-types.ts          # Home Assistant type definitions

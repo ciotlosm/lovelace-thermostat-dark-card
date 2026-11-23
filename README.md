@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/ciotlosm/lovelace-thermostat-dark-card?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/blob/main/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/ciotlosm/lovelace-thermostat-dark-card/total?style=for-the-badge)](https://github.com/ciotlosm/lovelace-thermostat-dark-card/releases)
 
-A Nest-style thermostat card for Home Assistant with a round dial interface. Supports single and dual (heat/cool) setpoints, preset modes, and multiple themes.
+A Nest-style thermostat card for Home Assistant with a round dial interface. Supports single and dual (heat/cool) setpoints, preset modes, and multiple skins.
 
 <!-- Add screenshot: place your preview image at docs/preview.png -->
 ![Thermostat Dark Card](docs/preview.png)
@@ -98,7 +98,7 @@ These are available in the visual card editor:
 | `entity` | string | **required** | Climate entity ID |
 | `name` | string / false | entity name | Card title. Set to `false` to hide |
 | `hide_name` | boolean | `false` | Hide the card title |
-| `theme` | string | `auto` | `auto` (follows the HA theme), `dark`, `light`, `transparent`, or `glassy` |
+| `skin` | string | `auto` | `auto` (follows the HA theme), `dark`, `light`, `transparent`, or `glassy` |
 | `step` | number | from entity | Temperature step override (celsius only) |
 | `readonly` | boolean | `false` | Disable all interaction (display only) |
 | `ambient_temperature` | string | — | External temperature sensor entity ID |
@@ -130,15 +130,24 @@ Internal rendering parameters — changing these may break the dial appearance:
 | `tick_degrees` | number | `300` | Arc span of tick marks (degrees) |
 | `show_ticks` | boolean | `true` | Show tick marks |
 
-### Themes
+### Skins
 
-| Theme | Behaviour |
-|-------|-----------|
+A skin is how the card draws itself. It is not the same thing as a Home
+Assistant theme — see [Two themes, not one](#two-themes-not-one) below.
+
+| Skin | Behaviour |
+|------|-----------|
 | `auto` | **Default.** Follows the Home Assistant theme. On a dark dashboard the disc is solid orange when heating, like always; on a light dashboard the disc stays neutral and the state color moves to the center temperature |
 | `dark` | Fixed dark skin — the same colors on every dashboard, light or dark |
 | `light` | Fixed light skin — the same colors on every dashboard, light or dark |
 | `transparent` | No disc background, so the card background shows through. Text and ticks follow the Home Assistant theme |
 | `glassy` | Like `transparent`, with a cyan accent for the active arc |
+
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.living_room
+skin: auto
+```
 
 `auto` reads the theme Home Assistant is actually using. That includes the theme
 you picked in **Profile → Theme** and a theme's own light/dark variants, so the
@@ -161,44 +170,59 @@ The `dark` and `light` skins ignore the Home Assistant theme on purpose: they
 look the same everywhere, which is what you want when a card sits on a shared
 wall tablet. Use `light` if you want the solid orange disc on a light dashboard.
 
-![Themes on a light and a dark dashboard](docs/theme-comparison.png)
+![Skins on a light and a dark dashboard](docs/theme-comparison.png)
 
 #### Two themes, not one
 
-There are two independent themes in play, and it is worth keeping them apart:
+There are two independent things in play, and it is worth keeping them apart:
 
 | | What it controls | Where you set it |
 |---|---|---|
 | **Home Assistant theme** | The whole dashboard — page background, card surface, text colors | Home Assistant, **Profile → Theme** |
-| **Card skin** | How the dial itself is drawn | This card's `theme:` option |
+| **Card skin** | How the dial itself is drawn | This card's `skin:` option |
 
 The card skin only ever repaints the dial. It never changes the dashboard around
 it, and the Home Assistant theme never overrides a fixed skin. The `auto` skin is
 the one that links the two: it reads the Home Assistant theme and repaints
 whenever you switch between light and dark.
 
-#### `theme:` and Home Assistant's own `theme:` option
+#### `skin:` and Home Assistant's `theme:` option
 
 Every Home Assistant card accepts a `theme:` option that overrides the theme for
-that card. This card uses the same name for its skin, so the two can collide:
+that card. That option belongs to Home Assistant, and this card does not read it
+— it only sets the skin. The two can be used together:
 
 ```yaml
 type: custom:thermostat-dark-card
 entity: climate.living_room
-theme: Nord        # a Home Assistant theme, not a skin
+skin: auto
+theme: Nord        # a Home Assistant theme
 ```
 
-When `theme` names one of the skins above (`auto`, `dark`, `light`,
-`transparent`, `glassy`) it selects that skin. When it names anything else it is
-treated as a Home Assistant theme, and the card follows it like `auto` does —
-so `theme: Nord` gives you the Nord theme with a card that matches it.
+Home Assistant applies the Nord theme to the card, and with `skin: auto` the
+dial picks up Nord's colors and repaints with its light/dark mode.
 
-Transparent theme example with a room photo:
+> **Migrating from 2.x.** The skin used to be called `theme:`. It is now called
+> `skin:`, so `theme:` is free for Home Assistant to use as its own card-level
+> theme option. Rename the option in your YAML:
+>
+> ```yaml
+> # before
+> theme: light
+> # after
+> skin: light
+> ```
+>
+> The card does not read `theme:` at all any more. A leftover `theme: light` is
+> treated by Home Assistant as a theme named "light", which does not exist, and
+> the card falls back to the default `auto` skin.
+
+Transparent skin example with a room photo:
 
 ```yaml
 type: custom:thermostat-dark-card
 entity: climate.bedroom
-theme: transparent
+skin: transparent
 colors:
   text: "#ffffff"
 card_mod:
