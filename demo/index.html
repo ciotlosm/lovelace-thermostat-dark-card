@@ -5,42 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thermostat Dark Card — Demo</title>
   <style>
+    /* ------------------------------------------------------------------
+       Home Assistant theme variables.
+       The card reads these, so the demo has to define them the way the
+       Home Assistant frontend does — otherwise the theme-aware skins
+       fall back to their hardcoded values and look wrong.
+       ------------------------------------------------------------------ */
+    :root {
+      --primary-text-color: #212121;
+      --secondary-text-color: #727272;
+      --card-background-color: #ffffff;
+      --primary-background-color: #fafafa;
+      --secondary-background-color: #e5e5e5;
+      --primary-color: #03a9f4;
+      --success-color: #43a047;
+      --divider-color: rgba(0, 0, 0, 0.12);
+    }
+    body.dark {
+      --primary-text-color: #e1e1e1;
+      --secondary-text-color: #9b9b9b;
+      --card-background-color: #1c1c1c;
+      --primary-background-color: #111111;
+      --secondary-background-color: #282828;
+      --primary-color: #03a9f4;
+      --success-color: #43a047;
+      --divider-color: rgba(225, 225, 225, 0.12);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      --demo-bg: #1a1a1a;
-      --demo-fg: #ffffff;
-      --demo-muted: #888888;
-      --demo-input-bg: #2a2a2a;
-      --demo-input-border: #444444;
-      background: var(--demo-bg);
-      color: var(--demo-fg);
-      font-family: system-ui, sans-serif;
+      background: var(--primary-background-color);
+      color: var(--primary-text-color);
+      font-family: Roboto, system-ui, sans-serif;
       padding: 24px;
       transition: background 0.2s ease, color 0.2s ease;
     }
-    body.light {
-      --demo-bg: #fafafa;
-      --demo-fg: #212121;
-      --demo-muted: #727272;
-      --demo-input-bg: #ffffff;
-      --demo-input-border: #dddddd;
-    }
     h1 { margin-bottom: 8px; font-weight: 300; }
-    p.subtitle { color: var(--demo-muted); margin-bottom: 24px; font-size: 14px; }
+    p.subtitle { color: var(--secondary-text-color); margin-bottom: 24px; font-size: 14px; }
     .layout { display: flex; gap: 24px; flex-wrap: wrap; }
     .preview { flex: 1; min-width: 300px; max-width: 400px; }
     .controls { flex: 0 0 280px; display: flex; flex-direction: column; gap: 12px; }
     .control { display: flex; flex-direction: column; gap: 4px; }
-    .control label { font-size: 12px; color: var(--demo-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .control label { font-size: 12px; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing: 0.5px; }
     .control select, .control input {
-      padding: 8px 12px; border: 1px solid var(--demo-input-border); border-radius: 6px;
-      background: var(--demo-input-bg); color: var(--demo-fg); font-size: 14px;
+      padding: 8px 12px; border: 1px solid var(--divider-color); border-radius: 6px;
+      background: var(--card-background-color); color: var(--primary-text-color); font-size: 14px;
     }
     .control input[type="range"] { padding: 4px 0; }
-    .control .value { font-size: 12px; color: var(--demo-muted); text-align: right; }
+    .control .value { font-size: 12px; color: var(--secondary-text-color); text-align: right; }
     .toggle { display: flex; align-items: center; gap: 8px; }
     .toggle input { width: 18px; height: 18px; }
-    .toggle label { font-size: 13px; color: var(--demo-fg); }
+    .toggle label { font-size: 13px; color: var(--primary-text-color); }
+
+    /* The card surface, the way ha-card renders it */
+    .card {
+      background: var(--card-background-color);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      color: var(--primary-text-color);
+    }
+    .card-title {
+      font-size: 1.2em;
+      color: var(--secondary-text-color);
+      text-align: center;
+      padding-bottom: 8px;
+      font-weight: 400;
+    }
   </style>
 </head>
 <body>
@@ -49,16 +80,19 @@
 
   <div class="layout">
     <div class="preview">
-      <thermostat-dial id="dial"
-        current_temperature="21.5"
-        temperature="22"
-        min_temp="15"
-        max_temp="30"
-        target_temp_step="0.5"
-        hvac_action="heating"
-        hvac_mode="heat"
-        theme="auto"
-      ></thermostat-dial>
+      <div class="card">
+        <div class="card-title">Living Room</div>
+        <thermostat-dial id="dial"
+          current_temperature="21.5"
+          temperature="22"
+          min_temp="15"
+          max_temp="30"
+          target_temp_step="0.5"
+          hvac_action="heating"
+          hvac_mode="heat"
+          theme="auto"
+        ></thermostat-dial>
+      </div>
     </div>
 
     <div class="controls">
@@ -156,6 +190,8 @@
     import '/thermostat-dark-card.js';
 
     const dial = document.getElementById('dial');
+    const themeSelect = document.getElementById('theme');
+    const modeSelect = document.getElementById('mode');
 
     function update(attr, value) {
       if (value === '' || value === null) {
@@ -166,17 +202,18 @@
     }
 
     // Selects
-    document.getElementById('theme').addEventListener('change', e => update('theme', e.target.value));
+    themeSelect.addEventListener('change', e => update('theme', e.target.value));
     document.getElementById('hvac_action').addEventListener('change', e => update('hvac_action', e.target.value));
     document.getElementById('hvac_mode').addEventListener('change', e => update('hvac_mode', e.target.value));
     document.getElementById('preset_mode').addEventListener('change', e => {
       update('preset_mode', e.target.value || null);
     });
 
-    // Home Assistant light/dark mode — the card reads this as hass.themes.darkMode
-    const modeSelect = document.getElementById('mode');
-
+    // Home Assistant light/dark mode — the card reads this as hass.themes.darkMode.
+    // The CSS variables above are switched with it, so the page looks like the
+    // dashboard the card is actually sitting on.
     function setMode(dark) {
+      document.body.classList.toggle('dark', dark);
       document.body.classList.toggle('light', !dark);
       dial.dark_mode = dark;
     }
@@ -187,6 +224,15 @@
     const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
     modeSelect.value = prefersDark ? 'dark' : 'light';
     setMode(prefersDark);
+
+    // The browser restores a stale value for a <select> on reload, which can
+    // leave the dropdown disagreeing with the card. Keep it in sync with the
+    // dial instead.
+    themeSelect.value = dial.getAttribute('theme') ?? 'auto';
+    new MutationObserver(() => {
+      const current = dial.getAttribute('theme') ?? 'auto';
+      if (themeSelect.value !== current) themeSelect.value = current;
+    }).observe(dial, { attributes: true, attributeFilter: ['theme'] });
 
     // Ranges
     document.getElementById('current_temperature').addEventListener('input', e => {
