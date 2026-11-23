@@ -23,6 +23,7 @@ export interface ThermostatCardConfig {
     cooling?: string;
     idle?: string;
     off?: string;
+    text?: string;
   };
   // Status text entity — displayed above temperature in the dial
   status_entity?: string;

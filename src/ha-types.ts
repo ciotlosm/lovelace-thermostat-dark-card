@@ -5,7 +5,20 @@ export interface HomeAssistant {
   states: Record<string, HassEntity>;
   callService(domain: string, service: string, data?: Record<string, unknown>): Promise<void>;
   language: string;
-  themes: { darkMode: boolean };
+  /**
+   * The frontend's theme state.
+   *
+   * `darkMode` is the effective mode — it already accounts for the theme the
+   * user picked in their profile and for a theme that defines its own light
+   * and dark variants. Optional so a frontend that does not report it (or the
+   * standalone demo) still works.
+   */
+  themes?: {
+    darkMode: boolean;
+    theme?: string;
+    default_theme?: string;
+    default_dark_theme?: string | null;
+  };
 }
 
 export function hasEntityChanged(

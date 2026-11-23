@@ -31,7 +31,7 @@
   },
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build && cp demo/index.html dist/demo.html",
+    "build": "vite build && cp demo/*.html dist/",
     "preview": "vite preview --port 4000 --host 0.0.0.0",
     "check": "biome check",
     "check:fix": "biome check --write",

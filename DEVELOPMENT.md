@@ -46,6 +46,81 @@ npm run preview
 
 The demo lets you test all card options without Home Assistant — theme, HVAC state, temperatures, dual mode, presets, and more. Useful for quick visual testing during development.
 
+A second page, `http://localhost:4000/theme-preview.html`, renders the card in
+every skin under a simulated Home Assistant dashboard, with a light/dark switch.
+Use it to check a skin against both modes. Add `?theme=<name>` to see one skin
+on its own, and `&mode=dark` to start in dark mode.
+
+## Theme Files
+
+Each skin is a JSON file in `src/themes/`, discovered automatically at build
+time. A file is a flat map of tokens, where the token name is the CSS variable
+without the leading `--`:
+
+```json
+{
+  "dial-off-fill": "#555",
+  "dial-text-color": "#fff"
+}
+```
+
+A file may add a `modes` object with `light` and `dark` sub-maps. Those
+override the flat tokens for that mode, which is how a skin follows the
+Home Assistant theme:
+
+```json
+{
+  "dial-text-color": "var(--primary-text-color, #212121)",
+  "modes": {
+    "light": { "dial-idle-fill": "var(--secondary-background-color, #e5e5e5)" },
+    "dark": { "dial-idle-fill": "var(--secondary-background-color, #282828)" }
+  }
+}
+```
+
+A skin **with** `modes` follows the Home Assistant light/dark mode. A skin
+**without** keeps the same colors everywhere.
+
+Two keys are flags rather than colors, so they never become CSS variables:
+
+| Flag | What it does |
+|------|--------------|
+| `colored-ticks` | The active arc takes the HVAC state color instead of the theme's neutral |
+| `state-text` | The center temperature takes the HVAC state color |
+
+Both accept `"true"` and can sit in the flat map or in a `modes` block, so a
+skin can use one in light and not in dark.
+
+The mode comes from `hass.themes.darkMode`, which is the effective mode — it
+already accounts for the theme the user picked in their profile and for a
+theme's own light/dark variants. `src/card/card.ts` passes it to the dial as
+`dark_mode`. When it is missing (a standalone demo, or a frontend too old to
+report it) the dial falls back to `prefers-color-scheme`.
+
+The CSS defaults in `src/dial/styles.ts` are the `dark` skin. Keep them in sync
+with `src/themes/dark.json` — a fixed skin must not pick up the surrounding
+Home Assistant theme by accident.
+
+### Where the state color goes
+
+The state colors are the ones the card has always used: `#e36304` for heating,
+`#007af1` for cooling, `#a68b00` for drying. Do not tint them. A tinted disc
+reads as softer, but it changes the character of the card, and the state color
+is what the whole design is built around.
+
+Where the color lands does depend on the mode:
+
+- **Dark dashboard** — the disc is filled with the state color and the text
+  stays light on top of it. The classic look.
+- **Light dashboard** — the disc keeps its neutral surface and the center
+  temperature takes the state color instead. A big saturated disc is heavy on
+  a light card, and the number is what the eye goes to anyway.
+
+That split is what the `state-text` flag in a theme file controls. It is a
+per-mode flag, so a theme can do one thing in light and another in dark. The
+flag is off unless a theme asks for it, and the `dark` and `light` skins leave
+it off, so they keep their solid disc.
+
 ## Project Structure
 
 ```
@@ -59,8 +134,12 @@ src/
 │   ├── dial-ticks.ts    # Tick mark rendering
 │   ├── styles.ts        # CSS styles
 │   └── svg-utils.ts     # Math utilities (rotation, clamping, etc.)
-├── editor/
-│   └── editor.ts        # Visual config editor
+├── localize/
+│   ├── index.ts         # Translation lookup
+│   └── languages/       # One JSON file per language
+├── themes/
+│   ├── index.ts         # Theme loading and token resolution
+│   └── *.json           # One file per skin
 ├── const.ts             # Constants and defaults
 ├── ha-types.ts          # Home Assistant type definitions
 ├── thermostat-dark-card.ts  # Entry point (registers card)

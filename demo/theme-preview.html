@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thermostat Dark Card — Home Assistant theme preview</title>
+  <style>
+    /* ---- Real Home Assistant theme variables (light) ---- */
+    :root, .ha-light {
+      --primary-text-color: #212121;
+      --secondary-text-color: #727272;
+      --card-background-color: #ffffff;
+      --primary-background-color: #fafafa;
+      --secondary-background-color: #e5e5e5;
+      --primary-color: #03a9f4;
+      --accent-color: #ff9800;
+      --divider-color: rgba(0, 0, 0, 0.12);
+      --error-color: #db4437;
+      --ha-card-background: var(--card-background-color);
+      --ha-card-border-radius: 12px;
+      --ha-card-border-width: 0px;
+      --ha-card-border-color: var(--divider-color);
+      --ha-card-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+    .ha-dark {
+      --primary-text-color: #e1e1e1;
+      --secondary-text-color: #9b9b9b;
+      --card-background-color: #1c1c1c;
+      --primary-background-color: #111111;
+      --secondary-background-color: #282828;
+      --primary-color: #03a9f4;
+      --accent-color: #ff9800;
+      --divider-color: rgba(225, 225, 225, 0.12);
+      --error-color: #ff6c68;
+      --ha-card-background: var(--card-background-color);
+      --ha-card-border-radius: 12px;
+      --ha-card-border-width: 0px;
+      --ha-card-border-color: var(--divider-color);
+      --ha-card-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.48);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Roboto, system-ui, sans-serif;
+      background: var(--primary-background-color);
+      color: var(--primary-text-color);
+      padding: 24px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    h1 { font-weight: 300; font-size: 28px; margin-bottom: 4px; }
+    p.subtitle { color: var(--secondary-text-color); margin-bottom: 20px; font-size: 14px; }
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .toolbar.sticky {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 8px 0;
+      background: var(--primary-background-color);
+    }
+    .toolbar button {
+      padding: 8px 16px; border-radius: 6px; cursor: pointer;
+      border: 1px solid var(--divider-color);
+      background: var(--card-background-color);
+      color: var(--primary-text-color);
+      font-size: 14px;
+    }
+    .toolbar button.active {
+      background: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    /* Mimic ha-card */
+    ha-card {
+      display: block;
+      padding: 16px;
+      background: var(--ha-card-background);
+      border-radius: var(--ha-card-border-radius);
+      border: var(--ha-card-border-width) solid var(--ha-card-border-color);
+      box-shadow: var(--ha-card-box-shadow);
+      color: var(--primary-text-color);
+    }
+    .card-title {
+      font-size: 1.2em;
+      color: var(--secondary-text-color);
+      text-align: center;
+      padding-bottom: 8px;
+      font-weight: 400;
+    }
+    .label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--secondary-text-color); margin: 0 0 6px 2px;
+    }
+  </style>
+</head>
+<body class="ha-light">
+  <h1>Home Assistant theme preview</h1>
+  <p class="subtitle">Renders the card in every skin under a simulated HA light/dark dashboard.</p>
+
+  <div class="toolbar sticky">
+    <button type="button" id="btn-light" class="active">HA Light</button>
+    <button type="button" id="btn-dark">HA Dark</button>
+    <label style="font-size:14px; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center;">
+      <input type="checkbox" id="dual"> dual setpoint
+    </label>
+    <label style="font-size:14px; color:var(--secondary-text-color); display:flex; gap:6px; align-items:center;">
+      <input type="checkbox" id="editing"> edit mode
+    </label>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="label" id="realcard-label" style="margin-top:24px;">
+    full card — the real &lt;thermostat-dark-card&gt; element, driven with a fake hass
+  </div>
+  <div id="realcard"></div>
+
+  <script type="module">
+    import '/thermostat-dark-card.js';
+
+    const THEMES = ['auto', 'dark', 'light', 'transparent', 'glassy'];
+    const grid = document.getElementById('grid');
+
+    // ?theme=auto renders a single card, large, for close inspection.
+    const only = new URLSearchParams(location.search).get('theme');
+    const action = new URLSearchParams(location.search).get('action') || 'heating';
+    if (only) {
+      const grid = document.querySelector('.grid');
+      grid.style.gridTemplateColumns = 'minmax(0, 420px)';
+      grid.style.justifyContent = 'center';
+      document.body.style.padding = '8px';
+      document.querySelector('h1').style.display = 'none';
+      document.querySelector('p.subtitle').style.display = 'none';
+      document.querySelector('.toolbar').style.marginBottom = '8px';
+      document.getElementById('realcard-label').style.display = 'none';
+      document.getElementById('realcard').style.display = 'none';
+    }
+
+    function build() {
+      grid.innerHTML = '';
+      for (const theme of THEMES) {
+        if (only && theme !== only) continue;
+        const wrap = document.createElement('div');
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = `theme: ${theme}`;
+        const card = document.createElement('ha-card');
+        const title = document.createElement('div');
+        title.className = 'card-title';
+        title.textContent = 'Living Room';
+        const dial = document.createElement('thermostat-dial');
+        dial.setAttribute('current_temperature', '21.5');
+        dial.setAttribute('temperature', '22');
+        dial.setAttribute('min_temp', '15');
+        dial.setAttribute('max_temp', '30');
+        dial.setAttribute('target_temp_step', '0.5');
+        dial.setAttribute('hvac_action', action);
+        dial.setAttribute('hvac_mode', 'heat');
+        dial.setAttribute('theme', theme);
+        if (document.getElementById('dual').checked) {
+          dial.removeAttribute('temperature');
+          dial.setAttribute('target_temp_low', '19');
+          dial.setAttribute('target_temp_high', '24');
+        }
+        card.append(title, dial);
+        wrap.append(label, card);
+        grid.append(wrap);
+        if (document.getElementById('editing').checked) dial.editing = true;
+      }
+    }
+
+    // --- The real card element, driven with a fake hass object ---
+    // Exercises the full path: DEFAULT_CONFIG theme, the .dark_mode binding
+    // and the card re-rendering when Home Assistant switches theme.
+    const REAL_ENTITY = {
+      entity_id: 'climate.living_room',
+      state: 'heat',
+      attributes: {
+        current_temperature: 21.5,
+        temperature: 22,
+        min_temp: 15,
+        max_temp: 30,
+        target_temp_step: 0.5,
+        hvac_action: 'heating',
+        friendly_name: 'Living Room',
+      },
+    };
+
+    function makeHass(dark) {
+      return {
+        states: { 'climate.living_room': REAL_ENTITY },
+        language: 'en',
+        themes: { darkMode: dark, theme: 'default' },
+        callService: async () => {},
+      };
+    }
+
+    const realCard = document.createElement('thermostat-dark-card');
+    realCard.setConfig({ type: 'custom:thermostat-dark-card', entity: 'climate.living_room' });
+    realCard.hass = makeHass(false);
+    document.getElementById('realcard').append(realCard);
+
+    // Feed the dial the same way the real card does, including HA theme state.
+    function syncHass(darkMode) {
+      for (const dial of document.querySelectorAll('thermostat-dial')) {
+        dial.dark_mode = darkMode;
+      }
+      realCard.hass = makeHass(darkMode);
+    }
+
+    function setMode(dark) {
+      document.body.classList.toggle('ha-dark', dark);
+      document.body.classList.toggle('ha-light', !dark);
+      document.getElementById('btn-light').classList.toggle('active', !dark);
+      document.getElementById('btn-dark').classList.toggle('active', dark);
+      syncHass(dark);
+    }
+
+    document.getElementById('btn-light').addEventListener('click', () => setMode(false));
+    document.getElementById('btn-dark').addEventListener('click', () => setMode(true));
+    document.getElementById('dual').addEventListener('change', build);
+    document.getElementById('editing').addEventListener('change', build);
+
+    build();
+    const startDark = new URLSearchParams(location.search).get('mode') === 'dark';
+    setMode(startDark);
+  </script>
+</body>
+</html>
