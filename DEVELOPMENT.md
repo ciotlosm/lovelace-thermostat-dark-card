@@ -170,4 +170,11 @@ The `.hass_dev/` directory includes a custom component (`fake_climate`) that pro
 
 ## Release
 
-Releases are automated via GitHub Actions (`.github/workflows/release.yml`). Tag a version to trigger a release build.
+Releases are automated with [release-please](https://github.com/googleapis/release-please-action) via
+`.github/workflows/release.yml`. There is no version to tag:
+
+1. Merge the feature PR. release-please opens a `chore(main): release X.Y.Z` PR.
+2. Approve the held workflow run on that PR — see
+   [Releasing (maintainers)](README.md#releasing-maintainers) in the README for why and how.
+3. Merge the release PR. The GitHub release is created and the built
+   `dist/thermostat-dark-card.js` is attached as the asset.
