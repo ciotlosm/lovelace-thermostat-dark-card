@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.7.1...v2.7.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* tell the Home Assistant theme and the card skin apart ([#407](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/407)) ([c390ba0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/c390ba0120bf574ed668869701a804727aaf78db))
+
 ## [2.7.1](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.7.0...v2.7.1) (2026-11-23)
 
 
