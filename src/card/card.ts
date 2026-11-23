@@ -11,7 +11,7 @@ import { DEFAULT_CONFIG } from '../const';
 import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import { localize } from '../localize/index';
-import { getAvailableThemes } from '../themes/index';
+import { AUTO_THEME, getAvailableThemes, isSkinName } from '../themes/index';
 import type { HvacAction, ThermostatCardConfig } from '../types';
 import '../dial/dial';
 
@@ -154,7 +154,7 @@ export class ThermostatDarkCard extends LitElement {
           .show_power_toggle=${this._config.show_power_toggle ?? true}
           .show_preset_indicator=${this._config.show_preset_indicator ?? true}
           .readonly=${this._config.readonly ?? false}
-          .theme=${this._config.theme}
+          .theme=${this._skin}
           .dark_mode=${this.hass.themes?.darkMode}
           .colors=${this._config.colors}
           ._presetIcons=${this._config.preset_icons}
@@ -199,6 +199,20 @@ export class ThermostatDarkCard extends LitElement {
       detail: { entityId: this._config.entity },
     });
     this.dispatchEvent(event);
+  }
+
+  /**
+   * The skin to render with.
+   *
+   * `theme` is also a Home Assistant option on every card, where it overrides
+   * the theme for that card. A name that is not one of our skins is therefore
+   * an HA theme, and the card follows it the way `auto` does — otherwise a
+   * user setting `theme: Nord` would silently get the fixed dark skin.
+   */
+  private get _skin(): string {
+    const theme = this._config.theme;
+    if (!theme) return AUTO_THEME;
+    return isSkinName(theme) ? theme : AUTO_THEME;
   }
 
   private _resolveStatusText(): string | null {

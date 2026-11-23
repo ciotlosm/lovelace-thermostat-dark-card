@@ -99,3 +99,14 @@ export function themeHasStateText(themeName: string, mode: ThemeMode = 'dark'): 
 export function themeFollowsMode(themeName: string): boolean {
   return themes[themeName]?.modes !== undefined;
 }
+
+/**
+ * Check if a name is one of the card's own skins.
+ *
+ * `theme` is also a Home Assistant option on every card — it overrides the
+ * theme for that card. A name that is not one of our skins is therefore an
+ * HA theme, not a skin.
+ */
+export function isSkinName(name: string): boolean {
+  return Object.keys(themes).includes(name);
+}

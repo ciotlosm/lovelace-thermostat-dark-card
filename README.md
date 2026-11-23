@@ -163,6 +163,36 @@ wall tablet. Use `light` if you want the solid orange disc on a light dashboard.
 
 ![Themes on a light and a dark dashboard](docs/theme-comparison.png)
 
+#### Two themes, not one
+
+There are two independent themes in play, and it is worth keeping them apart:
+
+| | What it controls | Where you set it |
+|---|---|---|
+| **Home Assistant theme** | The whole dashboard — page background, card surface, text colors | Home Assistant, **Profile → Theme** |
+| **Card skin** | How the dial itself is drawn | This card's `theme:` option |
+
+The card skin only ever repaints the dial. It never changes the dashboard around
+it, and the Home Assistant theme never overrides a fixed skin. The `auto` skin is
+the one that links the two: it reads the Home Assistant theme and repaints
+whenever you switch between light and dark.
+
+#### `theme:` and Home Assistant's own `theme:` option
+
+Every Home Assistant card accepts a `theme:` option that overrides the theme for
+that card. This card uses the same name for its skin, so the two can collide:
+
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.living_room
+theme: Nord        # a Home Assistant theme, not a skin
+```
+
+When `theme` names one of the skins above (`auto`, `dark`, `light`,
+`transparent`, `glassy`) it selects that skin. When it names anything else it is
+treated as a Home Assistant theme, and the card follows it like `auto` does —
+so `theme: Nord` gives you the Nord theme with a card that matches it.
+
 Transparent theme example with a room photo:
 
 ```yaml
