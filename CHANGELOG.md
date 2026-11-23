@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.6.2...v2.7.0) (2026-11-23)
+
+
+### Features
+
+* follow the Home Assistant theme ([#403](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/403)) ([f084cea](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/f084cea4296b757879f92c7cac0802f3a92c6ee5))
+
 ## [2.6.2](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.6.1...v2.6.2) (2026-10-24)
 
 
