@@ -95,7 +95,7 @@
           target_temp_step="0.5"
           hvac_action="heating"
           hvac_mode="heat"
-          theme="auto"
+          skin="auto"
         ></thermostat-dial>
       </div>
     </div>
@@ -112,15 +112,15 @@
       </div>
 
       <div class="control">
-        <label for="theme">2 · Card skin</label>
-        <select id="theme">
+        <label for="skin">2 · Card skin</label>
+        <select id="skin">
           <option value="auto">Auto (follows the HA theme)</option>
           <option value="dark">Dark (fixed)</option>
           <option value="light">Light (fixed)</option>
           <option value="transparent">Transparent</option>
           <option value="glassy">Glassy</option>
         </select>
-        <p class="hint">The card's own <code>theme:</code> option. <strong>Auto</strong> follows the
+        <p class="hint">The card's own <code>skin:</code> option. <strong>Auto</strong> follows the
           Home Assistant theme; the fixed ones ignore it and look the same on every dashboard.</p>
       </div>
 
@@ -199,7 +199,7 @@
     import '/thermostat-dark-card.js';
 
     const dial = document.getElementById('dial');
-    const themeSelect = document.getElementById('theme');
+    const skinSelect = document.getElementById('skin');
     const modeSelect = document.getElementById('mode');
 
     function update(attr, value) {
@@ -211,7 +211,7 @@
     }
 
     // Selects
-    themeSelect.addEventListener('change', e => update('theme', e.target.value));
+    skinSelect.addEventListener('change', e => update('skin', e.target.value));
     document.getElementById('hvac_action').addEventListener('change', e => update('hvac_action', e.target.value));
     document.getElementById('hvac_mode').addEventListener('change', e => update('hvac_mode', e.target.value));
     document.getElementById('preset_mode').addEventListener('change', e => {
@@ -237,11 +237,11 @@
     // The browser restores a stale value for a <select> on reload, which can
     // leave the dropdown disagreeing with the card. Keep it in sync with the
     // dial instead.
-    themeSelect.value = dial.getAttribute('theme') ?? 'auto';
+    skinSelect.value = dial.getAttribute('skin') ?? 'auto';
     new MutationObserver(() => {
-      const current = dial.getAttribute('theme') ?? 'auto';
-      if (themeSelect.value !== current) themeSelect.value = current;
-    }).observe(dial, { attributes: true, attributeFilter: ['theme'] });
+      const current = dial.getAttribute('skin') ?? 'auto';
+      if (skinSelect.value !== current) skinSelect.value = current;
+    }).observe(dial, { attributes: true, attributeFilter: ['skin'] });
 
     // Ranges
     document.getElementById('current_temperature').addEventListener('input', e => {

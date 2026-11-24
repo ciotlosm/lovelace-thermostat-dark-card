@@ -4,6 +4,16 @@ export interface ThermostatCardConfig {
   entity: string;
   name?: string | false;
   hide_name?: boolean;
+  /**
+   * The card's own skin — how the dial draws itself.
+   *
+   * `auto` follows the Home Assistant theme; the other skins are fixed.
+   */
+  skin?: string;
+  /**
+   * Home Assistant's card-level theme override. Home Assistant applies the
+   * theme's variables to the card; the card itself does not read this.
+   */
   theme?: string;
   // Dial behavior
   step?: number;

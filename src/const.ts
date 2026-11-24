@@ -11,5 +11,5 @@ export const DEFAULT_CONFIG = {
   num_ticks: 150,
   tick_degrees: 300,
   // Follows the Home Assistant theme — light dashboard, light dial.
-  theme: 'auto',
+  skin: 'auto',
 } as const;

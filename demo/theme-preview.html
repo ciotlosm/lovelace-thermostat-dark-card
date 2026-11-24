@@ -122,11 +122,11 @@
   <script type="module">
     import '/thermostat-dark-card.js';
 
-    const THEMES = ['auto', 'dark', 'light', 'transparent', 'glassy'];
+    const SKINS = ['auto', 'dark', 'light', 'transparent', 'glassy'];
     const grid = document.getElementById('grid');
 
-    // ?theme=auto renders a single card, large, for close inspection.
-    const only = new URLSearchParams(location.search).get('theme');
+    // ?skin=auto renders a single card, large, for close inspection.
+    const only = new URLSearchParams(location.search).get('skin');
     const action = new URLSearchParams(location.search).get('action') || 'heating';
     if (only) {
       const grid = document.querySelector('.grid');
@@ -142,12 +142,12 @@
 
     function build() {
       grid.innerHTML = '';
-      for (const theme of THEMES) {
-        if (only && theme !== only) continue;
+      for (const skin of SKINS) {
+        if (only && skin !== only) continue;
         const wrap = document.createElement('div');
         const label = document.createElement('div');
         label.className = 'label';
-        label.textContent = `theme: ${theme}`;
+        label.textContent = `skin: ${skin}`;
         const card = document.createElement('ha-card');
         const title = document.createElement('div');
         title.className = 'card-title';
@@ -160,7 +160,7 @@
         dial.setAttribute('target_temp_step', '0.5');
         dial.setAttribute('hvac_action', action);
         dial.setAttribute('hvac_mode', 'heat');
-        dial.setAttribute('theme', theme);
+        dial.setAttribute('skin', skin);
         if (document.getElementById('dual').checked) {
           dial.removeAttribute('temperature');
           dial.setAttribute('target_temp_low', '19');
@@ -174,7 +174,7 @@
     }
 
     // --- The real card element, driven with a fake hass object ---
-    // Exercises the full path: DEFAULT_CONFIG theme, the .dark_mode binding
+    // Exercises the full path: DEFAULT_CONFIG skin, the .dark_mode binding
     // and the card re-rendering when Home Assistant switches theme.
     const REAL_ENTITY = {
       entity_id: 'climate.living_room',
