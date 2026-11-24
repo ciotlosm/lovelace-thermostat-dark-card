@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.7.2...v3.0.0) (2026-11-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename the card's theme option to skin ([#409](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/409))
+
+### Features
+
+* rename the card's theme option to skin ([#409](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/409)) ([682e404](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/682e4041e817ebb0c25f8b9221f21fe334d42ca3))
+
 ## [2.7.2](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.7.1...v2.7.2) (2026-11-23)
 
 
