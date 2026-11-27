@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.2...v3.0.3) (2026-11-27)
+
+
+### Bug Fixes
+
+* warn instead of crashing when the thermostat reports no temperature ([#420](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/420)) ([1a18d5e](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/1a18d5e4cd41d2d42a5c7e927db5631df3f33071))
+
 ## [3.0.2](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.1...v3.0.2) (2026-11-27)
 
 
