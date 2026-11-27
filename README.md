@@ -309,8 +309,12 @@ The card does not guess and does not freeze on a stale value. Instead:
 - The center of the dial carries a **warning sign** instead of the temperature
 - The target temperature, the power button and the rest of the card keep working
 - The pointer and the active arc are left out — there is no position on the scale to draw them at
+- While editing, the sign stays in the center and the setpoint moves to the rim, so the chevrons
+  never end up on top of a number that is not a current temperature
 
-The sign is a plain SVG shape, so it needs no icon font and follows the skin's warning color.
+The sign is a plain SVG shape, so it needs no icon font and follows the skin's warning color. The
+triangle is outlined in the text color, which keeps it readable on every disc color — orange when
+heating, blue when cooling, dark when idle.
 
 ## Features
 
