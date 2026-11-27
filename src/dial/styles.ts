@@ -39,22 +39,22 @@ export const dialStyles = css`
   }
 
   /* Warning sign — a triangle with an exclamation mark, drawn in place of the
-     current temperature when the thermostat does not report one. */
-  .dial-warning {
-    color: var(--dial-warning-color);
-  }
+     current temperature when the thermostat does not report one. The triangle
+     carries the warning color, the outline and the mark the text color: the
+     disc behind them is the HVAC color, and a warning red on orange or blue
+     would be invisible. */
   .dial-warning__triangle {
-    fill: none;
-    stroke: currentColor;
+    fill: var(--dial-warning-color);
+    stroke: var(--dial-text-color);
     stroke-linejoin: round;
   }
   .dial-warning__mark {
     fill: none;
-    stroke: currentColor;
+    stroke: var(--dial-text-color);
     stroke-linecap: round;
   }
   .dial-warning__dot {
-    fill: currentColor;
+    fill: var(--dial-text-color);
     stroke: none;
   }
 

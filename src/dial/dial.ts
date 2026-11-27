@@ -529,13 +529,14 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         `);
       } else if (this.temperature !== null) {
         // Single target: offset away from ambient (outside the interval).
-        // Without an ambient there is nothing to offset from, so the label
-        // sits on the ring at the target's own angle.
+        // Without an ambient there is nothing to offset from, but the label
+        // still moves off the target's own tick — otherwise it is drawn on
+        // top of it and the two read as one smudge.
         const targetOffset = this._hasAmbient
           ? this.temperature >= this.current_temperature!
             ? 8
             : -8
-          : 0;
+          : 8;
         const pos = positionLabel(this.temperature, targetOffset);
         labels.push(svg`
           ${this._hasAmbient ? renderPointer(this.current_temperature!) : ''}
@@ -629,6 +630,13 @@ export class ThermostatDial extends LitElement implements InteractionHost {
    * Drawn from plain SVG shapes rather than an icon font: the dial is an SVG,
    * and a triangle with an exclamation mark reads as "this value is missing"
    * on every skin without depending on an icon font being loaded.
+   *
+   * The triangle is filled with the warning color and outlined in the text
+   * color, with the exclamation mark in the text color as well. The disc
+   * behind it is the HVAC color — orange when heating, blue when cooling —
+   * and a warning red on either of those is close to invisible. The outline
+   * carries the shape, so the sign stays readable in every state, with the
+   * same contrast the temperature number it replaces had.
    */
   private _renderWarning(r: number): TemplateResult {
     const label = localize('warning_no_temperature');
@@ -638,23 +646,36 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     const halfH = size / 2;
     const stroke = size * 0.09;
 
+    // The exclamation mark is centred on the triangle's centroid — the average
+    // of its three corners, which for a triangle with the apex up sits below
+    // the middle of the shape. Centring on the middle of the sign instead
+    // leaves the mark floating towards the apex.
+    const centroid = r + halfH / 3;
+    const barHeight = size * 0.18;
+    const gap = size * 0.07;
+    const dotRadius = stroke * 0.55;
+    const glyphHeight = barHeight + gap + dotRadius * 2;
+    const barTop = centroid - glyphHeight / 2;
+    const barBottom = barTop + barHeight;
+    const dotY = barBottom + gap + dotRadius;
+
     return svg`
       <g class="dial-warning" role="img" aria-label=${label}>
         <title>${label}</title>
         <path
           class="dial-warning__triangle"
           d="M${r},${r - halfH} L${r + halfW},${r + halfH} L${r - halfW},${r + halfH} Z"
-          stroke-width=${stroke}
+          stroke-width=${stroke * 0.7}
         />
         <line
           class="dial-warning__mark"
           x1=${r}
-          y1=${r - halfH * 0.3}
+          y1=${barTop}
           x2=${r}
-          y2=${r + halfH * 0.02}
+          y2=${barBottom}
           stroke-width=${stroke}
         />
-        <circle class="dial-warning__dot" cx=${r} cy=${r + halfH * 0.22} r=${stroke * 0.55} />
+        <circle class="dial-warning__dot" cx=${r} cy=${dotY} r=${dotRadius} />
       </g>
     `;
   }
