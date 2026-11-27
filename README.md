@@ -87,6 +87,30 @@ entity: climate.living_room
 The chevrons are the primary control on small screens. Their touch targets grow automatically as
 the card gets narrower, so they stay large enough to hit with a finger.
 
+### When a change reaches Home Assistant
+
+A change is sent `pending` seconds (3 by default) after your last tap on an arrow or the end of your
+last drag on the ring, so a run of taps makes a single `climate.set_temperature` call. While you are
+still dragging, nothing is sent. Opening edit mode and letting it close again sends nothing.
+
+You can leave the view during that wait: the change is still sent. Closing the app or reloading the
+page during it loses the change. `pending: 0` sends each change as soon as it is made.
+
+The dial stays in edit mode for `edit_timeout` seconds after your last touch. It defaults to
+`pending`, and is never shorter than `pending` or one second. Until it closes, it shows the setpoint
+you chose. Once it closes, it shows the setpoint Home Assistant reports. If Home Assistant rejects a
+change, the dial goes back to the real setpoint straight away. A change still waiting when the HVAC
+mode changes (for example, when the thermostat is switched off) is not sent.
+
+For example, to send changes after half a second but keep the arrows open for three:
+
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.living_room
+pending: 0.5
+edit_timeout: 3
+```
+
 ## Temperature display
 
 The dial shows temperatures with the precision of the thermostat's step: whole degrees when the
@@ -115,7 +139,8 @@ These are available in the visual card editor:
 | `status_entity` | string | — | Entity whose state is shown as text above temperature |
 | `show_power_toggle` | boolean | `true` | Show power on/off button |
 | `show_preset_indicator` | boolean | `true` | Show preset mode icon |
-| `pending` | number | `3` | Seconds before committing temperature change |
+| `pending` | number | `3` | Seconds after the last change before it is sent; `0` sends at once ([details](#when-a-change-reaches-home-assistant)) |
+| `edit_timeout` | number | `pending` | Seconds without a touch before the dial leaves edit mode; at least `pending` and 1 ([details](#when-a-change-reaches-home-assistant)) |
 
 ### Advanced Options (YAML only)
 

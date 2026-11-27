@@ -5,6 +5,7 @@
   "editor_skin": "Skin",
   "editor_step": "Step override",
   "editor_pending": "Pending (seconds)",
+  "editor_edit_timeout": "Edit timeout (seconds)",
   "editor_ambient_temperature": "Ambient temperature sensor",
   "editor_status_entity": "Status text entity",
   "editor_readonly": "Read-only mode",

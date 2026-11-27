@@ -17,7 +17,8 @@ export interface ThermostatCardConfig {
   theme?: string;
   // Dial behavior
   step?: number;
-  pending?: number; // seconds before committing temperature change
+  pending?: number; // seconds after the last change before it is sent to Home Assistant
+  edit_timeout?: number; // seconds without interaction before the dial leaves edit mode (at least `pending`)
   idle_zone?: number; // minimum gap between low/high in dual mode
   // Visual options
   diameter?: number;

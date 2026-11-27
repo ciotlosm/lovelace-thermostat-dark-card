@@ -9,7 +9,12 @@ import {
 } from '../skins/index';
 import type { HvacAction } from '../types';
 import { renderRing } from './dial-arc';
-import { DialInteractionController, type InteractionHost } from './dial-interaction';
+import {
+  DialInteractionController,
+  type InteractionHost,
+  isDual,
+  type Setpoints,
+} from './dial-interaction';
 import { renderTicks, type TickConfig, type TickRange } from './dial-ticks';
 import { dialStyles } from './styles';
 import {
@@ -79,7 +84,8 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Number }) diameter = 400;
   @property({ type: Number }) num_ticks = 150;
   @property({ type: Number }) tick_degrees = 300;
-  @property({ type: Number }) pending = 3;
+  /** Seconds without interaction before the dial leaves edit mode. */
+  @property({ type: Number }) edit_timeout = 3;
   @property({ type: Number }) idle_zone = 0;
   @property({ type: Boolean }) show_ticks = true;
   @property({ type: Boolean }) show_power_toggle = true;
@@ -114,7 +120,6 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   // --- Internal state ---
   @state() editing = false;
-  private _dragging = false;
   private _didPointerInteract = false;
   private _dragStartX = 0;
   private _dragStartY = 0;
@@ -125,8 +130,42 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   private _interaction = new DialInteractionController(this);
 
+  /**
+   * The setpoints the dial draws: the user's while they are editing,
+   * otherwise the entity's. The setpoint properties themselves always hold
+   * what Home Assistant reports.
+   */
+  private get _setpoints(): Setpoints {
+    return this._interaction.setpoints;
+  }
+
+  /** Whether the user is dragging on the ring, so is still choosing a setpoint. */
+  get dragging(): boolean {
+    return this._interaction.dragging;
+  }
+
   get dual(): boolean {
-    return this.target_temp_low !== null && this.target_temp_high !== null;
+    return isDual(this._setpoints);
+  }
+
+  /**
+   * End an edit in progress and show the entity's setpoints again.
+   *
+   * For the owner of the dial to call when a change it was sent did not
+   * take, so the dial stops showing a value Home Assistant does not have.
+   */
+  cancelEditing(): void {
+    this._interaction.exitEditMode();
+  }
+
+  /**
+   * The changes the dial reported have reached Home Assistant, and it has
+   * reported the entity since. Until the owner says so, the dial keeps
+   * showing the user's setpoints after edit mode closes, so they do not flick
+   * back to the old ones while the change is on its way.
+   */
+  changeSettled(): void {
+    this._interaction.settle();
   }
 
   /**
@@ -190,6 +229,8 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     super.disconnectedCallback();
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
+    this._didPointerInteract = false;
+    this._dragActivated = false;
   }
 
   /** Recompute the rendered scale so touch targets track the card width. */
@@ -203,6 +244,15 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   }
 
   static styles = dialStyles;
+
+  protected willUpdate(changedProps: PropertyValues<this>): void {
+    super.willUpdate(changedProps);
+    // Another HVAC mode has its own setpoints (or a range instead of a single
+    // target), so an edit made in the previous mode no longer applies.
+    if (this.hasUpdated && changedProps.has('hvac_mode')) {
+      this._interaction.exitEditMode();
+    }
+  }
 
   protected updated(changedProps: PropertyValues): void {
     super.updated(changedProps);
@@ -242,7 +292,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
           @pointerdown=${this._handlePointerDown}
           @pointermove=${this._handlePointerMove}
           @pointerup=${this._handlePointerUp}
-          @pointercancel=${this._handlePointerUp}
+          @pointercancel=${this._handlePointerCancel}
         >
           ${this._renderDisc()}
           ${this.show_ticks ? this._renderTicks() : ''}
@@ -339,20 +389,21 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   /** Predict hvac action based on current target positions vs ambient */
   private _predictAction(): string {
+    const { temperature, target_temp_low, target_temp_high } = this._setpoints;
     const ambient = this.current_temperature;
     const mode = this.hvac_mode;
 
-    if (this.dual && this.target_temp_low !== null && this.target_temp_high !== null) {
-      if (ambient < this.target_temp_low) return 'heating';
-      if (ambient > this.target_temp_high) return 'cooling';
+    if (this.dual && target_temp_low !== null && target_temp_high !== null) {
+      if (ambient < target_temp_low) return 'heating';
+      if (ambient > target_temp_high) return 'cooling';
       return 'idle';
-    } else if (this.temperature !== null) {
-      if (this.temperature > ambient) {
+    } else if (temperature !== null) {
+      if (temperature > ambient) {
         // Only predict heating if the device supports it
         if (mode === 'cool') return 'idle';
         return 'heating';
       }
-      if (this.temperature < ambient) {
+      if (temperature < ambient) {
         // Only predict cooling if the device supports it
         if (mode === 'heat') return 'idle';
         return 'cooling';
@@ -381,6 +432,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   // Non-edit: center shows ambient → rim shows target with pointer
   // Edit: center shows target → rim shows ambient with pointer
   private _renderRingLabels(): TemplateResult {
+    const { temperature, target_temp_low, target_temp_high } = this._setpoints;
     const r = this._radius;
     const midRadius = this._outerRadius + (this._innerRadius - this._outerRadius) / 2;
 
@@ -430,13 +482,13 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
     if (this.editing) {
       // Edit mode: center shows targets → rim shows ambient with pointers at targets
-      if (this.dual && this.target_temp_low !== null && this.target_temp_high !== null) {
+      if (this.dual && target_temp_low !== null && target_temp_high !== null) {
         // Dual edit: pointers at both targets, ambient label offset away from active arc
         let ambientOffset: number;
-        if (this.current_temperature < this.target_temp_low) {
+        if (this.current_temperature < target_temp_low) {
           // Would heat: arc is CW of ambient → push label CCW
           ambientOffset = -8;
-        } else if (this.current_temperature > this.target_temp_high) {
+        } else if (this.current_temperature > target_temp_high) {
           // Would cool: arc is CCW of ambient → push label CW
           ambientOffset = 8;
         } else {
@@ -445,15 +497,15 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         }
         const ambientPos = positionLabel(this.current_temperature, ambientOffset);
         labels.push(svg`
-          ${renderPointer(this.target_temp_low)}
-          ${renderPointer(this.target_temp_high)}
+          ${renderPointer(target_temp_low)}
+          ${renderPointer(target_temp_high)}
           <text x=${ambientPos.x} y=${ambientPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
         `);
-      } else if (this.temperature !== null) {
-        const ambientOffset = this.current_temperature <= this.temperature ? -8 : 8;
+      } else if (temperature !== null) {
+        const ambientOffset = this.current_temperature <= temperature ? -8 : 8;
         const pos = positionLabel(this.current_temperature, ambientOffset);
         labels.push(svg`
-          ${renderPointer(this.temperature)}
+          ${renderPointer(temperature)}
           <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
         `);
       } else {
@@ -464,7 +516,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
       }
     } else {
       // Idle mode: center has ambient → rim shows targets with pointer at ambient
-      if (this.dual && this.target_temp_low !== null && this.target_temp_high !== null) {
+      if (this.dual && target_temp_low !== null && target_temp_high !== null) {
         // Dual mode: offset labels away from the active arc
         let lowOffset: number;
         let highOffset: number;
@@ -483,20 +535,20 @@ export class ThermostatDial extends LitElement implements InteractionHost {
           highOffset = 8;
         }
 
-        const lowPos = positionLabel(this.target_temp_low, lowOffset);
-        const highPos = positionLabel(this.target_temp_high, highOffset);
+        const lowPos = positionLabel(target_temp_low, lowOffset);
+        const highPos = positionLabel(target_temp_high, highOffset);
         labels.push(svg`
           ${renderPointer(this.current_temperature)}
-          <text x=${lowPos.x} y=${lowPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_low, 'ring')}</text>
-          <text x=${highPos.x} y=${highPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_high, 'ring')}</text>
+          <text x=${lowPos.x} y=${lowPos.y} class="dial-text dial-ring-label">${this._renderTemperature(target_temp_low, 'ring')}</text>
+          <text x=${highPos.x} y=${highPos.y} class="dial-text dial-ring-label">${this._renderTemperature(target_temp_high, 'ring')}</text>
         `);
-      } else if (this.temperature !== null) {
+      } else if (temperature !== null) {
         // Single target: offset away from ambient (outside the interval)
-        const targetOffset = this.temperature >= this.current_temperature ? 8 : -8;
-        const pos = positionLabel(this.temperature, targetOffset);
+        const targetOffset = temperature >= this.current_temperature ? 8 : -8;
+        const pos = positionLabel(temperature, targetOffset);
         labels.push(svg`
           ${renderPointer(this.current_temperature)}
-          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.temperature, 'ring')}</text>
+          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(temperature, 'ring')}</text>
         `);
       }
     }
@@ -517,6 +569,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   // --- SVG Layer: Center temperature display ---
   private _renderCenter(): TemplateResult {
+    const { temperature, target_temp_low, target_temp_high } = this._setpoints;
     const r = this._radius;
 
     if (this.dual && this.editing) {
@@ -526,10 +579,10 @@ export class ThermostatDial extends LitElement implements InteractionHost {
             ${this._renderTemperature(this.current_temperature, 'large')}
           </text>
           <text x=${r - r / 3} y=${r} class="dial-text dial-text--low">
-            ${this._renderTemperature(this.target_temp_low!, 'small')}
+            ${this._renderTemperature(target_temp_low!, 'small')}
           </text>
           <text x=${r + r / 3} y=${r} class="dial-text dial-text--high">
-            ${this._renderTemperature(this.target_temp_high!, 'small')}
+            ${this._renderTemperature(target_temp_high!, 'small')}
           </text>
         </g>
       `;
@@ -548,10 +601,10 @@ export class ThermostatDial extends LitElement implements InteractionHost {
           ${this._renderTemperature(this.current_temperature, 'large')}
         </text>
         ${
-          this.temperature !== null
+          temperature !== null
             ? svg`
           <text x=${r} y=${r} class="dial-text dial-text--target">
-            ${this._renderTemperature(this.temperature, 'large')}
+            ${this._renderTemperature(temperature, 'large')}
           </text>
         `
             : ''
@@ -747,6 +800,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   private _handleChevronClick(e: MouseEvent): void {
     e.stopPropagation();
+    if (this.readonly) return;
     const target = e.currentTarget as SVGElement;
     const id = target.dataset.id;
     if (!id) return;
@@ -793,18 +847,17 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     // The gesture has to start on the ring itself.
     if (this._pointerToTemperature(e) === null) return;
 
-    this._dragging = true;
     this._didPointerInteract = true;
     this._dragStartX = e.clientX;
     this._dragStartY = e.clientY;
     this._dragActivated = false;
-    this._interaction.pauseTimer();
+    this._interaction.beginDrag();
     target.setPointerCapture(e.pointerId);
     e.preventDefault();
   }
 
   private _handlePointerMove(e: PointerEvent): void {
-    if (!this._dragging) return;
+    if (!this._interaction.dragging) return;
 
     // Only a real drag changes the temperature — a tap on the ring does not.
     if (!this._dragActivated) {
@@ -816,22 +869,28 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
     const temp = this._pointerToTemperature(e);
     if (temp === null) return;
-    this._setTemperatureFromRing(temp);
+    this._interaction.dragTo(temp);
     e.preventDefault();
   }
 
   private _handlePointerUp(e: PointerEvent): void {
-    if (!this._dragging) return;
-    this._dragging = false;
-    this._dragActivated = false;
-    (e.target as SVGElement).releasePointerCapture(e.pointerId);
-    // Resume the pending timer after drag ends
-    this._interaction.resumeTimer();
+    if (!this._interaction.dragging) return;
+    this._releasePointer(e);
+    this._interaction.endDrag();
+  }
+
+  private _handlePointerCancel(e: PointerEvent): void {
+    if (!this._interaction.dragging) return;
+    this._releasePointer(e);
+    this._interaction.cancelDrag();
     // A cancelled gesture is not followed by a click event, so clear the
     // flag here — otherwise the next tap on the dial would be swallowed.
-    if (e.type === 'pointercancel') {
-      this._didPointerInteract = false;
-    }
+    this._didPointerInteract = false;
+  }
+
+  private _releasePointer(e: PointerEvent): void {
+    this._dragActivated = false;
+    (e.target as SVGElement).releasePointerCapture(e.pointerId);
   }
 
   private _pointerToTemperature(e: PointerEvent): number | null {
@@ -874,28 +933,9 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     return clamp(stepped, this.min_temp, this.max_temp);
   }
 
-  private _setTemperatureFromRing(temp: number): void {
-    if (this.dual) {
-      // In dual mode, adjust whichever setpoint is closer
-      // Respect idle_zone config (default 0 — HA is the authority)
-      // High can't go below low, low can't go above high (can be equal when idle_zone=0)
-      const distLow = Math.abs(temp - (this.target_temp_low ?? this.min_temp));
-      const distHigh = Math.abs(temp - (this.target_temp_high ?? this.max_temp));
-      if (distLow < distHigh) {
-        const maxAllowed = (this.target_temp_high ?? this.max_temp) - this.idle_zone;
-        this.target_temp_low = clamp(temp, this.min_temp, maxAllowed);
-      } else {
-        const minAllowed = (this.target_temp_low ?? this.min_temp) + this.idle_zone;
-        this.target_temp_high = clamp(temp, minAllowed, this.max_temp);
-      }
-    } else {
-      this.temperature = temp;
-    }
-    this.requestUpdate();
-  }
-
   // --- Tick range computation ---
   private _computeTickRange(): TickRange {
+    const { temperature, target_temp_low, target_temp_high } = this._setpoints;
     const ambientIdx = clamp(
       temperatureToTick(this.current_temperature, this.min_temp, this.max_temp, this.num_ticks),
       0,
@@ -907,14 +947,14 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     // Large ticks for the rim label temperatures (the "other" values not in center)
     const largeIndices: number[] = [];
 
-    if (this.dual && this.target_temp_low !== null && this.target_temp_high !== null) {
+    if (this.dual && target_temp_low !== null && target_temp_high !== null) {
       const lowIdx = clamp(
-        temperatureToTick(this.target_temp_low, this.min_temp, this.max_temp, this.num_ticks),
+        temperatureToTick(target_temp_low, this.min_temp, this.max_temp, this.num_ticks),
         0,
         this.num_ticks - 1,
       );
       const highIdx = clamp(
-        temperatureToTick(this.target_temp_high, this.min_temp, this.max_temp, this.num_ticks),
+        temperatureToTick(target_temp_high, this.min_temp, this.max_temp, this.num_ticks),
         0,
         this.num_ticks - 1,
       );
@@ -937,9 +977,9 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         from = highIdx;
         to = ambientIdx;
       }
-    } else if (this.temperature !== null) {
+    } else if (temperature !== null) {
       const targetIdx = clamp(
-        temperatureToTick(this.temperature, this.min_temp, this.max_temp, this.num_ticks),
+        temperatureToTick(temperature, this.min_temp, this.max_temp, this.num_ticks),
         0,
         this.num_ticks - 1,
       );

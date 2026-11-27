@@ -124,3 +124,26 @@ describe('thermostat-dial temperature display', () => {
     expect(dial.temperature).toBe(68.9);
   });
 });
+
+describe('thermostat-dial adjustments', () => {
+  it('reports a change with an event and leaves its setpoint property to its owner', async () => {
+    const dial = await renderDial({ temperature: 70, editing: true });
+    const changes: unknown[] = [];
+    dial.addEventListener('temperature-changed', (e) => changes.push((e as CustomEvent).detail));
+
+    dial.shadowRoot
+      ?.querySelector('.dial-chevron[data-id="target-up"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await dial.updateComplete;
+
+    expect({
+      changes,
+      property: dial.temperature,
+      shown: textOf(dial, '.dial-text--target'),
+    }).toEqual({
+      changes: [{ temperature: 71 }],
+      property: 70,
+      shown: ['71'],
+    });
+  });
+});
