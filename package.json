@@ -1,7 +1,7 @@
 {
   "name": "thermostat-dark-card",
   "type": "module",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "A thermostat card with a round dial for Home Assistant — supports dark and light themes",
   "keywords": [
     "home-assistant",
