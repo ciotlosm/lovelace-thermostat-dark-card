@@ -5,6 +5,7 @@
   "editor_skin": "Vzhľad",
   "editor_step": "Prepísanie kroku",
   "editor_pending": "Čakanie (sekundy)",
+  "editor_edit_timeout": "Čas na úpravu (sekundy)",
   "editor_ambient_temperature": "Senzor okolitej teploty",
   "editor_status_entity": "Entita stavového textu",
   "editor_readonly": "Režim len na čítanie",
