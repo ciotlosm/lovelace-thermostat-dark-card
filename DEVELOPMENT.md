@@ -36,15 +36,19 @@ npm run dev
 
 ## Demo Page
 
-A standalone interactive demo is available at `http://localhost:4000/demo.html` after building:
+A standalone interactive demo is available at `http://localhost:4000/` after building. The page is
+`demo/index.html`; the build copies it to `dist/index.html`, so the preview server serves it at the root:
 
 ```bash
 npm run build
 npm run preview
-# Open http://localhost:4000/demo.html
+# Open http://localhost:4000/
 ```
 
-The demo lets you test all card options without Home Assistant — skin, HVAC state, temperatures, dual mode, presets, and more. Useful for quick visual testing during development.
+The demo lets you test the card without Home Assistant — skin, HVAC state, temperatures, dual mode,
+presets and read-only mode. It does not cover every option: the power toggle, the preset indicator, the
+color and preset-icon overrides, the status text entity, the external temperature sensor, the commit
+delay and the expert rendering options are only exercised in a real Home Assistant.
 
 It drives two independent layers: the **Home Assistant theme** (light/dark, which sets
 the page background and the CSS variables the card reads) and the **card skin**
@@ -160,7 +164,12 @@ src/
 | `npm run preview` | Serve `dist/` on port 4000 |
 | `npm test` | Run the tests once |
 | `npm run test:watch` | Run the tests on every change |
+| `npm run typecheck` | Type check without emitting (`tsc --noEmit`) |
 | `npm run lint` | Biome lint check |
+| `npm run lint:fix` | Fix what the linter found |
+| `npm run check` | Biome check (lint + format + organize imports) |
+| `npm run check:fix` | Fix what the check found |
+| `npm run format` | Format the sources |
 | `npm run clean` | Remove `dist/` |
 | `npm run start:hass` | Run HA dev container |
 
@@ -175,9 +184,16 @@ a mocked `callService`.
 happy-dom has no layout, so anything that depends on rendered sizes (the ring drag, touch target
 scaling) needs its geometry stubbed, and a visual check in a real browser is still worth doing.
 
-## Testing with Fake Climate Entities
+## Local Home Assistant Sandbox
 
-The `.hass_dev/` directory includes a custom component (`fake_climate`) that provides test climate entities with dual mode, presets, and various HVAC states. These are configured in `.hass_dev/configuration.yaml`.
+The `.hass_dev/` directory holds the configuration of a local Home Assistant instance
+(`npm run start:hass`). Only `configuration.yaml` is tracked — everything else in `.hass_dev/` is
+gitignored — so the sandbox is a starting point rather than a fixture.
+
+What the tracked configuration gives you: two `generic_thermostat` entities ("Living Room" and
+"Bedroom") and the template sensors they read. Those entities are single-target: for dual mode
+(heat/cool) and presets, add your own custom component under
+`.hass_dev/custom_components/`, or point the card at a real climate entity.
 
 ## Build Configuration
 
@@ -186,6 +202,15 @@ The `.hass_dev/` directory includes a custom component (`fake_climate`) that pro
 - **Target**: ES2017 for broad browser support
 - **Output**: `dist/thermostat-dark-card.js`
 
+## Home Assistant compatibility
+
+The card runs on Home Assistant 2024.1 and newer — that is what `hacs.json` declares as the minimum
+required version.
+
+`getGridOptions()` — the card's own size in the sections view — is only read by Home Assistant 2024.11
+and newer. On older versions the frontend ignores the method and the card falls back to the masonry
+sizing (`getCardSize()`). The card itself works on both.
+
 ## Release
 
 Releases are automated with [release-please](https://github.com/googleapis/release-please-action) via
@@ -193,6 +218,6 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 
 1. Merge the feature PR. release-please opens a `chore(main): release X.Y.Z` PR.
 2. Approve the held workflow run on that PR — see
-   [Releasing (maintainers)](README.md#releasing-maintainers) in the README for why and how.
+   [Release Process](CONTRIBUTING.md#release-process) in CONTRIBUTING.md for why and how.
 3. Merge the release PR. The GitHub release is created and the built
    `dist/thermostat-dark-card.js` is attached as the asset.

@@ -32,7 +32,7 @@ export const dialStyles = css`
     --dial-path-active-color: rgba(255, 255, 255, 0.8);
     --dial-path-active-large-color: rgba(255, 255, 255, 1);
     --dial-leaf-color: #13eb13;
-    --dial-toggle-color: grey;
+    --dial-toggle-color: rgba(255, 255, 255, 0.75);
   }
 
   /* Disc background — colored by hvac_action */
