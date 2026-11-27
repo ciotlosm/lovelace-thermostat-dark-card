@@ -959,3 +959,117 @@ describe('thermostat-dark-card lifecycle', () => {
     });
   });
 });
+
+describe('thermostat-dark-card and the HVAC mode', () => {
+  // Home Assistant's ClimateEntityFeature flags.
+  const TARGET_TEMPERATURE = 1;
+  const TARGET_TEMPERATURE_RANGE = 2;
+
+  it('sends the single target in heat, even when the entity also reports a range', async () => {
+    // A range sent to a device in heat is accepted by Home Assistant and then
+    // ignored: the device follows the single target there.
+    const { dial, hass } = await renderCard(
+      climateEntity({
+        temperature: 70,
+        target_temp_low: 66,
+        target_temp_high: 74,
+        supported_features: TARGET_TEMPERATURE | TARGET_TEMPERATURE_RANGE,
+      }),
+    );
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'target-up');
+    await settle();
+
+    expect(setTemperatureCalls(hass)).toEqual([{ entity_id: ENTITY_ID, temperature: 71 }]);
+  });
+
+  it('sends the range in heat_cool, where the device follows a range', async () => {
+    const { dial, hass } = await renderCard(
+      climateEntity(
+        {
+          temperature: 70,
+          target_temp_low: 66,
+          target_temp_high: 74,
+          supported_features: TARGET_TEMPERATURE | TARGET_TEMPERATURE_RANGE,
+        },
+        { state: 'heat_cool' },
+      ),
+    );
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'low-up');
+    await settle();
+
+    expect(setTemperatureCalls(hass)).toEqual([
+      { entity_id: ENTITY_ID, target_temp_low: 67, target_temp_high: 74 },
+    ]);
+  });
+
+  it('offers no setpoint for an entity that has none', async () => {
+    // A purifier that only dries air has no target temperature: Home
+    // Assistant rejects a set_temperature call for it.
+    const { dial, hass } = await renderCard(
+      climateEntity({ supported_features: 4, current_temperature: 21 }),
+    );
+
+    await tapDial(dial());
+    await settle();
+
+    expect(dial().shadowRoot?.querySelector('.dial-chevron')).toBeNull();
+    expect(hass.callService).not.toHaveBeenCalled();
+  });
+
+  it('offers no setpoint while the device is off, but still shows the target', async () => {
+    const { dial, hass } = await renderCard(
+      climateEntity({ temperature: 19, supported_features: 385 }, { state: 'off' }),
+    );
+
+    // The device still reports the target it will use.
+    expect(ringLabels(dial())).toEqual(['19']);
+
+    await tapDial(dial());
+    await settle();
+
+    expect(dial().shadowRoot?.querySelector('.dial-chevron')).toBeNull();
+    expect(hass.callService).not.toHaveBeenCalled();
+  });
+});
+
+describe('thermostat-dark-card and the power button', () => {
+  // Home Assistant's ClimateEntityFeature flags.
+  const TARGET_TEMPERATURE = 1;
+  const TURN_OFF = 128;
+  const TURN_ON = 256;
+
+  it('offers the power button when the device can be turned off', async () => {
+    const { dial } = await renderCard(
+      climateEntity({
+        temperature: 70,
+        supported_features: TARGET_TEMPERATURE | TURN_OFF | TURN_ON,
+      }),
+    );
+
+    expect(dial().shadowRoot?.querySelector('.dial-power')).not.toBeNull();
+  });
+
+  it('offers no power button for a device that cannot be turned off', async () => {
+    // Home Assistant refuses the call for a device without the turn.
+    const { dial } = await renderCard(
+      climateEntity({ temperature: 70, supported_features: TARGET_TEMPERATURE }),
+    );
+
+    expect(dial().shadowRoot?.querySelector('.dial-power')).toBeNull();
+  });
+
+  it('offers the power button to turn a device on again', async () => {
+    const { dial } = await renderCard(
+      climateEntity(
+        { temperature: 70, supported_features: TARGET_TEMPERATURE | TURN_OFF | TURN_ON },
+        { state: 'off' },
+      ),
+    );
+
+    expect(dial().shadowRoot?.querySelector('.dial-power')).not.toBeNull();
+  });
+});

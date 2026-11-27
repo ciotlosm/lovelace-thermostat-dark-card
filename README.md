@@ -341,11 +341,29 @@ The sign is a plain SVG shape, so it needs no icon font and follows the skin's w
 triangle is outlined in the text color, which keeps it readable on every disc color — orange when
 heating, blue when cooling, dark when idle.
 
+### HVAC Modes
+
+The card follows Home Assistant's rules for climate entities:
+
+- **`heat_cool` follows a range**, every other mode follows a single target. The card shows
+  and changes the setpoint the device actually follows, so a range is never sent to a device
+  in `heat` — Home Assistant accepts that call and then ignores it.
+- **A device that is off, or one that has no setpoint at all** (a purifier that only dries
+  air), gets no setpoint control: there is nothing to change, and Home Assistant refuses the
+  call. The power button is hidden for a device that cannot be turned off or on.
+- **A change still waiting to be sent is dropped when the mode changes.** The same number
+  means "heat to" in one mode and "cool to" in the next, so it no longer applies.
+- **In `auto`, `dry` and `fan_only`** the device decides what it does — it follows a
+  schedule of its own, or it neither heats nor cools. The dial keeps the action the entity
+  reports instead of guessing one from the setpoint.
+
 ## Features
 
 - **Single and dual mode** — Automatically adapts based on entity attributes
 - **Missing-temperature warning** — Shows a warning sign instead of a temperature when the
   thermostat does not report one, rather than an empty or broken card
+- **Home Assistant's HVAC modes** — The setpoint follows the mode: a range in `heat_cool`, a
+  single target everywhere else, and nothing to change while the device is off
 - **Chevron controls** — Tap the up/down arrows to adjust the target temperature. The touch
   targets grow on narrow cards so they stay easy to hit with a finger
 - **Ring drag** — Drag on the tick ring to set the temperature. A plain tap on the ring does

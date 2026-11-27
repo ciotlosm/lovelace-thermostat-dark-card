@@ -8,7 +8,7 @@ import {
   skinHasStateText,
   skinToStyle,
 } from '../skins/index';
-import type { HvacAction } from '../types';
+import type { HvacAction, SetpointKind } from '../types';
 import { renderRing } from './dial-arc';
 import {
   DialInteractionController,
@@ -100,6 +100,14 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   @property({ type: Boolean }) show_preset_indicator = true;
   @property({ type: Boolean }) readonly = false;
   /**
+   * Whether the setpoint can be changed at all.
+   *
+   * A device that is off does nothing until its mode changes, and one that
+   * has no setpoint has nothing to change: Home Assistant's own card leaves
+   * the control disabled in both cases. The power button keeps working.
+   */
+  @property({ type: Boolean }) setpoint_readonly = false;
+  /**
    * The skin the dial draws itself with.
    *
    * Not to be confused with a Home Assistant theme, which belongs to the
@@ -137,6 +145,8 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   private _resizeObserver?: ResizeObserver;
 
   private _interaction = new DialInteractionController(this);
+  /** The setpoint kind the dial last drew, to notice when it changes. */
+  private _drawnSetpointKind: SetpointKind = 'none';
 
   /**
    * The setpoints the dial draws: the user's while they are editing,
@@ -154,6 +164,20 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   get dual(): boolean {
     return isDual(this._setpoints);
+  }
+
+  /**
+   * Which setpoint the dial is working with.
+   *
+   * A range is a range and a single target is a single target: Home
+   * Assistant's `heat_cool` mode follows a range, every other mode follows a
+   * single target. The two are not interchangeable — a range sent to a
+   * device in `heat` is accepted and then ignored.
+   */
+  private get _setpointKind(): SetpointKind {
+    if (this.target_temp_low !== null && this.target_temp_high !== null) return 'range';
+    if (this.temperature !== null) return 'single';
+    return 'none';
   }
 
   /**
@@ -267,9 +291,20 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   protected willUpdate(changedProps: PropertyValues<this>): void {
     super.willUpdate(changedProps);
-    // Another HVAC mode has its own setpoints (or a range instead of a single
-    // target), so an edit made in the previous mode no longer applies.
-    if (this.hasUpdated && changedProps.has('hvac_mode')) {
+    if (!this.hasUpdated) {
+      this._drawnSetpointKind = this._setpointKind;
+      return;
+    }
+    // Another mode has its own setpoints: the same number means "heat to" in
+    // one mode and "cool to" in the next, and `heat_cool` follows a range
+    // instead of a single target. An edit made for the old mode no longer
+    // applies — and there is nothing to edit when the device has no setpoint.
+    if (
+      changedProps.has('hvac_mode') ||
+      this._setpointKind !== this._drawnSetpointKind ||
+      this.setpoint_readonly
+    ) {
+      this._drawnSetpointKind = this._setpointKind;
       this._interaction.exitEditMode();
     }
   }
@@ -320,7 +355,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
           ${this._renderRingLabels()}
           ${this._renderCenter()}
           ${this._renderIndicators()}
-          ${this.editing ? this._renderControls() : ''}
+          ${this.editing && !this.setpoint_readonly ? this._renderControls() : ''}
         </svg>
       </div>
     `;
@@ -416,6 +451,14 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     // against, so the dial keeps the state the entity reports instead of
     // guessing a direction.
     if (!this._hasAmbient) return this.hvac_action ?? 'off';
+
+    // Only the modes that follow a setpoint can be predicted from it. In
+    // `auto` the device follows a schedule of its own, and in `dry` and
+    // `fan_only` it neither heats nor cools — what it does then is what the
+    // entity reports, not what the setpoint suggests.
+    if (mode !== 'heat' && mode !== 'cool' && mode !== 'heat_cool') {
+      return this.hvac_action ?? 'off';
+    }
 
     const ambient = this.current_temperature!;
 
@@ -934,6 +977,8 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   // --- Event handlers ---
   private _handleDialClick(e: MouseEvent): void {
     if (this.readonly) return;
+    // Nothing to change: the device is off, or it has no setpoint.
+    if (this.setpoint_readonly) return;
     // Don't fire if we already handled via pointer events
     if (this._didPointerInteract) {
       this._didPointerInteract = false;
@@ -954,6 +999,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   private _handleChevronClick(e: MouseEvent): void {
     e.stopPropagation();
     if (this.readonly) return;
+    if (this.setpoint_readonly) return;
     const target = e.currentTarget as SVGElement;
     const id = target.dataset.id;
     if (!id) return;
@@ -989,6 +1035,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   // --- Ring drag/tap interaction ---
   private _handlePointerDown(e: PointerEvent): void {
     if (this.readonly) return;
+    if (this.setpoint_readonly) return;
     if (!this.editing) return;
 
     // A gesture that starts on a control must not be treated as a ring

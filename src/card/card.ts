@@ -16,7 +16,18 @@ import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import { localize, setLanguage } from '../localize/index';
 import { AUTO_SKIN, getAvailableSkins, isSkinName } from '../skins/index';
-import { type HvacAction, isHvacAction, type ThermostatCardConfig } from '../types';
+import {
+  canTogglePower,
+  type HvacAction,
+  isHvacAction,
+  setpointIsAdjustable,
+  setpointKind,
+  TARGET_TEMPERATURE,
+  TARGET_TEMPERATURE_RANGE,
+  type ThermostatCardConfig,
+  TURN_OFF,
+  TURN_ON,
+} from '../types';
 import '../dial/dial';
 
 type SetTemperatureData = TemperatureChange & { entity_id: string };
@@ -48,8 +59,9 @@ export class ThermostatDarkCard extends LitElement {
   /**
    * How many times the HVAC mode of each entity has changed.
    *
-   * The mode decides which setpoints exist, so a change made for one mode
-   * does not apply to another. Counting the changes — rather than only
+   * A change belongs to the mode it was made in: the same number means "heat
+   * to" in one mode and "cool to" in the next, so a change made for another
+   * mode no longer applies. Counting the changes — rather than only
    * comparing the mode when a change is sent — also catches a mode that
    * changed and came back before the change was sent.
    */
@@ -188,9 +200,24 @@ export class ThermostatDarkCard extends LitElement {
     const hvacMode = entity.state as string;
     const presetMode = (attrs.preset_mode as string) || null;
 
-    const temperature = (attrs.temperature as number) ?? null;
-    const targetTempLow = (attrs.target_temp_low as number) ?? null;
-    const targetTempHigh = (attrs.target_temp_high as number) ?? null;
+    // Which setpoint the device follows, per Home Assistant's climate spec:
+    // a range in `heat_cool`, a single target in every other mode. The
+    // setpoint of the other shape is left out, so the dial shows and changes
+    // the one the device actually uses — a range sent to a device in `heat`
+    // is accepted and then ignored.
+    const features = this._supportedFeatures(attrs);
+    const kind = setpointKind(hvacMode, features);
+    const temperature = kind === 'range' ? null : ((attrs.temperature as number) ?? null);
+    const targetTempLow = kind === 'single' ? null : ((attrs.target_temp_low as number) ?? null);
+    const targetTempHigh = kind === 'single' ? null : ((attrs.target_temp_high as number) ?? null);
+    // An off device does nothing until its mode changes, and one without a
+    // setpoint has nothing to change: Home Assistant's own card leaves the
+    // control disabled in both cases.
+    const setpointReadonly = kind === 'none' || !setpointIsAdjustable(hvacMode);
+    // The power button turns the device off or on. Home Assistant refuses
+    // the call for a device that does not support that turn.
+    const showPowerToggle =
+      (this._config.show_power_toggle ?? true) && canTogglePower(hvacMode, features);
 
     const minTemp = this._config.range_min ?? (attrs.min_temp as number) ?? 7;
     const maxTemp = this._config.range_max ?? (attrs.max_temp as number) ?? 35;
@@ -224,9 +251,10 @@ export class ThermostatDarkCard extends LitElement {
           .edit_timeout=${this._editTimeout}
           .idle_zone=${this._config.idle_zone}
           .show_ticks=${this._config.show_ticks ?? true}
-          .show_power_toggle=${this._config.show_power_toggle ?? true}
+          .show_power_toggle=${showPowerToggle}
           .show_preset_indicator=${this._config.show_preset_indicator ?? true}
           .readonly=${this._config.readonly ?? false}
+          .setpoint_readonly=${setpointReadonly}
           .skin=${this._config.skin}
           .dark_mode=${this.hass.themes?.darkMode}
           .colors=${this._config.colors}
@@ -288,6 +316,27 @@ export class ThermostatDarkCard extends LitElement {
       known.version += 1;
     }
     return known.version;
+  }
+
+  /**
+   * The features the entity reports.
+   *
+   * Home Assistant publishes the setpoint attributes only for the features
+   * the entity has, so an entity that does not report the flags at all is
+   * read from the attributes it does publish.
+   */
+  private _supportedFeatures(attrs: Record<string, unknown>): number {
+    const features = attrs.supported_features;
+    if (typeof features === 'number' && Number.isFinite(features)) return features;
+    // An entity that does not report the flags at all: the attributes say
+    // which setpoints it has, but nothing says which turns it supports, so
+    // those are assumed rather than taken away.
+    let inferred = TURN_OFF | TURN_ON;
+    if ('temperature' in attrs) inferred |= TARGET_TEMPERATURE;
+    if ('target_temp_low' in attrs || 'target_temp_high' in attrs) {
+      inferred |= TARGET_TEMPERATURE_RANGE;
+    }
+    return inferred;
   }
 
   /**
