@@ -158,9 +158,9 @@ describe('thermostat-dial adjustments', () => {
     });
   });
 
-  it('keeps the warning sign in the center while the user changes the setpoint', async () => {
-    // Without a current temperature there is nothing to promote into the
-    // center: the setpoint is not a reading, so the sign stays.
+  it('shows the setpoint in the center while the user changes it', async () => {
+    // The sign stands for the reading that is missing; the setpoint is what
+    // the chevrons change, so it takes the center while the edit lasts.
     const dial = await renderDial({ temperature: 70, current_temperature: null, editing: true });
     const changes: unknown[] = [];
     dial.addEventListener('temperature-changed', (e) => changes.push((e as CustomEvent).detail));
@@ -170,9 +170,9 @@ describe('thermostat-dial adjustments', () => {
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await dial.updateComplete;
 
-    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
-    expect(textOf(dial, '.dial-text--target')).toEqual([]);
-    // The change is still reported, and the setpoint is on the rim.
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
+    expect(textOf(dial, '.dial-text--target')).toEqual(['71']);
+    // The change is still reported, and the setpoint is on the rim as well.
     expect(changes).toEqual([{ temperature: 71 }]);
     expect(textOf(dial, '.dial-ring-label')).toEqual(['71']);
   });
@@ -210,7 +210,7 @@ describe('thermostat-dial without a current temperature', () => {
     expect(dial.shadowRoot?.querySelector('.dial-pointer')).toBeNull();
   });
 
-  it('keeps the warning sign in the center while editing', async () => {
+  it('moves the setpoint into the center while editing', async () => {
     const dial = await renderDial({
       temperature: 22.5,
       current_temperature: null,
@@ -218,12 +218,28 @@ describe('thermostat-dial without a current temperature', () => {
       editing: true,
     });
 
-    // The setpoint never takes the place of the sign, so no control ends up
-    // drawn on top of a number that is not a current temperature.
-    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
-    expect(textOf(dial, '.dial-text--target')).toEqual([]);
-    // The setpoint moves to the ring, so the chevrons are not adjusting blind.
+    // The sign gives way to the setpoint: that is the value the chevrons
+    // change, so it is the one that belongs in the middle.
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
+    expect(textOf(dial, '.dial-text--target')).toEqual(['22.5']);
+    // The setpoint is on the ring too, so the chevrons are not adjusting blind.
     expect(textOf(dial, '.dial-ring-label')).toEqual(['22.5']);
+  });
+
+  it('brings the warning sign back when the edit ends', async () => {
+    const dial = await renderDial({
+      temperature: 22.5,
+      current_temperature: null,
+      target_temp_step: 0.5,
+      editing: true,
+    });
+
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
+
+    dial.editing = false;
+    await dial.updateComplete;
+
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
   });
 
   it('still shows a temperature when one is reported', async () => {
@@ -237,7 +253,7 @@ describe('thermostat-dial without a current temperature', () => {
     expect(textOf(dial, '.dial-text--ambient')).toEqual(['21.0']);
   });
 
-  it('keeps the warning sign in the center in dual mode while editing', async () => {
+  it('shows the range in the center in dual mode while editing', async () => {
     const dial = await renderDial({
       target_temp_low: 21,
       target_temp_high: 24,
@@ -246,9 +262,9 @@ describe('thermostat-dial without a current temperature', () => {
       editing: true,
     });
 
-    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
-    // The setpoints are on the rim instead, so nothing overlaps the sign.
-    expect(textOf(dial, '.dial-text--low, .dial-text--high')).toEqual([]);
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
+    // The range is what the chevrons change, so it takes the middle.
+    expect(textOf(dial, '.dial-text--low, .dial-text--high')).toEqual(['21.0', '24.0']);
     expect(textOf(dial, '.dial-ring-label')).toEqual(['21.0', '24.0']);
   });
 });

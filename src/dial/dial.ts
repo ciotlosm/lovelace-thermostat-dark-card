@@ -678,20 +678,20 @@ export class ThermostatDial extends LitElement implements InteractionHost {
    *
    * With a current temperature it shows the ambient, and the setpoint takes
    * over while editing. Without one — the thermostat reports no temperature
-   * at all — the middle carries the warning sign instead, and it keeps
-   * carrying it while editing: the setpoint is not a current temperature, so
-   * putting it in the middle would claim the reading that is missing. The
-   * setpoints move to the rim in that case, so the chevrons still show what
-   * they are changing.
+   * at all — the middle carries the warning sign instead, until the user
+   * starts editing: the sign stands for the reading that is missing, while
+   * the setpoint is the value the chevrons change, so it takes the middle for
+   * as long as the edit lasts. The sign comes back when the edit ends.
    */
   private _renderCenter(): TemplateResult {
     const { temperature, target_temp_low, target_temp_high } = this._setpoints;
     const r = this._radius;
 
-    // Without a current temperature the centre carries the warning sign —
-    // also while editing, so no number ends up under the chevrons and the
-    // dial keeps saying that the current temperature is missing.
-    const warning = this._hasAmbient ? '' : this._renderWarning(r);
+    // The warning sign stands in for the current temperature, which the
+    // entity does not report. It belongs to the middle only while the dial is
+    // not editing: in edit mode the middle shows the setpoint the chevrons
+    // change, and the sign is not the value being adjusted.
+    const warning = this._hasAmbient || this.editing ? '' : this._renderWarning(r);
 
     if (this.dual && this.editing) {
       return svg`
@@ -705,19 +705,12 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         `
               : ''
           }
-          ${warning}
-          ${
-            this._hasAmbient
-              ? svg`
           <text x=${r - r / 3} y=${r} class="dial-text dial-text--low">
             ${this._renderTemperature(target_temp_low!, 'small')}
           </text>
           <text x=${r + r / 3} y=${r} class="dial-text dial-text--high">
             ${this._renderTemperature(target_temp_high!, 'small')}
           </text>
-        `
-              : ''
-          }
         </g>
       `;
     }
@@ -741,7 +734,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
             : warning
         }
         ${
-          temperature !== null && this._hasAmbient
+          temperature !== null
             ? svg`
           <text x=${r} y=${r} class="dial-text dial-text--target">
             ${this._renderTemperature(temperature, 'large')}

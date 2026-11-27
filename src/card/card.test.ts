@@ -868,21 +868,21 @@ describe('thermostat-dark-card without a current temperature', () => {
     expect(setTemperatureCalls(hass)).toEqual([{ entity_id: ENTITY_ID, temperature: 71 }]);
   });
 
-  it('keeps the warning sign in the center and moves the setpoint to the rim', async () => {
+  it('shows the warning sign in the center and the setpoint while editing', async () => {
     const { dial } = await renderCard(
       climateEntity({ temperature: 70, current_temperature: null }),
     );
 
+    // The sign is what the middle shows: the reading is missing.
     expect(dial().shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
-    expect(shownTarget(dial())).toBe('');
 
     await tapDial(dial());
     await tapChevron(dial(), 'target-up');
 
-    // The sign stays: a setpoint is not a reading. The value the chevrons
-    // change is on the rim instead.
-    expect(dial().shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
-    expect(shownTarget(dial())).toBe('');
+    // The sign gives way to the setpoint: that is the value the chevrons
+    // change, so it is the one that belongs in the middle.
+    expect(dial().shadowRoot?.querySelector('.dial-warning')).toBeNull();
+    expect(shownTarget(dial())).toBe('71');
     expect(ringLabels(dial())).toEqual(['71']);
   });
 
