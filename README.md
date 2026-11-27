@@ -334,8 +334,8 @@ The card does not guess and does not freeze on a stale value. Instead:
 - The center of the dial carries a **warning sign** instead of the temperature
 - The target temperature, the power button and the rest of the card keep working
 - The pointer and the active arc are left out — there is no position on the scale to draw them at
-- While editing, the sign stays in the center and the setpoint moves to the rim, so the chevrons
-  never end up on top of a number that is not a current temperature
+- While editing, the setpoint takes the center — it is the value the chevrons change — and the
+  sign comes back when the edit ends
 
 The sign is a plain SVG shape, so it needs no icon font and follows the skin's warning color. The
 triangle is outlined in the text color, which keeps it readable on every disc color — orange when
@@ -348,8 +348,8 @@ The card follows Home Assistant's rules for climate entities:
 - **`heat_cool` follows a range**, every other mode follows a single target. The card shows
   and changes the setpoint the device actually follows, so a range is never sent to a device
   in `heat` — Home Assistant accepts that call and then ignores it.
-- **A device that is off, or one that has no setpoint at all** (a purifier that only dries
-  air), gets no setpoint control: there is nothing to change, and Home Assistant refuses the
+- **A device that is off, or one that has no setpoint at all** (a purifier that only fans
+  the air), gets no setpoint control: there is nothing to change, and Home Assistant refuses the
   call. The power button is hidden for a device that cannot be turned off or on.
 - **A change still waiting to be sent is dropped when the mode changes.** The same number
   means "heat to" in one mode and "cool to" in the next, so it no longer applies.
