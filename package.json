@@ -25,9 +25,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.8",
+    "happy-dom": "^21.0.4",
     "terser": "^5.51.2",
     "typescript": "^7.0.2",
-    "vite": "^8.3.5"
+    "vite": "^8.3.5",
+    "vitest": "^5.1.2"
   },
   "scripts": {
     "dev": "vite build --watch",
@@ -39,6 +41,8 @@
     "lint": "biome lint",
     "lint:fix": "biome lint --write",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist",
     "start:hass": "podman run --rm -p 8123:8123 -v ./.hass_dev:/config homeassistant/home-assistant:stable"
   }

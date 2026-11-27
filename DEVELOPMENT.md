@@ -137,7 +137,8 @@ src/
 │   ├── dial-interaction.ts  # Edit mode controller (timer, adjustments)
 │   ├── dial-ticks.ts    # Tick mark rendering
 │   ├── styles.ts        # CSS styles
-│   └── svg-utils.ts     # Math utilities (rotation, clamping, etc.)
+│   ├── svg-utils.ts     # Math utilities (rotation, clamping, etc.)
+│   └── temperature-format.ts  # How a temperature is rounded for display
 ├── localize/
 │   ├── index.ts         # Translation lookup
 │   └── languages/       # One JSON file per language
@@ -157,9 +158,22 @@ src/
 | `npm run build` | Production build to `dist/` |
 | `npm run dev` | Build with file watching |
 | `npm run preview` | Serve `dist/` on port 4000 |
-| `npm run lint` | ESLint check |
+| `npm test` | Run the tests once |
+| `npm run test:watch` | Run the tests on every change |
+| `npm run lint` | Biome lint check |
 | `npm run clean` | Remove `dist/` |
 | `npm run start:hass` | Run HA dev container |
+
+## Tests
+
+Tests sit next to the code they cover as `*.test.ts` and run with [Vitest](https://vitest.dev/)
+in a [happy-dom](https://github.com/capricorn86/happy-dom) document. They mount the real
+`thermostat-dark-card` and `thermostat-dial` elements, so they exercise the Lit lifecycle,
+shadow DOM and the events between the dial and the card. Home Assistant is a plain object with
+a mocked `callService`.
+
+happy-dom has no layout, so anything that depends on rendered sizes (the ring drag, touch target
+scaling) needs its geometry stubbed, and a visual check in a real browser is still worth doing.
 
 ## Testing with Fake Climate Entities
 
