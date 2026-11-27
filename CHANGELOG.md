@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.5](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.4...v3.0.5) (2026-11-27)
+
+
+### Bug Fixes
+
+* show the setpoint in the center while editing without a temperature ([#423](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/423)) ([3c331c4](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/3c331c417f80004a62ab45523b3de263a3d71310))
+
 ## [3.0.4](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.3...v3.0.4) (2026-11-27)
 
 
