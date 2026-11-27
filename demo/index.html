@@ -151,6 +151,13 @@
         <input type="range" id="current_temperature" min="15" max="30" step="0.5" value="21.5">
       </div>
 
+      <div class="toggle">
+        <input type="checkbox" id="no_temperature">
+        <label for="no_temperature">No temperature reported</label>
+      </div>
+      <p class="hint">The thermostat reports no current temperature — the dial warns instead of
+        showing a number.</p>
+
       <div class="control">
         <label for="temperature">Target Temperature: <span class="value" id="target_val">22</span></label>
         <input type="range" id="temperature" min="15" max="30" step="0.5" value="22">
@@ -247,6 +254,22 @@
     document.getElementById('current_temperature').addEventListener('input', e => {
       update('current_temperature', e.target.value);
       document.getElementById('current_val').textContent = e.target.value;
+    });
+
+    // A thermostat that reports no current temperature at all — a relay with
+    // no sensor, or a device that is offline. The dial warns instead of
+    // showing a number.
+    const noTemperature = document.getElementById('no_temperature');
+    const currentSlider = document.getElementById('current_temperature');
+    noTemperature.addEventListener('change', e => {
+      currentSlider.disabled = e.target.checked;
+      if (e.target.checked) {
+        dial.removeAttribute('current_temperature');
+        document.getElementById('current_val').textContent = '—';
+      } else {
+        update('current_temperature', currentSlider.value);
+        document.getElementById('current_val').textContent = currentSlider.value;
+      }
     });
     document.getElementById('temperature').addEventListener('input', e => {
       update('temperature', e.target.value);

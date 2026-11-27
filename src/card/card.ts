@@ -12,7 +12,7 @@ import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import { localize, setLanguage } from '../localize/index';
 import { AUTO_SKIN, getAvailableSkins, isSkinName } from '../skins/index';
-import type { HvacAction, ThermostatCardConfig } from '../types';
+import { type HvacAction, isHvacAction, type ThermostatCardConfig } from '../types';
 import '../dial/dial';
 
 @customElement('thermostat-dark-card')
@@ -98,7 +98,13 @@ export class ThermostatDarkCard extends LitElement {
     const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
     if (oldHass && oldHass.themes?.darkMode !== this.hass.themes?.darkMode) return true;
     if (oldHass && oldHass.themes?.theme !== this.hass.themes?.theme) return true;
-    return hasEntityChanged(this, changedProps, this._config.entity);
+    return hasEntityChanged(
+      this,
+      changedProps,
+      this._config.entity,
+      this._config.ambient_temperature,
+      this._config.status_entity,
+    );
   }
 
   protected render(): TemplateResult {
@@ -116,15 +122,15 @@ export class ThermostatDarkCard extends LitElement {
     const attrs = entity.attributes;
 
     // Resolve ambient temperature (external sensor or entity attribute)
-    let currentTemp = attrs.current_temperature as number;
-    if (this._config.ambient_temperature) {
-      const ambientEntity = this.hass.states[this._config.ambient_temperature];
-      if (ambientEntity) {
-        currentTemp = parseFloat(ambientEntity.state);
-      }
-    }
+    const currentTemp = this._resolveCurrentTemperature(attrs);
 
-    const hvacAction = (attrs.hvac_action || entity.state) as HvacAction;
+    // An entity that is unavailable reports neither an action nor a mode the
+    // card can draw — fall back to "off" rather than an unstyled state.
+    const hvacAction: HvacAction = isHvacAction(attrs.hvac_action)
+      ? attrs.hvac_action
+      : isHvacAction(entity.state)
+        ? entity.state
+        : 'off';
     const hvacMode = entity.state as string;
     const presetMode = (attrs.preset_mode as string) || null;
 
@@ -209,6 +215,42 @@ export class ThermostatDarkCard extends LitElement {
       detail: { entityId: this._config.entity },
     });
     this.dispatchEvent(event);
+  }
+
+  /**
+   * The temperature the dial shows as the current one, or `null` when there is
+   * none to show.
+   *
+   * The configured `ambient_temperature` sensor wins whenever it holds a real
+   * number — that is the whole point of configuring it. When that sensor is
+   * unavailable, unknown or missing, the card falls back to the climate
+   * entity's own reading; only when neither is usable does it report "no
+   * temperature", so the dial can warn instead of drawing a wrong number.
+   */
+  private _resolveCurrentTemperature(attrs: Record<string, unknown>): number | null {
+    const ambientId = this._config.ambient_temperature;
+    if (ambientId) {
+      const ambient = this.hass.states[ambientId];
+      const parsed = this._toTemperature(ambient?.state);
+      if (parsed !== null) return parsed;
+    }
+    return this._toTemperature(attrs.current_temperature);
+  }
+
+  /**
+   * Read a temperature out of a raw entity value.
+   *
+   * Home Assistant reports temperatures as numbers, but a sensor's state is a
+   * string that can be "unavailable", "unknown" or carry a unit. Everything
+   * that is not a finite number is "no temperature".
+   */
+  private _toTemperature(value: unknown): number | null {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    if (typeof value === 'string') {
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
   }
 
   private _resolveStatusText(): string | null {

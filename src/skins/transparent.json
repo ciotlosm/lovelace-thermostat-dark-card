@@ -10,5 +10,6 @@
   "dial-path-active-large-color": "var(--primary-text-color, #212121)",
   "dial-leaf-color": "var(--success-color, #0a8f0a)",
   "dial-toggle-color": "var(--secondary-text-color, #757575)",
+  "dial-warning-color": "var(--error-color, #db4437)",
   "colored-ticks": "true"
 }

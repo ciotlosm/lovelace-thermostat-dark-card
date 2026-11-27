@@ -9,5 +9,6 @@
   "dial-path-active-color": "rgba(0, 0, 0, 0.6)",
   "dial-path-active-large-color": "rgba(0, 0, 0, 0.9)",
   "dial-leaf-color": "#0a8f0a",
-  "dial-toggle-color": "#757575"
+  "dial-toggle-color": "#757575",
+  "dial-warning-color": "#db4437"
 }
