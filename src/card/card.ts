@@ -16,7 +16,7 @@ import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
 import { localize, setLanguage } from '../localize/index';
 import { AUTO_SKIN, getAvailableSkins, isSkinName } from '../skins/index';
-import type { HvacAction, ThermostatCardConfig } from '../types';
+import { type HvacAction, isHvacAction, type ThermostatCardConfig } from '../types';
 import '../dial/dial';
 
 type SetTemperatureData = TemperatureChange & { entity_id: string };
@@ -24,7 +24,8 @@ type SetTemperatureData = TemperatureChange & { entity_id: string };
 /** A change waiting out `pending`, with the HVAC mode it was made in. */
 interface UnsentChange {
   data: SetTemperatureData;
-  hvacMode: string;
+  /** The version of the entity's HVAC mode the change was made in. */
+  hvacModeVersion: number;
 }
 
 const MS_PER_SECOND = 1000;
@@ -44,6 +45,15 @@ export class ThermostatDarkCard extends LitElement {
   private _sending = false;
   /** The entity's state when the last answered call was made, to notice when it reports back. */
   private _stateBeforeCall: HassEntity | null = null;
+  /**
+   * How many times the HVAC mode of each entity has changed.
+   *
+   * The mode decides which setpoints exist, so a change made for one mode
+   * does not apply to another. Counting the changes — rather than only
+   * comparing the mode when a change is sent — also catches a mode that
+   * changed and came back before the change was sent.
+   */
+  private _hvacModeVersions = new Map<string, { mode: string | null; version: number }>();
 
   public static getConfigForm() {
     return {
@@ -133,12 +143,22 @@ export class ThermostatDarkCard extends LitElement {
     const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
     if (oldHass && oldHass.themes?.darkMode !== this.hass.themes?.darkMode) return true;
     if (oldHass && oldHass.themes?.theme !== this.hass.themes?.theme) return true;
-    return hasEntityChanged(this, changedProps, this._config.entity);
+    return hasEntityChanged(
+      this,
+      changedProps,
+      this._config.entity,
+      this._config.ambient_temperature,
+      this._config.status_entity,
+    );
   }
 
   protected updated(changedProps: PropertyValues): void {
     super.updated(changedProps);
-    if (changedProps.has('hass')) this._settleOnceReported();
+    if (!changedProps.has('hass')) return;
+    // Look at the mode on every update, so a change of it is noticed even
+    // when the mode comes back before the next change is sent.
+    this._hvacModeVersion(this._config.entity);
+    this._settleOnceReported();
   }
 
   protected render(): TemplateResult {
@@ -156,15 +176,15 @@ export class ThermostatDarkCard extends LitElement {
     const attrs = entity.attributes;
 
     // Resolve ambient temperature (external sensor or entity attribute)
-    let currentTemp = attrs.current_temperature as number;
-    if (this._config.ambient_temperature) {
-      const ambientEntity = this.hass.states[this._config.ambient_temperature];
-      if (ambientEntity) {
-        currentTemp = parseFloat(ambientEntity.state);
-      }
-    }
+    const currentTemp = this._resolveCurrentTemperature(attrs);
 
-    const hvacAction = (attrs.hvac_action || entity.state) as HvacAction;
+    // An entity that is unavailable reports neither an action nor a mode the
+    // card can draw — fall back to "off" rather than an unstyled state.
+    const hvacAction: HvacAction = isHvacAction(attrs.hvac_action)
+      ? attrs.hvac_action
+      : isHvacAction(entity.state)
+        ? entity.state
+        : 'off';
     const hvacMode = entity.state as string;
     const presetMode = (attrs.preset_mode as string) || null;
 
@@ -234,12 +254,40 @@ export class ThermostatDarkCard extends LitElement {
   }
 
   private _handleTemperatureChanged(e: CustomEvent<TemperatureChange>): void {
+    // A change without a setpoint is not a change: Home Assistant would
+    // reject the call, and the dial would keep showing a value that was
+    // never sent.
+    if (!isUsableChange(e.detail)) {
+      this._dial?.cancelEditing();
+      return;
+    }
     const entityId = this._config.entity;
     this._unsentChange = {
       data: { entity_id: entityId, ...e.detail },
-      hvacMode: this.hass.states[entityId].state,
+      hvacModeVersion: this._hvacModeVersion(entityId),
     };
     this._startSendTimer();
+  }
+
+  /**
+   * The current version of an entity's HVAC mode, counting its changes.
+   *
+   * The mode is read on every Home Assistant update, so a mode that changes
+   * and comes back is seen twice and counted twice — a change made for the
+   * old mode does not become valid again just because the mode matches.
+   */
+  private _hvacModeVersion(entityId: string): number {
+    const mode = this.hass.states[entityId]?.state ?? null;
+    const known = this._hvacModeVersions.get(entityId);
+    if (!known) {
+      this._hvacModeVersions.set(entityId, { mode, version: 1 });
+      return 1;
+    }
+    if (known.mode !== mode) {
+      known.mode = mode;
+      known.version += 1;
+    }
+    return known.version;
   }
 
   /**
@@ -266,7 +314,9 @@ export class ThermostatDarkCard extends LitElement {
     this._sendTimer = undefined;
     this._unsentChange = null;
     // A change made for another HVAC mode's setpoints no longer applies.
-    if (!change || this.hass.states[change.data.entity_id]?.state !== change.hvacMode) return;
+    if (!change || change.hvacModeVersion !== this._hvacModeVersion(change.data.entity_id)) {
+      return;
+    }
     this._queuedChange = change.data;
     if (!this._sending) void this._sendQueuedChanges();
   }
@@ -328,6 +378,42 @@ export class ThermostatDarkCard extends LitElement {
     this.dispatchEvent(event);
   }
 
+  /**
+   * The temperature the dial shows as the current one, or `null` when there is
+   * none to show.
+   *
+   * The configured `ambient_temperature` sensor wins whenever it holds a real
+   * number — that is the whole point of configuring it. When that sensor is
+   * unavailable, unknown or missing, the card falls back to the climate
+   * entity's own reading; only when neither is usable does it report "no
+   * temperature", so the dial can warn instead of drawing a wrong number.
+   */
+  private _resolveCurrentTemperature(attrs: Record<string, unknown>): number | null {
+    const ambientId = this._config.ambient_temperature;
+    if (ambientId) {
+      const ambient = this.hass.states[ambientId];
+      const parsed = this._toTemperature(ambient?.state);
+      if (parsed !== null) return parsed;
+    }
+    return this._toTemperature(attrs.current_temperature);
+  }
+
+  /**
+   * Read a temperature out of a raw entity value.
+   *
+   * Home Assistant reports temperatures as numbers, but a sensor's state is a
+   * string that can be "unavailable", "unknown" or carry a unit. Everything
+   * that is not a finite number is "no temperature".
+   */
+  private _toTemperature(value: unknown): number | null {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    if (typeof value === 'string') {
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  }
+
   private _resolveStatusText(): string | null {
     if (!this._config.status_entity) return null;
     const entity = this.hass.states[this._config.status_entity];
@@ -369,4 +455,16 @@ function isSeconds(value: unknown, minimum: number): boolean {
   return (
     value === undefined || (typeof value === 'number' && Number.isFinite(value) && value >= minimum)
   );
+}
+
+/**
+ * Whether a change carries a setpoint Home Assistant can use.
+ *
+ * A climate entity can be left without a setpoint — a relay that has never
+ * been set, or one whose setpoint was cleared. Sending that on would ask
+ * Home Assistant to set a temperature that does not exist.
+ */
+function isUsableChange(change: TemperatureChange): boolean {
+  if ('temperature' in change) return change.temperature !== null;
+  return change.target_temp_low !== null && change.target_temp_high !== null;
 }

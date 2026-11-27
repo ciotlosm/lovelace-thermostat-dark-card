@@ -12,5 +12,6 @@
   "editor_show_power_toggle": "Tlačidlo napájania",
   "editor_show_preset_indicator": "Ikona predvoľby",
   "card_name": "Termostat tmavá karta",
-  "card_description": "Karta termostatu s kruhovým ciferníkom — nasleduje tému Home Assistant"
+  "card_description": "Karta termostatu s kruhovým ciferníkom — nasleduje tému Home Assistant",
+  "warning_no_temperature": "Teplota nie je hlásená"
 }

@@ -21,15 +21,26 @@ export interface HomeAssistant {
   };
 }
 
+/**
+ * Whether any of the given entities changed since the last update.
+ *
+ * The card reads more than one entity — the climate entity itself, the
+ * ambient temperature sensor and the status text entity — and every one of
+ * them can change what the card draws. Pass all of them, or the card keeps a
+ * stale reading on screen.
+ */
 export function hasEntityChanged(
   element: { hass?: HomeAssistant },
   changedProps: PropertyValues,
-  entityId: string,
+  ...entityIds: (string | undefined)[]
 ): boolean {
   if (changedProps.has('_config')) return true;
   const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
   if (!oldHass) return true;
-  return oldHass.states[entityId] !== element.hass?.states[entityId];
+  return entityIds.some(
+    (entityId) =>
+      entityId !== undefined && oldHass.states[entityId] !== element.hass?.states[entityId],
+  );
 }
 
 export function fireEvent(node: HTMLElement, type: string, detail?: Record<string, unknown>): void {

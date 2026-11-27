@@ -138,6 +138,12 @@ function shownTarget(dial: ThermostatDial): string {
   return text.replace(/\s+/g, '');
 }
 
+/** The values drawn on the tick ring. */
+function ringLabels(dial: ThermostatDial): string[] {
+  const nodes = dial.shadowRoot?.querySelectorAll('.dial-ring-label') ?? [];
+  return Array.from(nodes, (node) => (node.textContent ?? '').replace(/\s+/g, ''));
+}
+
 function setTemperatureCalls(hass: FakeHass): unknown[] {
   return hass.callService.mock.calls.map(([, , data]) => data);
 }
@@ -801,6 +807,21 @@ describe('thermostat-dark-card state from Home Assistant', () => {
     expect(hass.callService).not.toHaveBeenCalled();
   });
 
+  it('drops a change still waiting when the HVAC mode changes and comes back', async () => {
+    // The mode was different when the change was made, so the setpoints it
+    // was made for no longer apply — even if the mode is the same again by
+    // the time the change would be sent.
+    const { card, dial, hass } = await renderCard(climateEntity({ temperature: 70 }));
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'target-up');
+    await pushState(card, climateEntity({ temperature: 70 }, { state: 'off' }));
+    await pushState(card, climateEntity({ temperature: 70 }, { state: 'heat' }));
+    await settle();
+
+    expect(hass.callService).not.toHaveBeenCalled();
+  });
+
   it('ends the edit when the HVAC mode changes, so the next tap starts from the new setpoint', async () => {
     const { card, dial, hass } = await renderCard(climateEntity({ temperature: 70 }));
 
@@ -831,6 +852,83 @@ describe('thermostat-dark-card state from Home Assistant', () => {
       entity_id: OTHER_ENTITY_ID,
       temperature: 61,
     });
+  });
+});
+
+describe('thermostat-dark-card without a current temperature', () => {
+  it('still sends a change the user makes', async () => {
+    const { dial, hass } = await renderCard(
+      climateEntity({ temperature: 70, current_temperature: null }),
+    );
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'target-up');
+    await settle();
+
+    expect(setTemperatureCalls(hass)).toEqual([{ entity_id: ENTITY_ID, temperature: 71 }]);
+  });
+
+  it('keeps the warning sign in the center and moves the setpoint to the rim', async () => {
+    const { dial } = await renderCard(
+      climateEntity({ temperature: 70, current_temperature: null }),
+    );
+
+    expect(dial().shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
+    expect(shownTarget(dial())).toBe('');
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'target-up');
+
+    // The sign stays: a setpoint is not a reading. The value the chevrons
+    // change is on the rim instead.
+    expect(dial().shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
+    expect(shownTarget(dial())).toBe('');
+    expect(ringLabels(dial())).toEqual(['71']);
+  });
+
+  it('goes back to the real setpoint when Home Assistant rejects the change', async () => {
+    const { dial, hass } = await renderCard(
+      climateEntity({ temperature: 70, current_temperature: null }),
+    );
+    hass.callService.mockRejectedValueOnce(new Error('rejected'));
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'target-up');
+    await settle();
+
+    expect(ringLabels(dial())).toEqual(['70']);
+  });
+
+  it('shows what Home Assistant reports once the change has been sent and reported back', async () => {
+    const { card, dial } = await renderCard(
+      climateEntity({ temperature: 70, current_temperature: null }),
+    );
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'target-up');
+    await settle();
+
+    // The dial keeps the user's value until Home Assistant reports back.
+    expect(ringLabels(dial())).toEqual(['71']);
+
+    // Home Assistant reports a different value — the dial follows it.
+    await pushState(card, climateEntity({ temperature: 72, current_temperature: null }));
+
+    expect(ringLabels(dial())).toEqual(['72']);
+  });
+
+  it('starts a thermostat without a setpoint from the bottom of its range', async () => {
+    const { dial, hass } = await renderCard(
+      climateEntity({ temperature: null, current_temperature: null }),
+    );
+
+    await tapDial(dial());
+    await tapChevron(dial(), 'target-up');
+    await settle();
+
+    // The entity has no setpoint, so the arrows start from the bottom of
+    // the range: a value Home Assistant can use, never a missing one.
+    expect(setTemperatureCalls(hass)).toEqual([{ entity_id: ENTITY_ID, temperature: 51 }]);
   });
 });
 

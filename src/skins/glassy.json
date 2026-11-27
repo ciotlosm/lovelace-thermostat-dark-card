@@ -9,5 +9,6 @@
   "dial-path-active-color": "#7fe8ff",
   "dial-path-active-large-color": "#7fe8ff",
   "dial-leaf-color": "var(--success-color, #0a8f0a)",
-  "dial-toggle-color": "var(--secondary-text-color, #757575)"
+  "dial-toggle-color": "var(--secondary-text-color, #757575)",
+  "dial-warning-color": "var(--error-color, #db4437)"
 }
