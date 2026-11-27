@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.0...v3.0.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* correctly round whole-degree dial temperatures ([#411](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/411)) ([8f2202c](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/8f2202c66459a67611120e7dc4ed2f6a5e0b9ff9))
+
 ## [3.0.0](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v2.7.2...v3.0.0) (2026-11-24)
 
 
