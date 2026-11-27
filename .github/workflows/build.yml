@@ -11,26 +11,49 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+# No workflow-wide permissions. Every job asks for exactly what it needs, so
+# a compromised dependency, action or step can not do more with the token.
+permissions: {}
+
 jobs:
   build:
     name: Build & Validate
     runs-on: ubuntu-latest
+    # This job checks out and runs the code of the pull request, so it only
+    # ever gets a read-only token. Writing to pull requests happens in the
+    # separate "comment" job below.
     permissions:
       contents: read
-      pull-requests: write
+    outputs:
+      i18n_warnings: ${{ steps.i18n.outputs.i18n_warnings }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Nothing here pushes with git, so the token does not need to stay
+          # in .git/config for the rest of the job.
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - name: Audit the workflows
+        # Static analysis of the workflow files: unpinned actions, script
+        # injection, token permissions, credential persistence and the like.
+        # It runs on the workflows of the pull request, so a change that
+        # weakens this setup is caught in the pull request.
+        uses: zizmorcore/zizmor-action@1b4550e929643b8b26a62303c6bd64814271a4f1 # v0.9.2
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        # --ignore-scripts: nothing in the lock file needs an install script
+        # (only fsevents, which is optional and macOS-only), and an install
+        # script from a compromised package would run with this token.
+        run: npm ci --ignore-scripts
 
       - name: Type check
-        run: npx tsc --noEmit
+        # The repository has its own script, so nothing is fetched by npx.
+        run: npm run typecheck
 
       - name: Lint
         run: npm run lint
@@ -45,19 +68,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Comment on PR if translations are missing
-        if: steps.i18n.outputs.i18n_warnings
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const warnings = `${{ steps.i18n.outputs.i18n_warnings }}`.replace(/\\n/g, '\n');
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: `### 🌐 Translation check\n\n${warnings}\n\nThese keys will fall back to English. Consider adding translations if you speak the language.`
-            });
-
       - name: HACS Validation
         # The HACS plugin structure check resolves the plugin JS at the
         # PR head branch on `head.repo.full_name`. For fork PRs that
@@ -68,7 +78,56 @@ jobs:
         # same-repo PRs (and dependabot branches) still validate.
         # On a schedule or a manual run there is no PR at all, and the
         # check must run against the default branch.
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: hacs/action@main
+        #
+        # Pushes to main are skipped: they can publish a new release, and
+        # the check resolves the card from the asset of the latest release
+        # (there is no `dist/` in the repository). The Release workflow
+        # uploads that asset in parallel with this workflow, so on the
+        # push that publishes a release the check can run a couple of
+        # seconds before the asset exists and fail with
+        # "Repository structure for refs/heads/main is not compliant".
+        # The Release workflow validates once the asset is in place.
+        #
+        # The action is pinned to a commit. Note that its container image
+        # (`ghcr.io/hacs/action:main`) floats on purpose: a pinned image
+        # would silently stop picking up new checks -- the "structure"
+        # check only appeared recently. The pinning keeps the job from
+        # picking up a changed action definition, and the read-only token
+        # of this job keeps the damage of a compromised image small.
+        if: >-
+          github.event_name != 'push' &&
+          (github.event_name != 'pull_request' ||
+          github.event.pull_request.head.repo.full_name == github.repository)
+        uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
         with:
           category: plugin
+
+  comment:
+    name: Comment on PR if translations are missing
+    needs: build
+    # Only on pull requests: `context.payload.pull_request` does not exist
+    # on a push or a scheduled run, so reading the issue number from it
+    # would fail the step. On those events the check script already prints
+    # the warnings as annotations.
+    if: needs.build.outputs.i18n_warnings && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    # The only job that may write. It checks out no code, and it receives
+    # the warnings as data through the environment, never as part of the
+    # script itself -- interpolating them into the script would let a
+    # translation file run code with this token.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          I18N_WARNINGS: ${{ needs.build.outputs.i18n_warnings }}
+        with:
+          script: |
+            const warnings = (process.env.I18N_WARNINGS ?? '').replace(/\\n/g, '\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `### 🌐 Translation check\n\n${warnings}\n\nThese keys will fall back to English. Consider adding translations if you speak the language.`
+            });

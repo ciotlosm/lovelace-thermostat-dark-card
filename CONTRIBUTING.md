@@ -28,7 +28,7 @@ Releases are managed by [Release Please](https://github.com/googleapis/release-p
 2. Merge PR to main
 3. Release Please creates/updates a "Release PR" with version bump + changelog
 4. When ready to ship: merge the Release PR
-5. GitHub Release is created → build workflow uploads JS asset
+5. GitHub Release is created → release workflow uploads the JS asset
 6. HACS sees the new release
 ```
 
@@ -59,8 +59,39 @@ HACS uses the following to discover and install the card:
 
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
-| `build.yml` | PRs to main | Type check + Lint + Test + Build + HACS validation |
-| `release.yml` | Push to main | Release Please manages Release PR; uploads JS on release |
+| `build.yml` | PRs to main, schedule, manual | Type check + Lint + Test + Build + HACS validation + workflow audit |
+| `release.yml` | Push to main | Release Please manages Release PR; uploads JS on release; validates HACS after the upload |
+
+The HACS validation runs on the PR and on the daily schedule. It does not run
+on the push to `main`: that push can publish a new release, and HACS resolves
+the card from the asset of the latest release, which `release.yml` uploads in
+parallel. `release.yml` therefore validates HACS itself, after the asset is
+uploaded.
+
+## CI Security
+
+The workflows are audited with [zizmor](https://zizmor.sh), which runs as part
+of the build. The rules the repository follows:
+
+- **Every action is pinned to a commit SHA**, with the version in a comment.
+  Dependabot updates the pins, and reads the comment to know which release
+  the SHA belongs to.
+- **Every job declares its own permissions**, and the workflows declare
+  `permissions: {}` at the top. The job that runs the code of a pull request
+  only gets a read-only token; the job that comments on a pull request is the
+  only one that can write.
+- **No data from a pull request is interpolated into a script.** The
+  translation warnings reach the comment job as an environment variable, so a
+  translation file can not turn into code.
+- **`npm ci --ignore-scripts`**, so a compromised package can not run code
+  during the install. The job that builds the published file also runs
+  without the npm cache.
+- **`persist-credentials: false`** on every checkout, so the token does not
+  stay in `.git/config`.
+
+`hacs/action` is pinned as well. Its container image floats on purpose, so
+the validation keeps picking up new checks — pinning the image would have
+hidden the "structure" check that appeared recently.
 
 ## Versioning
 

@@ -5,18 +5,20 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  pull-requests: write
+# No workflow-wide permissions: each job asks for what it needs.
+permissions: {}
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           release-type: node
@@ -28,21 +30,80 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Nothing here pushes with git, so the token does not need to stay
+          # in .git/config for the rest of the job.
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
-          cache: 'npm'
+          # No npm cache here on purpose: this job builds the file that is
+          # published to every user, and it should install straight from the
+          # registry instead of from a cache that other runs can write to.
+          # setup-node v7 turns the cache on by default, so it is switched
+          # off explicitly. The build workflow keeps the cache, it publishes
+          # nothing.
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: npm ci
+        # --ignore-scripts: nothing in the lock file needs an install script
+        # (only fsevents, which is optional and macOS-only), and an install
+        # script from a compromised package would run with a token that can
+        # write releases.
+        run: npm ci --ignore-scripts
 
       - name: Build
         run: npm run build
 
       - name: Upload release asset
-        uses: softprops/action-gh-release@v2
+        # The runner has gh built in, so no third-party action with a token
+        # that can write releases is needed here.
+        #
+        # The release and its tag are created by release-please when the
+        # release pull request is merged, which happens a moment after this
+        # job starts. Wait for the release instead of racing it.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          for _ in $(seq 1 60); do
+            if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release $TAG did not appear within two minutes."
+            exit 1
+          fi
+
+          gh release upload "$TAG" dist/thermostat-dark-card.js \
+            --repo "$GITHUB_REPOSITORY" --clobber
+
+  hacs:
+    name: HACS Validation
+    needs: [release-please, publish]
+    # The HACS structure check resolves the card from the asset of the latest
+    # release -- there is no `dist/` in the repository and no JS at the root.
+    # It therefore has to run after the asset has been uploaded, otherwise it
+    # races the upload and fails with
+    # "Repository structure for refs/heads/main is not compliant".
+    # `publish` is skipped when the push does not publish a release; the
+    # latest release still carries its asset, so the check is valid then.
+    #
+    # The token of this job is read-only: the check only reads the repository
+    # and its releases.
+    if: >-
+      always() &&
+      needs.release-please.result == 'success' &&
+      (needs.publish.result == 'success' || needs.publish.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
         with:
-          tag_name: ${{ needs.release-please.outputs.tag_name }}
-          files: dist/thermostat-dark-card.js
+          category: plugin
