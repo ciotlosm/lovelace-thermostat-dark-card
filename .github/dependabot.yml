@@ -11,6 +11,10 @@ updates:
       include: "scope"
     labels:
       - "patch"
+    # Dependabot waits three days by default before it opens a pull request
+    # for a new version. Seven days gives a fresh release more time to settle.
+    cooldown:
+      default-days: 7
 
   # Keep GitHub Actions up to date
   - package-ecosystem: "github-actions"
@@ -23,3 +27,5 @@ updates:
       include: "scope"
     labels:
       - "patch"
+    cooldown:
+      default-days: 7
