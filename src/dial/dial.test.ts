@@ -52,13 +52,21 @@ describe('thermostat-dial temperature display', () => {
   });
 
   it('shows a fractional target with its decimal when the step is fractional', async () => {
-    const dial = await renderDial({ temperature: 22.5, target_temp_step: 0.5 });
+    const dial = await renderDial({
+      temperature: 22.5,
+      target_temp_step: 0.5,
+      current_temperature: 20,
+    });
 
     expect(textOf(dial, '.dial-text--target')).toEqual(['22.5']);
   });
 
   it('keeps the decimal of a whole target when the step is fractional', async () => {
-    const dial = await renderDial({ temperature: 22, target_temp_step: 0.5 });
+    const dial = await renderDial({
+      temperature: 22,
+      target_temp_step: 0.5,
+      current_temperature: 20,
+    });
 
     expect(textOf(dial, '.dial-text--target')).toEqual(['22.0']);
   });
@@ -157,7 +165,7 @@ describe('thermostat-dial without a current temperature', () => {
     expect(dial.shadowRoot?.querySelector('.dial-pointer')).toBeNull();
   });
 
-  it('shows the setpoint while editing, not the warning', async () => {
+  it('keeps the warning sign in the center while editing', async () => {
     const dial = await renderDial({
       temperature: 22.5,
       current_temperature: null,
@@ -165,8 +173,12 @@ describe('thermostat-dial without a current temperature', () => {
       editing: true,
     });
 
-    expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
-    expect(textOf(dial, '.dial-text--target')).toEqual(['22.5']);
+    // The setpoint never takes the place of the sign, so no control ends up
+    // drawn on top of a number that is not a current temperature.
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
+    expect(textOf(dial, '.dial-text--target')).toEqual([]);
+    // The setpoint moves to the ring, so the chevrons are not adjusting blind.
+    expect(textOf(dial, '.dial-ring-label')).toEqual(['22.5']);
   });
 
   it('still shows a temperature when one is reported', async () => {
@@ -178,5 +190,20 @@ describe('thermostat-dial without a current temperature', () => {
 
     expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
     expect(textOf(dial, '.dial-text--ambient')).toEqual(['21.0']);
+  });
+
+  it('keeps the warning sign in the center in dual mode while editing', async () => {
+    const dial = await renderDial({
+      target_temp_low: 21,
+      target_temp_high: 24,
+      current_temperature: null,
+      target_temp_step: 0.5,
+      editing: true,
+    });
+
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
+    // The setpoints are on the rim instead, so nothing overlaps the sign.
+    expect(textOf(dial, '.dial-text--low, .dial-text--high')).toEqual([]);
+    expect(textOf(dial, '.dial-ring-label')).toEqual(['21.0', '24.0']);
   });
 });

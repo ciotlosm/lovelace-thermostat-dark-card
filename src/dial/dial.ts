@@ -475,6 +475,10 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         const ambientPos = this._hasAmbient
           ? positionLabel(this.current_temperature!, ambientOffset)
           : null;
+        // Without an ambient there is nothing to put on the rim but the
+        // setpoints themselves — which is what the chevrons are changing.
+        const lowPos = positionLabel(this.target_temp_low, -8);
+        const highPos = positionLabel(this.target_temp_high, 8);
         labels.push(svg`
           ${renderPointer(this.target_temp_low)}
           ${renderPointer(this.target_temp_high)}
@@ -483,6 +487,12 @@ export class ThermostatDial extends LitElement implements InteractionHost {
               ? svg`<text x=${ambientPos.x} y=${ambientPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature!, 'ring')}</text>`
               : ''
           }
+          ${
+            ambientPos
+              ? ''
+              : svg`<text x=${lowPos.x} y=${lowPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_low, 'ring')}</text>
+                  <text x=${highPos.x} y=${highPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_high, 'ring')}</text>`
+          }
         `);
       } else if (this.temperature !== null) {
         const ambientOffset =
@@ -490,12 +500,18 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         const pos = this._hasAmbient
           ? positionLabel(this.current_temperature!, ambientOffset)
           : null;
+        const targetPos = positionLabel(this.temperature, 8);
         labels.push(svg`
           ${renderPointer(this.temperature)}
           ${
             pos
               ? svg`<text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature!, 'ring')}</text>`
               : ''
+          }
+          ${
+            pos
+              ? ''
+              : svg`<text x=${targetPos.x} y=${targetPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.temperature, 'ring')}</text>`
           }
         `);
       }
@@ -563,8 +579,24 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   }
 
   // --- SVG Layer: Center temperature display ---
+  /**
+   * The middle of the dial.
+   *
+   * With a current temperature it shows the ambient, and the setpoint takes
+   * over while editing. Without one — the thermostat reports no temperature
+   * at all — the middle carries the warning sign instead, and it keeps
+   * carrying it while editing: the setpoint is not a current temperature, so
+   * putting it in the middle would claim the reading that is missing. The
+   * setpoints move to the rim in that case, so the chevrons still show what
+   * they are changing.
+   */
   private _renderCenter(): TemplateResult {
     const r = this._radius;
+
+    // Without a current temperature the centre carries the warning sign —
+    // also while editing, so no number ends up under the chevrons and the
+    // dial keeps saying that the current temperature is missing.
+    const warning = this._hasAmbient ? '' : this._renderWarning(r);
 
     if (this.dual && this.editing) {
       return svg`
@@ -578,12 +610,19 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         `
               : ''
           }
+          ${warning}
+          ${
+            this._hasAmbient
+              ? svg`
           <text x=${r - r / 3} y=${r} class="dial-text dial-text--low">
             ${this._renderTemperature(this.target_temp_low!, 'small')}
           </text>
           <text x=${r + r / 3} y=${r} class="dial-text dial-text--high">
             ${this._renderTemperature(this.target_temp_high!, 'small')}
           </text>
+        `
+              : ''
+          }
         </g>
       `;
     }
@@ -604,15 +643,10 @@ export class ThermostatDial extends LitElement implements InteractionHost {
             ${this._renderTemperature(this.current_temperature!, 'large')}
           </text>
         `
-            : // Without a current temperature the center carries a warning sign
-              // instead of a number. While editing, the setpoint takes the
-              // center, so the sign waits until the dial is back to reading.
-              this.editing
-              ? ''
-              : this._renderWarning(r)
+            : warning
         }
         ${
-          this.temperature !== null
+          this.temperature !== null && this._hasAmbient
             ? svg`
           <text x=${r} y=${r} class="dial-text dial-text--target">
             ${this._renderTemperature(this.temperature, 'large')}
