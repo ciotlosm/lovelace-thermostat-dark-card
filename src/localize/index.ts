@@ -7,6 +7,37 @@
  * 3. Rebuild — the new language is auto-discovered at compile time
  */
 
+/**
+ * The language the card's own strings are rendered in.
+ *
+ * The card picker entry is built while this module loads, before Home
+ * Assistant has handed the card a `hass` object, so the browser language is
+ * the best guess at that point. As soon as the card receives a `hass` object,
+ * the language Home Assistant reports wins: that is the language of the
+ * dashboard, which does not have to be the browser's.
+ */
+function detectLanguage(): string {
+  if (typeof document !== 'undefined' && document.documentElement.lang) {
+    return document.documentElement.lang;
+  }
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+  return 'en';
+}
+
+let currentLanguage = detectLanguage();
+
+/**
+ * Set the language Home Assistant reports for the dashboard.
+ *
+ * Ignores an empty value, so a frontend that does not report a language keeps
+ * the browser's one.
+ */
+export function setLanguage(language: string | undefined): void {
+  if (language) currentLanguage = language;
+}
+
 // Vite glob import — auto-discovers all JSON files in languages/ at build time
 const languageModules = import.meta.glob('./languages/*.json', { eager: true }) as Record<
   string,
@@ -31,7 +62,7 @@ if (languages['zh-Hans']) {
  * Get a localized string. Falls back to English if the language is not supported.
  */
 export function localize(key: string, language?: string): string {
-  const lang = language ?? 'en';
+  const lang = language ?? currentLanguage;
   const translations = languages[lang] ?? languages[lang.split('-')[0]] ?? languages['en'];
   return translations?.[key] ?? languages['en']?.[key] ?? key;
 }

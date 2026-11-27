@@ -10,7 +10,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { DEFAULT_CONFIG } from '../const';
 import type { HomeAssistant } from '../ha-types';
 import { hasEntityChanged } from '../ha-types';
-import { localize } from '../localize/index';
+import { localize, setLanguage } from '../localize/index';
 import { AUTO_SKIN, getAvailableSkins, isSkinName } from '../skins/index';
 import type { HvacAction, ThermostatCardConfig } from '../types';
 import '../dial/dial';
@@ -53,8 +53,10 @@ export class ThermostatDarkCard extends LitElement {
         },
       ],
       computeLabel: (schema: { name: string }) => {
-        const lang = document.documentElement.lang || 'en';
-        return localize(`editor_${schema.name}`, lang) ?? schema.name;
+        const key = `editor_${schema.name}`;
+        const label = localize(key);
+        // `localize` returns the key itself when there is no translation.
+        return label === key ? schema.name : label;
       },
     };
   }
@@ -89,6 +91,9 @@ export class ThermostatDarkCard extends LitElement {
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this._config) return false;
+    // Home Assistant knows the language of the dashboard — use it for the
+    // card's own strings (the editor labels, the card picker name).
+    setLanguage(this.hass?.language);
     // A theme change repaints the dial even when the entity state is the same.
     const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
     if (oldHass && oldHass.themes?.darkMode !== this.hass.themes?.darkMode) return true;

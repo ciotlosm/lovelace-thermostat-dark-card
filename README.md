@@ -21,7 +21,7 @@ A Nest-style thermostat card for Home Assistant with a round dial interface. Sup
 - Predictive state feedback while editing
 - Follows the Home Assistant theme — light and dark, with your theme's colors
 - Fixed dark, light and transparent skins if you prefer them
-- Preset mode indicators (eco, away, home, sleep, boost)
+- Preset mode indicators (eco, away, home, sleep, boost, comfort, activity)
 - Responsive — scales to any card size
 
 ## Installation
@@ -106,7 +106,7 @@ These are available in the visual card editor:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `entity` | string | **required** | Climate entity ID |
-| `name` | string / false | entity name | Card title. Set to `false` to hide |
+| `name` | string / false | entity name | Card title. `false` hides it (YAML only — the editor offers `hide_name` instead) |
 | `hide_name` | boolean | `false` | Hide the card title |
 | `skin` | string | `auto` | `auto` (follows the HA theme), `dark`, `light`, `transparent`, or `glassy` |
 | `step` | number | from entity | Temperature step override (celsius only). Also sets the [display precision](#temperature-display) |
@@ -303,7 +303,8 @@ ambient_temperature: sensor.living_room_external_temp
 - **Ring drag** — Drag on the tick ring to set the temperature. A plain tap on the ring does
   nothing, so a stray finger can never move the setpoint
 - **Predictive feedback** — Disc color fades to show predicted heating/cooling state while editing
-- **Preset indicators** — Shows eco leaf, home, sleep, and other icons
+- **Preset indicators** — Shows a leaf for eco and away, a house for home, a moon for sleep, a flame for
+  boost, a sun for comfort and a person for activity
 - **Theme-aware** — The default `auto` skin follows the Home Assistant theme: your colors,
   your light or dark mode, repainted the moment you switch
 - **More-info dialog** — Long-press (mobile) or right-click (desktop) opens the HA entity dialog
@@ -315,32 +316,13 @@ Releases run through [release-please](https://github.com/googleapis/release-plea
 feature PR opens a `chore(main): release X.Y.Z` PR, and merging that one publishes the GitHub release with
 the built `thermostat-dark-card.js` attached.
 
-**The release PR needs its workflow run approved before it can be merged.**
+**The release PR needs its workflow run approved before it can be merged** — `release-please` creates its
+branch with `GITHUB_TOKEN`, and GitHub holds the workflows that run on such a branch in an
+approval-required state. In the GitHub UI this is the **Approve workflows to run** banner on the release
+PR — one click.
 
-`release-please` creates its branch with `GITHUB_TOKEN`. GitHub holds workflows triggered that way in an
-approval-required state instead of running them, so the `Build & Validate` check that branch protection
-requires never reports, and the merge is refused with *"the base branch policy prohibits the merge"*.
-
-In the GitHub UI this is the **Approve workflows to run** banner on the release PR — one click. From the
-command line:
-
-```bash
-# 1. Approve the held build run for the release PR
-PR=<release-pr-number>
-BR=$(gh pr view "$PR" --json headRefName --jq .headRefName)
-RUN=$(gh run list --workflow=build.yml --branch "$BR" --limit 5 --json databaseId,conclusion \
-  --jq '[.[] | select(.conclusion == "action_required")][0].databaseId')
-gh api -X POST "repos/ciotlosm/lovelace-thermostat-dark-card/actions/runs/$RUN/approve"
-
-# 2. Wait for it to go green
-gh run watch "$RUN" --exit-status
-
-# 3. Merge the release PR
-gh pr merge "$PR" --squash
-```
-
-Do not reach for `--admin`. It skips the required check instead of producing it, so the release would ship
-without the build and without the HACS validation.
+The complete runbook, including the command line steps, is in
+[CONTRIBUTING.md](CONTRIBUTING.md#release-process).
 
 ## License
 

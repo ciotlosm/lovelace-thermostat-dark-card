@@ -27,12 +27,43 @@ Releases are managed by [Release Please](https://github.com/googleapis/release-p
    - chore: ... → no version bump
 2. Merge PR to main
 3. Release Please creates/updates a "Release PR" with version bump + changelog
-4. When ready to ship: merge the Release PR
-5. GitHub Release is created → release workflow uploads the JS asset
-6. HACS sees the new release
+4. Approve the held workflow run on the Release PR
+5. Merge the Release PR
+6. GitHub Release is created → release workflow uploads the JS asset
+7. HACS sees the new release
 ```
 
 You do NOT need to manually bump versions. Release Please handles `package.json` and `CHANGELOG.md`.
+
+### Step 4: approve the held workflow run
+
+`release-please` creates its branch with `GITHUB_TOKEN`. GitHub holds the workflows that run on a branch
+created that way in an approval-required state instead of running them, so the `Build & Validate` check
+that branch protection requires never reports, and the merge is refused with *"the base branch policy
+prohibits the merge"*.
+
+In the GitHub UI this is the **Approve workflows to run** banner on the release PR — one click. From the
+command line:
+
+```bash
+# 1. Approve the held build run for the release PR
+PR=<release-pr-number>
+BR=$(gh pr view "$PR" --json headRefName --jq .headRefName)
+RUN=$(gh run list --workflow=build.yml --branch "$BR" --limit 5 --json databaseId,status,conclusion \
+  --jq '[.[] | select(.status == "action_required" or .conclusion == "action_required")][0].databaseId')
+gh api -X POST "repos/ciotlosm/lovelace-thermostat-dark-card/actions/runs/$RUN/approve"
+
+# 2. Wait for it to go green
+gh run watch "$RUN" --exit-status
+
+# 3. Merge the release PR
+gh pr merge "$PR" --squash
+```
+
+Do not reach for `--admin`. It skips the required check instead of producing it, so the release would ship
+without the build and without the HACS validation.
+
+If the run already started on its own, there is nothing to approve — skip straight to the merge.
 
 ## Conventional Commits
 
