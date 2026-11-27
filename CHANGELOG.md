@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.1...v3.0.2) (2026-11-27)
+
+
+### Bug Fixes
+
+* align the card and the documentation with each other ([#417](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/417)) ([d985701](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/d98570174e9d4690be2d563a0b32e8f4dad4a138))
+
 ## [3.0.1](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.0...v3.0.1) (2026-11-27)
 
 
