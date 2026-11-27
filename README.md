@@ -295,9 +295,28 @@ entity: climate.living_room
 ambient_temperature: sensor.living_room_external_temp
 ```
 
+The sensor wins whenever it holds a real number. When it is `unavailable`, `unknown` or missing,
+the card falls back to the climate entity's own reading.
+
+### When No Temperature Is Reported
+
+Not every thermostat reports a current temperature. A device that is offline, a relay that never
+publishes a sensor reading, or a climate entity that is unavailable all leave the card without a
+number to show.
+
+The card does not guess and does not freeze on a stale value. Instead:
+
+- The center of the dial carries a **warning sign** instead of the temperature
+- The target temperature, the power button and the rest of the card keep working
+- The pointer and the active arc are left out — there is no position on the scale to draw them at
+
+The sign is a plain SVG shape, so it needs no icon font and follows the skin's warning color.
+
 ## Features
 
 - **Single and dual mode** — Automatically adapts based on entity attributes
+- **Missing-temperature warning** — Shows a warning sign instead of a temperature when the
+  thermostat does not report one, rather than an empty or broken card
 - **Chevron controls** — Tap the up/down arrows to adjust the target temperature. The touch
   targets grow on narrow cards so they stay easy to hit with a finger
 - **Ring drag** — Drag on the tick ring to set the temperature. A plain tap on the ring does

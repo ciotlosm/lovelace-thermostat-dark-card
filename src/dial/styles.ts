@@ -33,6 +33,29 @@ export const dialStyles = css`
     --dial-path-active-large-color: rgba(255, 255, 255, 1);
     --dial-leaf-color: #13eb13;
     --dial-toggle-color: rgba(255, 255, 255, 0.75);
+    /* The warning sign stands for a missing temperature. It follows the Home
+       Assistant theme's error color unless the skin sets its own. */
+    --dial-warning-color: var(--error-color, #db4437);
+  }
+
+  /* Warning sign — a triangle with an exclamation mark, drawn in place of the
+     current temperature when the thermostat does not report one. */
+  .dial-warning {
+    color: var(--dial-warning-color);
+  }
+  .dial-warning__triangle {
+    fill: none;
+    stroke: currentColor;
+    stroke-linejoin: round;
+  }
+  .dial-warning__mark {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+  }
+  .dial-warning__dot {
+    fill: currentColor;
+    stroke: none;
   }
 
   /* Disc background — colored by hvac_action */

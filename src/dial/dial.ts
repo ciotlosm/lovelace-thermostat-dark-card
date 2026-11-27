@@ -1,5 +1,6 @@
 import { html, LitElement, type PropertyValues, svg, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { localize } from '../localize/index';
 import {
   type SkinMode,
   skinFollowsMode,
@@ -64,7 +65,14 @@ const DECIMAL_TYPOGRAPHY: Record<TemperatureTextSize, { fontSize: number; dy: nu
 @customElement('thermostat-dial')
 export class ThermostatDial extends LitElement implements InteractionHost {
   // --- Properties from climate entity (HA-aligned names) ---
-  @property({ type: Number }) current_temperature = 0;
+  /**
+   * The current temperature, or `null` when the thermostat does not report one.
+   *
+   * `null` is not an edge case to paper over: a climate entity that is
+   * unavailable, or one whose temperature sensor never reported, has no
+   * current temperature at all. The dial warns instead of guessing a number.
+   */
+  @property({ type: Number }) current_temperature: number | null = null;
   @property({ type: Number }) temperature: number | null = null;
   @property({ type: Number }) target_temp_low: number | null = null;
   @property({ type: Number }) target_temp_high: number | null = null;
@@ -127,6 +135,18 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   get dual(): boolean {
     return this.target_temp_low !== null && this.target_temp_high !== null;
+  }
+
+  /**
+   * Whether the dial has a current temperature to work with.
+   *
+   * Everything that positions itself on the temperature scale — the pointer,
+   * the active arc, the label on the rim — needs one. Without it there is
+   * nothing to place, so those parts are left out instead of being drawn at a
+   * made-up position.
+   */
+  private get _hasAmbient(): boolean {
+    return this.current_temperature !== null && Number.isFinite(this.current_temperature);
   }
 
   /**
@@ -339,8 +359,14 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   /** Predict hvac action based on current target positions vs ambient */
   private _predictAction(): string {
-    const ambient = this.current_temperature;
     const mode = this.hvac_mode;
+
+    // Without a current temperature there is nothing to compare the setpoint
+    // against, so the dial keeps the state the entity reports instead of
+    // guessing a direction.
+    if (!this._hasAmbient) return this.hvac_action ?? 'off';
+
+    const ambient = this.current_temperature!;
 
     if (this.dual && this.target_temp_low !== null && this.target_temp_high !== null) {
       if (ambient < this.target_temp_low) return 'heating';
@@ -433,33 +459,44 @@ export class ThermostatDial extends LitElement implements InteractionHost {
       if (this.dual && this.target_temp_low !== null && this.target_temp_high !== null) {
         // Dual edit: pointers at both targets, ambient label offset away from active arc
         let ambientOffset: number;
-        if (this.current_temperature < this.target_temp_low) {
+        if (!this._hasAmbient) {
+          // Nothing to place — the ambient label is left out entirely.
+          ambientOffset = 0;
+        } else if (this.current_temperature! < this.target_temp_low) {
           // Would heat: arc is CW of ambient → push label CCW
           ambientOffset = -8;
-        } else if (this.current_temperature > this.target_temp_high) {
+        } else if (this.current_temperature! > this.target_temp_high) {
           // Would cool: arc is CCW of ambient → push label CW
           ambientOffset = 8;
         } else {
           // Idle: default right
           ambientOffset = 8;
         }
-        const ambientPos = positionLabel(this.current_temperature, ambientOffset);
+        const ambientPos = this._hasAmbient
+          ? positionLabel(this.current_temperature!, ambientOffset)
+          : null;
         labels.push(svg`
           ${renderPointer(this.target_temp_low)}
           ${renderPointer(this.target_temp_high)}
-          <text x=${ambientPos.x} y=${ambientPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
+          ${
+            ambientPos
+              ? svg`<text x=${ambientPos.x} y=${ambientPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature!, 'ring')}</text>`
+              : ''
+          }
         `);
       } else if (this.temperature !== null) {
-        const ambientOffset = this.current_temperature <= this.temperature ? -8 : 8;
-        const pos = positionLabel(this.current_temperature, ambientOffset);
+        const ambientOffset =
+          this._hasAmbient && this.current_temperature! <= this.temperature ? -8 : 8;
+        const pos = this._hasAmbient
+          ? positionLabel(this.current_temperature!, ambientOffset)
+          : null;
         labels.push(svg`
           ${renderPointer(this.temperature)}
-          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
-        `);
-      } else {
-        const pos = positionLabel(this.current_temperature, -8);
-        labels.push(svg`
-          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
+          ${
+            pos
+              ? svg`<text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature!, 'ring')}</text>`
+              : ''
+          }
         `);
       }
     } else {
@@ -486,16 +523,22 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         const lowPos = positionLabel(this.target_temp_low, lowOffset);
         const highPos = positionLabel(this.target_temp_high, highOffset);
         labels.push(svg`
-          ${renderPointer(this.current_temperature)}
+          ${this._hasAmbient ? renderPointer(this.current_temperature!) : ''}
           <text x=${lowPos.x} y=${lowPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_low, 'ring')}</text>
           <text x=${highPos.x} y=${highPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_high, 'ring')}</text>
         `);
       } else if (this.temperature !== null) {
-        // Single target: offset away from ambient (outside the interval)
-        const targetOffset = this.temperature >= this.current_temperature ? 8 : -8;
+        // Single target: offset away from ambient (outside the interval).
+        // Without an ambient there is nothing to offset from, so the label
+        // sits on the ring at the target's own angle.
+        const targetOffset = this._hasAmbient
+          ? this.temperature >= this.current_temperature!
+            ? 8
+            : -8
+          : 0;
         const pos = positionLabel(this.temperature, targetOffset);
         labels.push(svg`
-          ${renderPointer(this.current_temperature)}
+          ${this._hasAmbient ? renderPointer(this.current_temperature!) : ''}
           <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.temperature, 'ring')}</text>
         `);
       }
@@ -509,6 +552,9 @@ export class ThermostatDial extends LitElement implements InteractionHost {
    * lowered the way `size` asks for.
    */
   private _renderTemperature(value: number, size: TemperatureTextSize): TemplateResult {
+    // A value that is not a real number has no text — the caller is expected
+    // to have left that part of the dial out.
+    if (!Number.isFinite(value)) return svg``;
     const { whole, fraction } = formatTemperature(value, this.target_temp_step);
     if (fraction === undefined) return svg`${whole}`;
     const decimal = DECIMAL_TYPOGRAPHY[size];
@@ -522,9 +568,15 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     if (this.dual && this.editing) {
       return svg`
         <g class="dial-center">
+          ${
+            this._hasAmbient
+              ? svg`
           <text x=${r} y=${r} class="dial-text dial-text--ambient">
-            ${this._renderTemperature(this.current_temperature, 'large')}
+            ${this._renderTemperature(this.current_temperature!, 'large')}
           </text>
+        `
+              : ''
+          }
           <text x=${r - r / 3} y=${r} class="dial-text dial-text--low">
             ${this._renderTemperature(this.target_temp_low!, 'small')}
           </text>
@@ -544,9 +596,20 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         `
             : ''
         }
-        <text x=${r} y=${r} class="dial-text dial-text--ambient">
-          ${this._renderTemperature(this.current_temperature, 'large')}
-        </text>
+        ${
+          this._hasAmbient
+            ? svg`
+          <text x=${r} y=${r} class="dial-text dial-text--ambient">
+            ${this._renderTemperature(this.current_temperature!, 'large')}
+          </text>
+        `
+            : // Without a current temperature the center carries a warning sign
+              // instead of a number. While editing, the setpoint takes the
+              // center, so the sign waits until the dial is back to reading.
+              this.editing
+              ? ''
+              : this._renderWarning(r)
+        }
         ${
           this.temperature !== null
             ? svg`
@@ -556,6 +619,42 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         `
             : ''
         }
+      </g>
+    `;
+  }
+
+  /**
+   * The warning sign shown in place of the current temperature.
+   *
+   * Drawn from plain SVG shapes rather than an icon font: the dial is an SVG,
+   * and a triangle with an exclamation mark reads as "this value is missing"
+   * on every skin without depending on an icon font being loaded.
+   */
+  private _renderWarning(r: number): TemplateResult {
+    const label = localize('warning_no_temperature');
+    // Sized to fill the slot the temperature number would occupy.
+    const size = r * 0.56;
+    const halfW = size * 0.46;
+    const halfH = size / 2;
+    const stroke = size * 0.09;
+
+    return svg`
+      <g class="dial-warning" role="img" aria-label=${label}>
+        <title>${label}</title>
+        <path
+          class="dial-warning__triangle"
+          d="M${r},${r - halfH} L${r + halfW},${r + halfH} L${r - halfW},${r + halfH} Z"
+          stroke-width=${stroke}
+        />
+        <line
+          class="dial-warning__mark"
+          x1=${r}
+          y1=${r - halfH * 0.3}
+          x2=${r}
+          y2=${r + halfH * 0.02}
+          stroke-width=${stroke}
+        />
+        <circle class="dial-warning__dot" cx=${r} cy=${r + halfH * 0.22} r=${stroke * 0.55} />
       </g>
     `;
   }
@@ -896,11 +995,20 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
   // --- Tick range computation ---
   private _computeTickRange(): TickRange {
-    const ambientIdx = clamp(
-      temperatureToTick(this.current_temperature, this.min_temp, this.max_temp, this.num_ticks),
-      0,
-      this.num_ticks - 1,
-    );
+    // Without a current temperature there is no ambient position on the scale,
+    // so there is no arc to draw either — the arc spans ambient → target.
+    const ambientIdx = this._hasAmbient
+      ? clamp(
+          temperatureToTick(
+            this.current_temperature!,
+            this.min_temp,
+            this.max_temp,
+            this.num_ticks,
+          ),
+          0,
+          this.num_ticks - 1,
+        )
+      : undefined;
 
     let from: number | undefined;
     let to: number | undefined;
@@ -921,21 +1029,24 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
       // Rim shows targets (idle) or ambient + targets (editing)
       if (this.editing) {
-        largeIndices.push(ambientIdx, lowIdx, highIdx);
+        if (ambientIdx !== undefined) largeIndices.push(ambientIdx);
+        largeIndices.push(lowIdx, highIdx);
       } else {
         largeIndices.push(lowIdx, highIdx);
       }
 
       // Predictive arc: based on position, not just hvac_action
       // This gives instant feedback during editing
-      if (lowIdx > ambientIdx) {
-        // Ambient is below low target → would heat
-        from = ambientIdx;
-        to = lowIdx;
-      } else if (highIdx < ambientIdx) {
-        // Ambient is above high target → would cool
-        from = highIdx;
-        to = ambientIdx;
+      if (ambientIdx !== undefined) {
+        if (lowIdx > ambientIdx) {
+          // Ambient is below low target → would heat
+          from = ambientIdx;
+          to = lowIdx;
+        } else if (highIdx < ambientIdx) {
+          // Ambient is above high target → would cool
+          from = highIdx;
+          to = ambientIdx;
+        }
       }
     } else if (this.temperature !== null) {
       const targetIdx = clamp(
@@ -946,20 +1057,22 @@ export class ThermostatDial extends LitElement implements InteractionHost {
 
       // Rim shows target (idle) or ambient (editing)
       if (this.editing) {
-        largeIndices.push(ambientIdx);
+        if (ambientIdx !== undefined) largeIndices.push(ambientIdx);
       } else {
         largeIndices.push(targetIdx);
       }
 
       // Predictive arc: based on position
-      if (targetIdx > ambientIdx) {
-        // Target above ambient → would heat
-        from = ambientIdx;
-        to = targetIdx;
-      } else if (targetIdx < ambientIdx) {
-        // Target below ambient → would cool
-        from = targetIdx;
-        to = ambientIdx;
+      if (ambientIdx !== undefined) {
+        if (targetIdx > ambientIdx) {
+          // Target above ambient → would heat
+          from = ambientIdx;
+          to = targetIdx;
+        } else if (targetIdx < ambientIdx) {
+          // Target below ambient → would cool
+          from = targetIdx;
+          to = ambientIdx;
+        }
       }
     }
 

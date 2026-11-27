@@ -124,3 +124,59 @@ describe('thermostat-dial temperature display', () => {
     expect(dial.temperature).toBe(68.9);
   });
 });
+
+describe('thermostat-dial without a current temperature', () => {
+  it('warns in the center instead of drawing a temperature', async () => {
+    const dial = await renderDial({
+      temperature: 22.5,
+      current_temperature: null,
+      target_temp_step: 0.5,
+    });
+
+    expect(textOf(dial, '.dial-text--ambient')).toEqual([]);
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
+  });
+
+  it('keeps the target on the rim', async () => {
+    const dial = await renderDial({
+      temperature: 22.5,
+      current_temperature: null,
+      target_temp_step: 0.5,
+    });
+
+    expect(textOf(dial, '.dial-ring-label')).toEqual(['22.5']);
+  });
+
+  it('draws no pointer, because there is no position to point at', async () => {
+    const dial = await renderDial({
+      temperature: 22.5,
+      current_temperature: null,
+      target_temp_step: 0.5,
+    });
+
+    expect(dial.shadowRoot?.querySelector('.dial-pointer')).toBeNull();
+  });
+
+  it('shows the setpoint while editing, not the warning', async () => {
+    const dial = await renderDial({
+      temperature: 22.5,
+      current_temperature: null,
+      target_temp_step: 0.5,
+      editing: true,
+    });
+
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
+    expect(textOf(dial, '.dial-text--target')).toEqual(['22.5']);
+  });
+
+  it('still shows a temperature when one is reported', async () => {
+    const dial = await renderDial({
+      temperature: 22.5,
+      current_temperature: 21,
+      target_temp_step: 0.5,
+    });
+
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).toBeNull();
+    expect(textOf(dial, '.dial-text--ambient')).toEqual(['21.0']);
+  });
+});

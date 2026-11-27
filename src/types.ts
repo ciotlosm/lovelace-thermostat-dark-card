@@ -46,12 +46,26 @@ export interface ThermostatCardConfig {
 }
 
 // HA climate entity HVAC actions (what's actually happening)
-export type HvacAction =
-  | 'off'
-  | 'heating'
-  | 'cooling'
-  | 'idle'
-  | 'drying'
-  | 'fan'
-  | 'preheating'
-  | 'defrosting';
+export const HVAC_ACTIONS = [
+  'off',
+  'heating',
+  'cooling',
+  'idle',
+  'drying',
+  'fan',
+  'preheating',
+  'defrosting',
+] as const;
+
+export type HvacAction = (typeof HVAC_ACTIONS)[number];
+
+/**
+ * Narrow an unknown value to an HVAC action the card knows how to draw.
+ *
+ * A climate entity that is unavailable reports no `hvac_action` at all, and its
+ * state is then "unavailable" rather than a mode. Anything the card does not
+ * know is treated as "off" instead of an unstyled state.
+ */
+export function isHvacAction(value: unknown): value is HvacAction {
+  return typeof value === 'string' && (HVAC_ACTIONS as readonly string[]).includes(value);
+}

@@ -11,5 +11,6 @@
   "editor_show_power_toggle": "Power button",
   "editor_show_preset_indicator": "Preset icon",
   "card_name": "Thermostat Dark Card",
-  "card_description": "A thermostat card with a round dial — follows your Home Assistant theme"
+  "card_description": "A thermostat card with a round dial — follows your Home Assistant theme",
+  "warning_no_temperature": "No temperature reported"
 }
