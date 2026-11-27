@@ -1,0 +1,13 @@
+# Owners for code that can change what runs in this repository.
+#
+# A change to a workflow can run code with the repository token, so it
+# should be reviewed by a maintainer before it lands.
+
+# Workflows, actions and other CI configuration
+/.github/ @ciotlosm
+
+# Dependencies and the build
+/package.json @ciotlosm
+/package-lock.json @ciotlosm
+/vite.config.ts @ciotlosm
+/scripts/ @ciotlosm
