@@ -5,6 +5,7 @@
   "editor_skin": "皮肤",
   "editor_step": "步进覆盖",
   "editor_pending": "等待时间（秒）",
+  "editor_edit_timeout": "编辑时间（秒）",
   "editor_ambient_temperature": "环境温度传感器",
   "editor_status_entity": "状态文本实体",
   "editor_readonly": "只读模式",

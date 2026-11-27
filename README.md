@@ -87,6 +87,30 @@ entity: climate.living_room
 The chevrons are the primary control on small screens. Their touch targets grow automatically as
 the card gets narrower, so they stay large enough to hit with a finger.
 
+### When a change reaches Home Assistant
+
+A change is sent `pending` seconds (3 by default) after your last tap on an arrow or the end of your
+last drag on the ring, so a run of taps makes a single `climate.set_temperature` call. While you are
+still dragging, nothing is sent. Opening edit mode and letting it close again sends nothing.
+
+You can leave the view during that wait: the change is still sent. Closing the app or reloading the
+page during it loses the change. `pending: 0` sends each change as soon as it is made.
+
+The dial stays in edit mode for `edit_timeout` seconds after your last touch. It defaults to
+`pending`, and is never shorter than `pending` or one second. Until it closes, it shows the setpoint
+you chose. Once it closes, it shows the setpoint Home Assistant reports. If Home Assistant rejects a
+change, the dial goes back to the real setpoint straight away. A change still waiting when the HVAC
+mode changes (for example, when the thermostat is switched off) is not sent.
+
+For example, to send changes after half a second but keep the arrows open for three:
+
+```yaml
+type: custom:thermostat-dark-card
+entity: climate.living_room
+pending: 0.5
+edit_timeout: 3
+```
+
 ## Temperature display
 
 The dial shows temperatures with the precision of the thermostat's step: whole degrees when the
@@ -115,7 +139,8 @@ These are available in the visual card editor:
 | `status_entity` | string | — | Entity whose state is shown as text above temperature |
 | `show_power_toggle` | boolean | `true` | Show power on/off button |
 | `show_preset_indicator` | boolean | `true` | Show preset mode icon |
-| `pending` | number | `3` | Seconds before committing temperature change |
+| `pending` | number | `3` | Seconds after the last change before it is sent; `0` sends at once ([details](#when-a-change-reaches-home-assistant)) |
+| `edit_timeout` | number | `pending` | Seconds without a touch before the dial leaves edit mode; at least `pending` and 1 ([details](#when-a-change-reaches-home-assistant)) |
 
 ### Advanced Options (YAML only)
 
@@ -316,11 +341,29 @@ The sign is a plain SVG shape, so it needs no icon font and follows the skin's w
 triangle is outlined in the text color, which keeps it readable on every disc color — orange when
 heating, blue when cooling, dark when idle.
 
+### HVAC Modes
+
+The card follows Home Assistant's rules for climate entities:
+
+- **`heat_cool` follows a range**, every other mode follows a single target. The card shows
+  and changes the setpoint the device actually follows, so a range is never sent to a device
+  in `heat` — Home Assistant accepts that call and then ignores it.
+- **A device that is off, or one that has no setpoint at all** (a purifier that only dries
+  air), gets no setpoint control: there is nothing to change, and Home Assistant refuses the
+  call. The power button is hidden for a device that cannot be turned off or on.
+- **A change still waiting to be sent is dropped when the mode changes.** The same number
+  means "heat to" in one mode and "cool to" in the next, so it no longer applies.
+- **In `auto`, `dry` and `fan_only`** the device decides what it does — it follows a
+  schedule of its own, or it neither heats nor cools. The dial keeps the action the entity
+  reports instead of guessing one from the setpoint.
+
 ## Features
 
 - **Single and dual mode** — Automatically adapts based on entity attributes
 - **Missing-temperature warning** — Shows a warning sign instead of a temperature when the
   thermostat does not report one, rather than an empty or broken card
+- **Home Assistant's HVAC modes** — The setpoint follows the mode: a range in `heat_cool`, a
+  single target everywhere else, and nothing to change while the device is off
 - **Chevron controls** — Tap the up/down arrows to adjust the target temperature. The touch
   targets grow on narrow cards so they stay easy to hit with a finger
 - **Ring drag** — Drag on the tick ring to set the temperature. A plain tap on the ring does

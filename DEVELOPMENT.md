@@ -47,8 +47,17 @@ npm run preview
 
 The demo lets you test the card without Home Assistant — skin, HVAC state, temperatures, dual mode,
 presets and read-only mode. It does not cover every option: the power toggle, the preset indicator, the
-color and preset-icon overrides, the status text entity, the external temperature sensor, the commit
-delay and the expert rendering options are only exercised in a real Home Assistant.
+color and preset-icon overrides, the status text entity, the external temperature sensor, the send
+delay (`pending`) and the expert rendering options are only exercised in a real Home Assistant.
+
+The dial never changes its own setpoint properties. It fires `temperature-changed` and keeps
+showing the user's value until its owner calls `changeSettled()` (or `cancelEditing()` if the
+change failed); after that it shows whatever its properties say. The card sends the newest value as
+a `climate.set_temperature` call `pending` seconds after the last event, and calls
+`changeSettled()` once the call has returned and Home Assistant has reported the entity again. The
+demo plays Home Assistant's part by writing the value back to the dial and calling
+`changeSettled()` at once, so anything else that hosts a bare `<thermostat-dial>` needs to do the
+same.
 
 It drives two independent layers: the **Home Assistant theme** (light/dark, which sets
 the page background and the CSS variables the card reads) and the **card skin**

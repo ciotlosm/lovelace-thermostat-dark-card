@@ -17,7 +17,8 @@ export interface ThermostatCardConfig {
   theme?: string;
   // Dial behavior
   step?: number;
-  pending?: number; // seconds before committing temperature change
+  pending?: number; // seconds after the last change before it is sent to Home Assistant
+  edit_timeout?: number; // seconds without interaction before the dial leaves edit mode (at least `pending`)
   idle_zone?: number; // minimum gap between low/high in dual mode
   // Visual options
   diameter?: number;
@@ -68,4 +69,79 @@ export type HvacAction = (typeof HVAC_ACTIONS)[number];
  */
 export function isHvacAction(value: unknown): value is HvacAction {
   return typeof value === 'string' && (HVAC_ACTIONS as readonly string[]).includes(value);
+}
+
+// The HVAC modes Home Assistant defines (ClimateMode). The state of a climate
+// entity is its mode.
+export const HVAC_MODES = ['off', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only'] as const;
+
+export type HvacMode = (typeof HVAC_MODES)[number];
+
+/**
+ * Narrow an unknown value to an HVAC mode.
+ *
+ * A climate entity that is unavailable reports the state "unavailable" rather
+ * than a mode, and one that has not reported yet reports "unknown".
+ */
+export function isHvacMode(value: unknown): value is HvacMode {
+  return typeof value === 'string' && (HVAC_MODES as readonly string[]).includes(value);
+}
+
+/**
+ * The bits of a climate entity's `supported_features`.
+ *
+ * The values are Home Assistant's `ClimateEntityFeature` flags. An entity
+ * publishes the setpoint attributes only for the features it has, and the
+ * `climate.set_temperature` service rejects a setpoint the entity does not
+ * support — a single target for a device that only has a range, or the other
+ * way round.
+ */
+export const TARGET_TEMPERATURE = 1;
+export const TARGET_TEMPERATURE_RANGE = 2;
+export const TURN_OFF = 128;
+export const TURN_ON = 256;
+
+/** Which setpoint a device follows. */
+export type SetpointKind = 'single' | 'range' | 'none';
+
+/**
+ * The setpoint an HVAC mode follows.
+ *
+ * `heat_cool` is the mode that uses a target range; every other mode uses a
+ * single target. A device that supports neither has no setpoint at all.
+ *
+ * The mode says which setpoint the device *has*, not whether it may be
+ * changed: a device that is off still reports the target it will use, and
+ * Home Assistant's own card lets the user change a target in `auto`, where the
+ * device follows a schedule of its own.
+ */
+export function setpointKind(mode: string, supportedFeatures: number): SetpointKind {
+  const single = (supportedFeatures & TARGET_TEMPERATURE) !== 0;
+  const range = (supportedFeatures & TARGET_TEMPERATURE_RANGE) !== 0;
+  if (!single && !range) return 'none';
+  if (mode === 'heat_cool') return range ? 'range' : 'none';
+  return single ? 'single' : 'none';
+}
+
+/**
+ * Whether Home Assistant's own card would let the user change the setpoint.
+ *
+ * Its climate control is disabled when the entity is off or not reporting:
+ * an off device does nothing until its mode changes, so a target has no
+ * effect yet.
+ */
+export function setpointIsAdjustable(mode: string): boolean {
+  return mode !== 'off' && mode !== 'unavailable' && mode !== 'unknown';
+}
+
+/**
+ * Whether the device can be turned off or on.
+ *
+ * Home Assistant refuses the call for a device that does not support that
+ * turn, so the power button is only offered when the turn it would make is
+ * one the device has.
+ */
+export function canTogglePower(mode: string, supportedFeatures: number): boolean {
+  if (mode === 'off') return (supportedFeatures & TURN_ON) !== 0;
+  return (supportedFeatures & TURN_OFF) !== 0;
 }

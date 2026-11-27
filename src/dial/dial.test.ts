@@ -13,6 +13,9 @@ type DialProps = Partial<
     | 'min_temp'
     | 'max_temp'
     | 'editing'
+    | 'hvac_action'
+    | 'hvac_mode'
+    | 'setpoint_readonly'
   >
 >;
 
@@ -133,6 +136,48 @@ describe('thermostat-dial temperature display', () => {
   });
 });
 
+describe('thermostat-dial adjustments', () => {
+  it('reports a change with an event and leaves its setpoint property to its owner', async () => {
+    const dial = await renderDial({ temperature: 70, current_temperature: 65, editing: true });
+    const changes: unknown[] = [];
+    dial.addEventListener('temperature-changed', (e) => changes.push((e as CustomEvent).detail));
+
+    dial.shadowRoot
+      ?.querySelector('.dial-chevron[data-id="target-up"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await dial.updateComplete;
+
+    expect({
+      changes,
+      property: dial.temperature,
+      shown: textOf(dial, '.dial-text--target'),
+    }).toEqual({
+      changes: [{ temperature: 71 }],
+      property: 70,
+      shown: ['71'],
+    });
+  });
+
+  it('keeps the warning sign in the center while the user changes the setpoint', async () => {
+    // Without a current temperature there is nothing to promote into the
+    // center: the setpoint is not a reading, so the sign stays.
+    const dial = await renderDial({ temperature: 70, current_temperature: null, editing: true });
+    const changes: unknown[] = [];
+    dial.addEventListener('temperature-changed', (e) => changes.push((e as CustomEvent).detail));
+
+    dial.shadowRoot
+      ?.querySelector('.dial-chevron[data-id="target-up"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await dial.updateComplete;
+
+    expect(dial.shadowRoot?.querySelector('.dial-warning')).not.toBeNull();
+    expect(textOf(dial, '.dial-text--target')).toEqual([]);
+    // The change is still reported, and the setpoint is on the rim.
+    expect(changes).toEqual([{ temperature: 71 }]);
+    expect(textOf(dial, '.dial-ring-label')).toEqual(['71']);
+  });
+});
+
 describe('thermostat-dial without a current temperature', () => {
   it('warns in the center instead of drawing a temperature', async () => {
     const dial = await renderDial({
@@ -205,5 +250,68 @@ describe('thermostat-dial without a current temperature', () => {
     // The setpoints are on the rim instead, so nothing overlaps the sign.
     expect(textOf(dial, '.dial-text--low, .dial-text--high')).toEqual([]);
     expect(textOf(dial, '.dial-ring-label')).toEqual(['21.0', '24.0']);
+  });
+});
+
+describe('thermostat-dial and the HVAC mode', () => {
+  it('keeps the reported action in auto, where the device follows its own schedule', async () => {
+    // The target is not what decides the mode in auto, so the dial must not
+    // guess a direction from it.
+    const dial = await renderDial({
+      temperature: 22,
+      current_temperature: 20,
+      hvac_mode: 'auto',
+      hvac_action: 'idle',
+      editing: true,
+    });
+
+    expect(dial.shadowRoot?.querySelector('.dial-disc--idle')).not.toBeNull();
+    expect(dial.shadowRoot?.querySelector('.dial-disc--heating')).toBeNull();
+  });
+
+  it('predicts a direction in heat, where the target decides', async () => {
+    const dial = await renderDial({
+      temperature: 22,
+      current_temperature: 20,
+      hvac_mode: 'heat',
+      hvac_action: 'idle',
+      editing: true,
+    });
+
+    expect(dial.shadowRoot?.querySelector('.dial-disc--heating')).not.toBeNull();
+  });
+
+  it('does not enter edit mode when the setpoint cannot be changed', async () => {
+    const dial = await renderDial({
+      temperature: 22,
+      current_temperature: 21,
+      setpoint_readonly: true,
+    });
+
+    dial.shadowRoot
+      ?.querySelector('svg')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await dial.updateComplete;
+
+    expect(dial.editing).toBe(false);
+    expect(dial.shadowRoot?.querySelector('.dial-chevron')).toBeNull();
+  });
+
+  it('ends the edit when the setpoint changes shape', async () => {
+    const dial = await renderDial({
+      temperature: 22,
+      target_temp_low: 20,
+      target_temp_high: 24,
+      current_temperature: 21,
+      editing: true,
+    });
+    expect(dial.editing).toBe(true);
+
+    // The device now follows a single target instead of a range.
+    dial.target_temp_low = null;
+    dial.target_temp_high = null;
+    await dial.updateComplete;
+
+    expect(dial.editing).toBe(false);
   });
 });

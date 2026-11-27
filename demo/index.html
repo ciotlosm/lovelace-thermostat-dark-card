@@ -284,6 +284,19 @@
       document.getElementById('high_val').textContent = e.target.value;
     });
 
+    // Stand in for Home Assistant: apply the change the dial sends, the way
+    // the entity would report it back, then tell the dial it has. The dial
+    // never changes its own setpoints, so without this it would keep showing
+    // the user's value apart from the sliders.
+    dial.addEventListener('temperature-changed', e => {
+      for (const [attr, value] of Object.entries(e.detail)) {
+        const slider = document.getElementById(attr);
+        slider.value = value;
+        slider.dispatchEvent(new Event('input'));
+      }
+      dial.changeSettled();
+    });
+
     // Toggles
     document.getElementById('dual_mode').addEventListener('change', e => {
       const low = document.getElementById('target_temp_low');
