@@ -16,6 +16,36 @@ on:
 permissions: {}
 
 jobs:
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    # A job of its own, so the token that may write code scanning results
+    # never reaches the job that runs the code of a pull request. This job
+    # only parses YAML files; it executes nothing from the repository.
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Nothing here pushes with git, so the token does not need to stay
+          # in .git/config for the rest of the job.
+          persist-credentials: false
+
+      - name: Audit the workflows
+        # Static analysis of the workflow files: unpinned actions, script
+        # injection, token permissions, credential persistence and the like.
+        # It runs on the workflows of the pull request, so a change that
+        # weakens this setup is caught in the pull request.
+        uses: zizmorcore/zizmor-action@1b4550e929643b8b26a62303c6bd64814271a4f1 # v0.9.2
+        with:
+          # The findings are uploaded to the Security tab, which needs a
+          # token that may write code scanning results. A pull request from
+          # a fork gets a read-only token, so there the findings are
+          # reported as annotations on the pull request instead.
+          advanced-security: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+          annotations: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+
   build:
     name: Build & Validate
     runs-on: ubuntu-latest
@@ -32,13 +62,6 @@ jobs:
           # Nothing here pushes with git, so the token does not need to stay
           # in .git/config for the rest of the job.
           persist-credentials: false
-
-      - name: Audit the workflows
-        # Static analysis of the workflow files: unpinned actions, script
-        # injection, token permissions, credential persistence and the like.
-        # It runs on the workflows of the pull request, so a change that
-        # weakens this setup is caught in the pull request.
-        uses: zizmorcore/zizmor-action@1b4550e929643b8b26a62303c6bd64814271a4f1 # v0.9.2
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:

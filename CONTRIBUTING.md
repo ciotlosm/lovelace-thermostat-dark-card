@@ -59,7 +59,7 @@ HACS uses the following to discover and install the card:
 
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
-| `build.yml` | PRs to main, schedule, manual | Type check + Lint + Test + Build + HACS validation + workflow audit |
+| `build.yml` | PRs to main, schedule, manual | Workflow audit (zizmor) + Type check + Lint + Test + Build + HACS validation |
 | `release.yml` | Push to main | Release Please manages Release PR; uploads JS on release; validates HACS after the upload |
 
 The HACS validation runs on the PR and on the daily schedule. It does not run
@@ -70,8 +70,8 @@ uploaded.
 
 ## CI Security
 
-The workflows are audited with [zizmor](https://zizmor.sh), which runs as part
-of the build. The rules the repository follows:
+The workflows are audited with [zizmor](https://zizmor.sh), which runs in a
+job of its own. The rules the repository follows:
 
 - **Every action is pinned to a commit SHA**, with the version in a comment.
   Dependabot updates the pins, and reads the comment to know which release
@@ -80,6 +80,11 @@ of the build. The rules the repository follows:
   `permissions: {}` at the top. The job that runs the code of a pull request
   only gets a read-only token; the job that comments on a pull request is the
   only one that can write.
+- **The job that may write code scanning results is separate from the job
+  that runs the code.** The zizmor job only parses YAML files, so it is the
+  one job that gets `security-events: write`. A pull request from a fork gets
+  a read-only token, so there the findings are reported as annotations on the
+  pull request instead of being uploaded to the Security tab.
 - **No data from a pull request is interpolated into a script.** The
   translation warnings reach the comment job as an environment variable, so a
   translation file can not turn into code.
