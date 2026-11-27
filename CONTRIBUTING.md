@@ -59,7 +59,7 @@ HACS uses the following to discover and install the card:
 
 | Workflow | Trigger | What it does |
 |----------|---------|-------------|
-| `build.yml` | PRs to main | Type check + Lint + Build + HACS validation |
+| `build.yml` | PRs to main | Type check + Lint + Test + Build + HACS validation |
 | `release.yml` | Push to main | Release Please manages Release PR; uploads JS on release |
 
 ## Versioning
@@ -90,7 +90,7 @@ If you are an AI agent contributing to this repo:
    - `chore:` for maintenance (no release)
 5. **Do not bump version manually** — Release Please handles it
 6. **Do not create releases** — they're automatic via Release PR
-7. **Run `npx tsc --noEmit` and `npm run build`** before committing to verify no errors
+7. **Run `npx tsc --noEmit`, `npm test` and `npm run build`** before committing to verify no errors
 8. **Commit messages**: Use conventional commits style
 
 ## Development Setup

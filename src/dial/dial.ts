@@ -20,6 +20,7 @@ import {
   rotatePoints,
   temperatureToTick,
 } from './svg-utils';
+import { formatTemperature } from './temperature-format';
 
 /**
  * Minimum touch target for the chevrons, in CSS pixels.
@@ -48,6 +49,16 @@ const STATE_COLORS: Record<string, string> = {
   heating: '#e36304',
   cooling: '#007af1',
   drying: '#a68b00',
+};
+
+/** Where a temperature is drawn: the center, the dual-mode center pair, or the ring. */
+type TemperatureTextSize = 'large' | 'small' | 'ring';
+
+/** Font size and baseline drop of the decimal digit, in viewBox units, per text size. */
+const DECIMAL_TYPOGRAPHY: Record<TemperatureTextSize, { fontSize: number; dy: number }> = {
+  large: { fontSize: 40, dy: 30 },
+  small: { fontSize: 22, dy: 16 },
+  ring: { fontSize: 12, dy: 5 },
 };
 
 @customElement('thermostat-dial')
@@ -436,19 +447,19 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         labels.push(svg`
           ${renderPointer(this.target_temp_low)}
           ${renderPointer(this.target_temp_high)}
-          <text x=${ambientPos.x} y=${ambientPos.y} class="dial-text dial-ring-label">${this._superscript(this.current_temperature)}</text>
+          <text x=${ambientPos.x} y=${ambientPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
         `);
       } else if (this.temperature !== null) {
         const ambientOffset = this.current_temperature <= this.temperature ? -8 : 8;
         const pos = positionLabel(this.current_temperature, ambientOffset);
         labels.push(svg`
           ${renderPointer(this.temperature)}
-          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._superscript(this.current_temperature)}</text>
+          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
         `);
       } else {
         const pos = positionLabel(this.current_temperature, -8);
         labels.push(svg`
-          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._superscript(this.current_temperature)}</text>
+          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.current_temperature, 'ring')}</text>
         `);
       }
     } else {
@@ -476,8 +487,8 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         const highPos = positionLabel(this.target_temp_high, highOffset);
         labels.push(svg`
           ${renderPointer(this.current_temperature)}
-          <text x=${lowPos.x} y=${lowPos.y} class="dial-text dial-ring-label">${this._superscript(this.target_temp_low)}</text>
-          <text x=${highPos.x} y=${highPos.y} class="dial-text dial-ring-label">${this._superscript(this.target_temp_high)}</text>
+          <text x=${lowPos.x} y=${lowPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_low, 'ring')}</text>
+          <text x=${highPos.x} y=${highPos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.target_temp_high, 'ring')}</text>
         `);
       } else if (this.temperature !== null) {
         // Single target: offset away from ambient (outside the interval)
@@ -485,7 +496,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
         const pos = positionLabel(this.temperature, targetOffset);
         labels.push(svg`
           ${renderPointer(this.current_temperature)}
-          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._superscript(this.temperature)}</text>
+          <text x=${pos.x} y=${pos.y} class="dial-text dial-ring-label">${this._renderTemperature(this.temperature, 'ring')}</text>
         `);
       }
     }
@@ -493,14 +504,15 @@ export class ThermostatDial extends LitElement implements InteractionHost {
     return svg`<g class="dial-ring-labels">${labels}</g>`;
   }
 
-  private _superscript(value: number): TemplateResult {
-    const rounded = Math.round(value * 10) / 10;
-    const whole = Math.floor(rounded);
-    const frac = Math.round((rounded - whole) * 10);
-    if (this.target_temp_step < 1) {
-      return svg`${whole}<tspan font-size="12" dy="5">.${frac}</tspan>`;
-    }
-    return svg`${whole}`;
+  /**
+   * Render a temperature as text, with the decimal (if any) set smaller and
+   * lowered the way `size` asks for.
+   */
+  private _renderTemperature(value: number, size: TemperatureTextSize): TemplateResult {
+    const { whole, fraction } = formatTemperature(value, this.target_temp_step);
+    if (fraction === undefined) return svg`${whole}`;
+    const decimal = DECIMAL_TYPOGRAPHY[size];
+    return svg`${whole}<tspan font-size=${decimal.fontSize} dy=${decimal.dy}>.${fraction}</tspan>`;
   }
 
   // --- SVG Layer: Center temperature display ---
@@ -511,13 +523,13 @@ export class ThermostatDial extends LitElement implements InteractionHost {
       return svg`
         <g class="dial-center">
           <text x=${r} y=${r} class="dial-text dial-text--ambient">
-            ${this._renderTempText(this.current_temperature)}
+            ${this._renderTemperature(this.current_temperature, 'large')}
           </text>
           <text x=${r - r / 3} y=${r} class="dial-text dial-text--low">
-            ${this._renderTempTextSmall(this.target_temp_low!)}
+            ${this._renderTemperature(this.target_temp_low!, 'small')}
           </text>
           <text x=${r + r / 3} y=${r} class="dial-text dial-text--high">
-            ${this._renderTempTextSmall(this.target_temp_high!)}
+            ${this._renderTemperature(this.target_temp_high!, 'small')}
           </text>
         </g>
       `;
@@ -533,43 +545,19 @@ export class ThermostatDial extends LitElement implements InteractionHost {
             : ''
         }
         <text x=${r} y=${r} class="dial-text dial-text--ambient">
-          ${this._renderTempText(this.current_temperature)}
+          ${this._renderTemperature(this.current_temperature, 'large')}
         </text>
         ${
           this.temperature !== null
             ? svg`
           <text x=${r} y=${r} class="dial-text dial-text--target">
-            ${this._renderTempText(this.temperature)}
+            ${this._renderTemperature(this.temperature, 'large')}
           </text>
         `
             : ''
         }
       </g>
     `;
-  }
-
-  /** Render temperature with dot notation (e.g., "22.5" or "22.0" in celsius) */
-  private _renderTempText(value: number): TemplateResult {
-    const rounded = Math.round(value * 10) / 10;
-    const whole = Math.floor(rounded);
-    const frac = Math.round((rounded - whole) * 10);
-    if (this.target_temp_step < 1) {
-      // Celsius mode: always show decimal to prevent layout shift
-      return svg`${whole}<tspan font-size="40" dy="30">.${frac}</tspan>`;
-    }
-    // Fahrenheit mode: whole numbers only
-    return svg`${whole}`;
-  }
-
-  /** Render temperature at smaller scale for dual mode targets */
-  private _renderTempTextSmall(value: number): TemplateResult {
-    const rounded = Math.round(value * 10) / 10;
-    const whole = Math.floor(rounded);
-    const frac = Math.round((rounded - whole) * 10);
-    if (this.target_temp_step < 1) {
-      return svg`${whole}<tspan font-size="22" dy="16">.${frac}</tspan>`;
-    }
-    return svg`${whole}`;
   }
 
   // --- SVG Layer: Indicators (leaf, power/thermo) ---

@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
 
@@ -30,5 +31,8 @@ export default defineConfig({
     host: '0.0.0.0',
     cors: true,
     allowedHosts: true,
+  },
+  test: {
+    environment: 'happy-dom',
   },
 });

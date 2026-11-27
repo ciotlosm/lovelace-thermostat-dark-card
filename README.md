@@ -87,6 +87,16 @@ entity: climate.living_room
 The chevrons are the primary control on small screens. Their touch targets grow automatically as
 the card gets narrower, so they stay large enough to hit with a finger.
 
+## Temperature display
+
+The dial shows temperatures with the precision of the thermostat's step: whole degrees when the
+step is 1 or more (typical for °F), one decimal when it is smaller (typical for °C). Values are
+rounded to the nearest degree or tenth, the same way Home Assistant rounds them on its own cards,
+so a 68.9 °F setpoint reads 69.
+
+Only the text is rounded. The card keeps working with the exact value the entity reports: the
+tick ring, the pointer and every setpoint it sends to Home Assistant use full precision.
+
 ## Configuration
 
 ### UI Options
@@ -99,7 +109,7 @@ These are available in the visual card editor:
 | `name` | string / false | entity name | Card title. Set to `false` to hide |
 | `hide_name` | boolean | `false` | Hide the card title |
 | `skin` | string | `auto` | `auto` (follows the HA theme), `dark`, `light`, `transparent`, or `glassy` |
-| `step` | number | from entity | Temperature step override (celsius only) |
+| `step` | number | from entity | Temperature step override (celsius only). Also sets the [display precision](#temperature-display) |
 | `readonly` | boolean | `false` | Disable all interaction (display only) |
 | `ambient_temperature` | string | — | External temperature sensor entity ID |
 | `status_entity` | string | — | Entity whose state is shown as text above temperature |
