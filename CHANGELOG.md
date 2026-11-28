@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.6](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.5...v3.0.6) (2026-11-28)
+
+
+### Bug Fixes
+
+* allow the setpoint to be changed while the device is off ([#427](https://github.com/ciotlosm/lovelace-thermostat-dark-card/issues/427)) ([7620cb6](https://github.com/ciotlosm/lovelace-thermostat-dark-card/commit/7620cb6239baf76b7f4ef30f54765d821476ad10))
+
 ## [3.0.5](https://github.com/ciotlosm/lovelace-thermostat-dark-card/compare/v3.0.4...v3.0.5) (2026-11-27)
 
 
