@@ -1020,19 +1020,37 @@ describe('thermostat-dark-card and the HVAC mode', () => {
     expect(hass.callService).not.toHaveBeenCalled();
   });
 
-  it('offers no setpoint while the device is off, but still shows the target', async () => {
+  it('offers no setpoint for an entity that is not reporting', async () => {
+    // An entity that is unavailable has nothing to send a change to.
     const { dial, hass } = await renderCard(
-      climateEntity({ temperature: 19, supported_features: 385 }, { state: 'off' }),
+      climateEntity({ temperature: 60, supported_features: 385 }, { state: 'unavailable' }),
     );
-
-    // The device still reports the target it will use.
-    expect(ringLabels(dial())).toEqual(['19']);
 
     await tapDial(dial());
     await settle();
 
     expect(dial().shadowRoot?.querySelector('.dial-chevron')).toBeNull();
     expect(hass.callService).not.toHaveBeenCalled();
+  });
+
+  it('offers the setpoint while the device is off, so it can be pre-set', async () => {
+    const { dial, hass } = await renderCard(
+      climateEntity({ temperature: 60, supported_features: 385 }, { state: 'off' }),
+    );
+
+    // The device still reports the target it will use.
+    expect(ringLabels(dial())).toEqual(['60']);
+
+    await tapDial(dial());
+
+    // An off device still takes a target: Home Assistant stores it, and the
+    // device follows it once its mode changes.
+    expect(dial().shadowRoot?.querySelector('.dial-chevron')).not.toBeNull();
+
+    await tapChevron(dial(), 'target-up');
+    await settle();
+
+    expect(setTemperatureCalls(hass)).toEqual([{ entity_id: ENTITY_ID, temperature: 61 }]);
   });
 });
 

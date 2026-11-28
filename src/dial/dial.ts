@@ -102,9 +102,9 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   /**
    * Whether the setpoint can be changed at all.
    *
-   * A device that is off does nothing until its mode changes, and one that
-   * has no setpoint has nothing to change: Home Assistant's own card leaves
-   * the control disabled in both cases. The power button keeps working.
+   * A device that has no setpoint has nothing to change, and one that is not
+   * reporting has nothing to send a change to. The power button keeps
+   * working either way.
    */
   @property({ type: Boolean }) setpoint_readonly = false;
   /**
@@ -970,7 +970,7 @@ export class ThermostatDial extends LitElement implements InteractionHost {
   // --- Event handlers ---
   private _handleDialClick(e: MouseEvent): void {
     if (this.readonly) return;
-    // Nothing to change: the device is off, or it has no setpoint.
+    // Nothing to change: the device has no setpoint, or it is not reporting.
     if (this.setpoint_readonly) return;
     // Don't fire if we already handled via pointer events
     if (this._didPointerInteract) {

@@ -126,14 +126,14 @@ export function setpointKind(mode: string, supportedFeatures: number): SetpointK
 /**
  * Whether the setpoint can be changed at all.
  *
- * A device that is off does nothing until its mode changes, so a target has
- * no effect yet, and one that is not reporting has no setpoint to change.
- * Home Assistant's own card greys the control out in those states, but its
- * +/- buttons still change the target — this card locks the setpoint
- * instead.
+ * A device that is off still takes a target: Home Assistant stores it, and
+ * the device follows it once its mode changes — so the target can be set
+ * while the device is off, the way Home Assistant's own card allows it.
+ * Only an entity that is not reporting is locked: there is nothing to send
+ * a change to.
  */
 export function setpointIsAdjustable(mode: string): boolean {
-  return mode !== 'off' && mode !== 'unavailable' && mode !== 'unknown';
+  return mode !== 'unavailable' && mode !== 'unknown';
 }
 
 /**
