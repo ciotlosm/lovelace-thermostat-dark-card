@@ -210,9 +210,10 @@ export class ThermostatDarkCard extends LitElement {
     const temperature = kind === 'range' ? null : ((attrs.temperature as number) ?? null);
     const targetTempLow = kind === 'single' ? null : ((attrs.target_temp_low as number) ?? null);
     const targetTempHigh = kind === 'single' ? null : ((attrs.target_temp_high as number) ?? null);
-    // An off device does nothing until its mode changes, and one without a
-    // setpoint has nothing to change: Home Assistant's own card leaves the
-    // control disabled in both cases.
+    // A device without a setpoint has nothing to change, and one that is not
+    // reporting has nothing to send a change to. A device that is off does
+    // take a target: Home Assistant stores it, and the device follows it
+    // once its mode changes.
     const setpointReadonly = kind === 'none' || !setpointIsAdjustable(hvacMode);
     // The power button turns the device off or on. Home Assistant refuses
     // the call for a device that does not support that turn.

@@ -348,9 +348,9 @@ The card follows Home Assistant's rules for climate entities:
 - **`heat_cool` follows a range**, every other mode follows a single target. The card shows
   and changes the setpoint the device actually follows, so a range is never sent to a device
   in `heat` — the range is not the setpoint it follows there.
-- **A device that is off gets no setpoint control.** It does nothing until its mode changes, so
-  a target has no effect yet. Home Assistant's own card greys the control out in that state,
-  but still changes the target with its +/- buttons; this card locks the setpoint instead.
+- **A device that is off can still be set.** The target is stored and the device follows it once
+  its mode changes, so the setpoint stays adjustable while the device is off — the way Home
+  Assistant's own card allows it.
 - **A device with no setpoint at all** (a purifier that only fans the air) gets no setpoint
   control either: there is nothing to change, and `climate.set_temperature` refuses the call.
   The power button is hidden for a device that cannot be turned off or on.
@@ -366,7 +366,7 @@ The card follows Home Assistant's rules for climate entities:
 - **Missing-temperature warning** — Shows a warning sign instead of a temperature when the
   thermostat does not report one, rather than an empty or broken card
 - **Home Assistant's HVAC modes** — The setpoint follows the mode: a range in `heat_cool`, a
-  single target everywhere else, and nothing to change while the device is off
+  single target everywhere else, and nothing to change for a device that reports no setpoint
 - **Chevron controls** — Tap the up/down arrows to adjust the target temperature. The touch
   targets grow on narrow cards so they stay easy to hit with a finger
 - **Ring drag** — Drag on the tick ring to set the temperature. A plain tap on the ring does
