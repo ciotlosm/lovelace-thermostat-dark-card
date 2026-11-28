@@ -124,11 +124,13 @@ export function setpointKind(mode: string, supportedFeatures: number): SetpointK
 }
 
 /**
- * Whether Home Assistant's own card would let the user change the setpoint.
+ * Whether the setpoint can be changed at all.
  *
- * Its climate control is disabled when the entity is off or not reporting:
- * an off device does nothing until its mode changes, so a target has no
- * effect yet.
+ * A device that is off does nothing until its mode changes, so a target has
+ * no effect yet, and one that is not reporting has no setpoint to change.
+ * Home Assistant's own card greys the control out in those states, but its
+ * +/- buttons still change the target — this card locks the setpoint
+ * instead.
  */
 export function setpointIsAdjustable(mode: string): boolean {
   return mode !== 'off' && mode !== 'unavailable' && mode !== 'unknown';

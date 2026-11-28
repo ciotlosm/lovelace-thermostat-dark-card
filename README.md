@@ -347,10 +347,13 @@ The card follows Home Assistant's rules for climate entities:
 
 - **`heat_cool` follows a range**, every other mode follows a single target. The card shows
   and changes the setpoint the device actually follows, so a range is never sent to a device
-  in `heat` — Home Assistant accepts that call and then ignores it.
-- **A device that is off, or one that has no setpoint at all** (a purifier that only fans
-  the air), gets no setpoint control: there is nothing to change, and Home Assistant refuses the
-  call. The power button is hidden for a device that cannot be turned off or on.
+  in `heat` — the range is not the setpoint it follows there.
+- **A device that is off gets no setpoint control.** It does nothing until its mode changes, so
+  a target has no effect yet. Home Assistant's own card greys the control out in that state,
+  but still changes the target with its +/- buttons; this card locks the setpoint instead.
+- **A device with no setpoint at all** (a purifier that only fans the air) gets no setpoint
+  control either: there is nothing to change, and `climate.set_temperature` refuses the call.
+  The power button is hidden for a device that cannot be turned off or on.
 - **A change still waiting to be sent is dropped when the mode changes.** The same number
   means "heat to" in one mode and "cool to" in the next, so it no longer applies.
 - **In `auto`, `dry` and `fan_only`** the device decides what it does — it follows a
